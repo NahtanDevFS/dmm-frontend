@@ -253,9 +253,11 @@
     margin-left: 0;
   }
 
+  /* Mismo criterio que el componente: manda el ancho, la altura se deduce.
+     44 px de alto x 1.45985 de proporción. */
   .marca img {
-    height: 44px;
-    min-height: 44px;
+    width: 64px;
+    height: auto;
   }
 
   .panelTitulo {
