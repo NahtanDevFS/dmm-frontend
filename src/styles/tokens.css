@@ -1,0 +1,52 @@
+/* =========================================================================
+   Tokens de marca — Red de Ayuda
+   Manual de Marca v1.0, sección 8 «Tokens listos para el código».
+
+   Este es el único bloque :root del proyecto. Ninguna vista debe redefinir
+   estas variables ni introducir colores fuera de esta escala.
+
+   Nota sobre el logotipo institucional: el magenta #B500C4 del logo de la
+   DMM NO está aquí a propósito. Vive únicamente dentro del archivo de
+   imagen y nunca se usa como color de interfaz (el manual prohíbe el rosa
+   neón y los degradados rosa-violeta, sección 9).
+   ========================================================================= */
+
+:root {
+  /* Marca — escala rosa */
+  --color-primary: #c43c74; /* barra superior, acento */
+  --color-primary-dark: #8c2150; /* acciones primarias, títulos */
+  --color-primary-mid: #e486af; /* gráficas, acentos suaves */
+  --color-primary-soft: #f5c3d8; /* bordes, anillo de foco */
+  --color-primary-light: #fce4ee; /* zonas, fila activa */
+  --color-background: #fff6fa; /* fondo de aplicación */
+  --color-sidebar: #f9e6ef; /* menú lateral (rosa tintado) */
+  --color-sidebar-border: #f0d7e3;
+  --color-surface: #ffffff;
+
+  /* Neutros */
+  --color-text-main: #241c20;
+  --color-text-muted: #6b6167;
+  --color-border: #d8cdd3;
+  --color-border-soft: #efe7eb;
+  --color-disabled: #f3edf0;
+
+  /* Semánticos — solo comunican estado, nunca decoran */
+  --color-success: #1e7a54;
+  --color-warning: #b0730b;
+  --color-danger: #b3261e;
+  --color-info: #2a6f97;
+
+  /* Forma y ritmo */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 40px;
+  --radius-field: 4px;
+  --radius-card: 8px;
+  --radius-pill: 20px;
+  --shadow-sm: 0 2px 4px rgba(74, 16, 40, 0.06);
+  --shadow-md: 0 6px 14px rgba(74, 16, 40, 0.12);
+  --font-main: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Source Serif 4", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
