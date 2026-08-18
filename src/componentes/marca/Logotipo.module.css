@@ -6,6 +6,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  /* Nunca se estira: dentro de un flex en columna heredaría align-self:
+     stretch y el logotipo quedaría flotando en una caja vacía. */
+  align-self: flex-start;
   /* Área de resguardo: como mínimo la altura de la «R» del logotipo en los
      cuatro lados. Sobre esta marca equivale a un 8 % de su altura. */
   padding: calc(var(--alto) * 0.08);
@@ -18,15 +21,4 @@
   min-height: 24px;
   /* Prohibido deformar: la proporción se fija aquí, no por disciplina. */
   object-fit: contain;
-}
-
-/* La silueta del logotipo es negra y su bloque es magenta: sobre la barra
-   Rosa 500 o el panel Rosa 700 del acceso se perdería. El manual pide capa
-   de contraste, así que se encapsula en blanco en lugar de recolorearlo,
-   que alteraría la identidad oficial de la municipalidad. */
-.capsula {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-card);
-  padding: var(--space-1) calc(var(--space-1) * 1.5);
-  box-shadow: var(--shadow-sm);
 }

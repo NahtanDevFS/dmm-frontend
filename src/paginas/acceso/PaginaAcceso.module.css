@@ -25,10 +25,9 @@
    el título, así que ahí se reduce. Se ajusta la altura de la imagen y no la
    variable --alto, que el componente fija en línea y ganaría a esta regla. */
 .marca {
-  flex-shrink: 0;
-  /* El panel es un flex en columna: sin esto la cápsula blanca se estiraría a
-     todo el ancho y el logotipo quedaría flotando en un bloque enorme. */
-  align-self: flex-start;
+  /* Se compensa el resguardo interno para que el logotipo alinee su borde
+     izquierdo con el título, y no quede desplazado unos píxeles. */
+  margin-left: calc(var(--alto) * -0.08);
 }
 
 .panelTitulo {
@@ -251,11 +250,12 @@
   /* En móvil el panel pasa a fila centrada y el logotipo se reduce. */
   .marca {
     align-self: center;
+    margin-left: 0;
   }
 
   .marca img {
-    height: 34px;
-    min-height: 34px;
+    height: 44px;
+    min-height: 44px;
   }
 
   .panelTitulo {

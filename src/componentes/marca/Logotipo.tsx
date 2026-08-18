@@ -6,11 +6,6 @@ type PropsLogotipo = {
   /** Alto en píxeles. El manual fija 24 px como mínimo en pantalla. */
   alto?: number;
   /**
-   * Envuelve la marca en una cápsula blanca. Obligatorio sobre Rosa 500 o
-   * Rosa 700: la silueta es negra y sin capa de contraste desaparece.
-   */
-  sobreFondoOscuro?: boolean;
-  /**
    * Texto alternativo. Se pasa cadena vacía cuando el nombre de la institución
    * ya aparece escrito junto al logotipo, para no obligar al lector de pantalla
    * a leerlo dos veces.
@@ -27,23 +22,19 @@ type PropsLogotipo = {
  * se usa en pantalla; si algún día hace falta para un avatar o un sello, se
  * reintroduce aquí como variante.
  *
- * El manual asumía un logotipo monocromo recoloreable en Rosa 700; el archivo
- * real es un raster a todo color con silueta negra y bloque magenta, así que
- * las reglas de contraste se resuelven con cápsula, no con recoloreado.
+ * Va siempre sin fondo propio, directamente sobre la superficie que lo aloja.
+ * El manual pide capa de contraste sobre fondos oscuros dando por hecho un
+ * logotipo monocromo recoloreable a Rosa 700; el archivo real es un raster con
+ * silueta negra, pero lleva contorno blanco propio, y ese contorno sostiene la
+ * figura sobre Rosa 700 con 3.92:1 de contraste medio. Sobre superficies más
+ * claras que Rosa 500 conviene medirlo antes de darlo por bueno.
  */
 function Logotipo({
   alto = 40,
-  sobreFondoOscuro = false,
   alt = "Dirección Municipal de la Mujer",
   className,
 }: PropsLogotipo) {
-  const clases = [
-    estilos.logotipo,
-    sobreFondoOscuro ? estilos.capsula : "",
-    className ?? "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const clases = [estilos.logotipo, className ?? ""].filter(Boolean).join(" ");
 
   return (
     <span

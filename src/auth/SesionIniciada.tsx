@@ -16,7 +16,7 @@ function SesionIniciada() {
     <>
       <header className={estilos.barra}>
         <div className={estilos.identidad}>
-          <Logotipo alto={40} sobreFondoOscuro alt="" />
+          <Logotipo alto={40} alt="" />
           <div>
             <p className={estilos.usuario}>{usuario?.username}</p>
             <p className={estilos.rol}>{usuario?.rol}</p>
