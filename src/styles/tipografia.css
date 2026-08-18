@@ -1,0 +1,107 @@
+/* =========================================================================
+   Escala tipográfica — Red de Ayuda
+   Manual de Marca v1.0, sección 3. Siete niveles y ninguno más.
+
+   NIVEL                TAMAÑO/INTERLÍNEA   PESO Y COLOR              USO
+   Título de página     28 / 34 px          700 · Tinta 900           «Beneficiarios»
+   Título de tarjeta    19 / 26 px          600 · Rosa 700            Secciones
+   Cuerpo               15 / 24 px          400 · Tinta 900           Texto y celdas
+   Etiqueta de campo    14 / 20 px          600 · Tinta 900           Labels
+   Auxiliar             13 / 19 px          400 · Gris 500            Ayudas, paginación
+   Encabezado de tabla  12 px · +6 % letra  600 · Rosa 700, mayúsc.   Cabeceras th
+   Dato identificador   14 px mono          500 · Tinta 900           CUI/DPI, lotes
+
+   Regla de la sección 3: nunca más de tres tamaños distintos en una misma
+   pantalla. Cursiva solo para nombres de documentos adjuntos. Sin mayúsculas
+   sostenidas fuera de cabeceras de tabla y microetiquetas.
+   ========================================================================= */
+
+:root {
+  --texto-titulo-pagina: 700 28px / 34px var(--font-main);
+  --texto-titulo-tarjeta: 600 19px / 26px var(--font-main);
+  --texto-cuerpo: 400 15px / 24px var(--font-main);
+  --texto-etiqueta: 600 14px / 20px var(--font-main);
+  --texto-auxiliar: 400 13px / 19px var(--font-main);
+  --texto-encabezado-tabla: 600 12px / 16px var(--font-main);
+  --texto-dato: 500 14px / 20px var(--font-mono);
+}
+
+/* Título de página */
+h1,
+.texto-titulo-pagina {
+  font: var(--texto-titulo-pagina);
+  color: var(--color-text-main);
+}
+
+/* Título de tarjeta */
+h2,
+h3,
+.texto-titulo-tarjeta {
+  font: var(--texto-titulo-tarjeta);
+  color: var(--color-primary-dark);
+}
+
+/* Cuerpo */
+p,
+td,
+.texto-cuerpo {
+  font: var(--texto-cuerpo);
+  color: var(--color-text-main);
+}
+
+/* Etiqueta de campo */
+label,
+.texto-etiqueta {
+  font: var(--texto-etiqueta);
+  color: var(--color-text-main);
+}
+
+/* Auxiliar: ayudas, paginación, metadatos */
+small,
+.texto-auxiliar {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+/* Encabezado de tabla. El +6 % de la tabla del manual se expresa como
+   letter-spacing de 0.72px sobre 12px. */
+th,
+.texto-encabezado-tabla {
+  font: var(--texto-encabezado-tabla);
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+  color: var(--color-primary-dark);
+  text-align: left;
+}
+
+/* Dato identificador: CUI/DPI, códigos de lote, folios.
+   Sección 5: alineados a la izquierda; las cantidades van a la derecha. */
+.texto-dato {
+  font: var(--texto-dato);
+  color: var(--color-text-main);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cantidades en tabla: tabulares y a la derecha, para que las unidades
+   se alineen por continuidad. */
+.texto-cantidad {
+  font: var(--texto-cuerpo);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Source Serif 4 queda reservada a titulares de documentos y reportes
+   impresos (sección 3). No se usa en la interfaz. */
+.texto-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+/* Cursiva permitida en un solo caso: nombres de documentos adjuntos. */
+.texto-adjunto {
+  font: var(--texto-auxiliar);
+  font-style: italic;
+  color: var(--color-text-muted);
+}

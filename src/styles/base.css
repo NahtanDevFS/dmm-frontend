@@ -1,0 +1,129 @@
+/* =========================================================================
+   Reset y capa base — Red de Ayuda
+   Manual de Marca v1.0, secciones 4 «Retícula, espaciado y forma»,
+   6 «Principios de Gestalt» y 7 «Accesibilidad».
+   ========================================================================= */
+
+/* Ritmo de movimiento. Sección 6, destino común: los elementos que cambian
+   juntos se animan juntos, 200 ms ease-out, y nada se mueve más de 4 px.
+   No está en el bloque de tokens del manual, que solo cubre color y forma. */
+:root {
+  --transicion: 200ms ease-out;
+  --desplazamiento-max: 4px;
+  --anillo-foco: 0 0 0 3px var(--color-primary-soft);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-main);
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 400;
+  color: var(--color-text-main);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+/* Foco visible en todos los controles, incluidos enlaces del menú y botones
+   de tabla. Sección 7: anillo Rosa 200 de 3 px. Se usa :focus-visible para
+   no castigar al usuario de ratón, pero nunca se elimina el indicador. */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+  border-radius: var(--radius-field);
+}
+
+/* Los controles no heredan la tipografía por defecto en ningún navegador. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Sección 5, tablas: sin bordes verticales, la alineación de columnas ya
+   agrupa por continuidad. */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* El manual limita el movimiento a 4 px; para quien pide menos movimiento,
+   se elimina del todo. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Contenido solo para lectores de pantalla. El color nunca es la única
+   señal (sección 7), así que varios estados necesitan texto invisible. */
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
