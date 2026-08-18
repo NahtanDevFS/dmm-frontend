@@ -1,5 +1,7 @@
+import PaginaAcceso from "./paginas/acceso/PaginaAcceso";
+
 function App() {
-  return null;
+  return <PaginaAcceso />;
 }
 
 export default App;
