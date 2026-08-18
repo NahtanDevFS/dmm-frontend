@@ -1,0 +1,43 @@
+/* Logotipo institucional de la DMM.
+   Manual de Marca v1.0, sección 1 «Logotipo» y sección 9 «Usos incorrectos». */
+
+.logotipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Área de resguardo: como mínimo la altura de la «R» del logotipo en los
+   cuatro lados. Sobre esta marca equivale a un 8 % de su altura. */
+.horizontal {
+  padding: calc(var(--alto) * 0.08);
+}
+
+.compacto {
+  padding: 0; /* el resguardo ya viene horneado en el lienzo cuadrado */
+}
+
+.imagen {
+  width: auto;
+  height: var(--alto);
+  /* Tamaño mínimo en pantalla: 24 px de alto (sección 1). */
+  min-height: 24px;
+  /* Prohibido deformar: la proporción se fija aquí, no por disciplina. */
+  object-fit: contain;
+}
+
+/* La silueta del logotipo es negra y su bloque es magenta: sobre la barra
+   Rosa 500 o el panel Rosa 700 del acceso se perdería. El manual pide capa
+   de contraste, así que se encapsula en blanco en lugar de recolorearlo,
+   que alteraría la identidad oficial de la municipalidad. */
+.capsula {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: var(--space-1);
+  box-shadow: var(--shadow-sm);
+}
+
+.capsula.horizontal {
+  padding: var(--space-1) calc(var(--space-1) * 1.5);
+}
