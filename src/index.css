@@ -1,0 +1,6 @@
+/* Punto de entrada de la capa visual. El orden importa: los tokens deben
+   existir antes de que cualquier hoja los consuma. */
+@import "./styles/tokens.css";
+@import "./styles/fuentes.css";
+@import "./styles/base.css";
+@import "./styles/tipografia.css";
