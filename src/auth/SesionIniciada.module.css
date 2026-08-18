@@ -1,0 +1,79 @@
+/* Cascarón provisional. Lo sustituye el layout real (barra superior de 60 px
+   y menú lateral de 250 px) en el PR de layout; aquí solo existe para poder
+   ejercitar el cierre de sesión. */
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  height: 60px;
+  padding: 0 var(--space-4);
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+}
+
+.identidad {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.usuario {
+  font: var(--texto-titulo-tarjeta);
+  color: var(--color-surface);
+}
+
+.rol {
+  font: var(--texto-auxiliar);
+  color: var(--color-primary-light);
+}
+
+/* Píldora de 20 px de radio, como el mock de la barra superior. */
+.botonSalir {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-primary-dark);
+  color: var(--color-surface);
+  font: var(--texto-etiqueta);
+  transition: background-color var(--transicion);
+}
+
+.botonSalir:hover:not(:disabled) {
+  background-color: #802049;
+}
+
+.botonSalir:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.cuerpo {
+  padding: var(--space-4);
+}
+
+.aviso {
+  max-width: 640px;
+  padding: var(--space-3);
+  border-left: 3px solid var(--color-primary-mid);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.avisoTexto {
+  margin-top: var(--space-1);
+  font: var(--texto-cuerpo);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  .barra {
+    padding: 0 var(--space-2);
+  }
+
+  .cuerpo {
+    padding: var(--space-2);
+  }
+}
