@@ -66,7 +66,7 @@ function PaginaAcceso() {
   return (
     <div className={estilos.pagina}>
       <aside className={estilos.panel}>
-        <Logotipo variante="compacto" alto={72} sobreFondoOscuro alt="" />
+        <Logotipo alto={64} sobreFondoOscuro alt="" className={estilos.marca} />
         <div>
           <h1 className={estilos.panelTitulo}>
             Dirección Municipal de la Mujer

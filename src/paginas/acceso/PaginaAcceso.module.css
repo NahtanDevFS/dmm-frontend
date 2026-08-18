@@ -21,6 +21,16 @@
   color: var(--color-surface);
 }
 
+/* El logotipo horizontal es ancho: en la banda móvil de 120 px compite con
+   el título, así que ahí se reduce. Se ajusta la altura de la imagen y no la
+   variable --alto, que el componente fija en línea y ganaría a esta regla. */
+.marca {
+  flex-shrink: 0;
+  /* El panel es un flex en columna: sin esto la cápsula blanca se estiraría a
+     todo el ancho y el logotipo quedaría flotando en un bloque enorme. */
+  align-self: flex-start;
+}
+
 .panelTitulo {
   font-family: var(--font-main);
   font-size: 28px;
@@ -236,6 +246,16 @@
     align-items: center;
     gap: var(--space-2);
     padding: 0 var(--space-2);
+  }
+
+  /* En móvil el panel pasa a fila centrada y el logotipo se reduce. */
+  .marca {
+    align-self: center;
+  }
+
+  .marca img {
+    height: 34px;
+    min-height: 34px;
   }
 
   .panelTitulo {

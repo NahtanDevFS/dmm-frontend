@@ -6,16 +6,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-/* Área de resguardo: como mínimo la altura de la «R» del logotipo en los
-   cuatro lados. Sobre esta marca equivale a un 8 % de su altura. */
-.horizontal {
+  /* Área de resguardo: como mínimo la altura de la «R» del logotipo en los
+     cuatro lados. Sobre esta marca equivale a un 8 % de su altura. */
   padding: calc(var(--alto) * 0.08);
-}
-
-.compacto {
-  padding: 0; /* el resguardo ya viene horneado en el lienzo cuadrado */
 }
 
 .imagen {
@@ -34,10 +27,6 @@
 .capsula {
   background-color: var(--color-surface);
   border-radius: var(--radius-card);
-  padding: var(--space-1);
-  box-shadow: var(--shadow-sm);
-}
-
-.capsula.horizontal {
   padding: var(--space-1) calc(var(--space-1) * 1.5);
+  box-shadow: var(--shadow-sm);
 }
