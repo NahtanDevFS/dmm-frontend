@@ -1,0 +1,282 @@
+/* Pantalla de acceso — Manual de Marca v1.0, sección 5.
+   Estructura 40/60: panel de marca en Rosa 700 a la izquierda y formulario
+   sobre Rosa 50 a la derecha. */
+
+.pagina {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  min-height: 100vh;
+  min-height: 100dvh; /* en móvil, descuenta la barra del navegador */
+}
+
+/* ─────────────────────────── Panel de marca ─────────────────────────── */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--color-primary-dark);
+  color: var(--color-surface);
+}
+
+/* El logotipo horizontal es ancho: en la banda móvil de 120 px compite con
+   el título, así que ahí se reduce. Se ajusta la altura de la imagen y no la
+   variable --alto, que el componente fija en línea y ganaría a esta regla. */
+.marca {
+  /* Se compensa el resguardo interno para que el logotipo alinee su borde
+     izquierdo con el título, y no quede desplazado unos píxeles. */
+  margin-left: calc(var(--alto) * -0.08);
+}
+
+.panelTitulo {
+  font-family: var(--font-main);
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 700;
+  /* El título de página va en Tinta 900, pero aquí el fondo es Rosa 700 y el
+     manual exige texto blanco sobre Rosa 500 o más oscuro. */
+  color: var(--color-surface);
+}
+
+.panelSubtitulo {
+  font: var(--texto-cuerpo);
+  color: var(--color-primary-soft);
+  max-width: 34ch;
+}
+
+/* Microetiqueta: uno de los dos únicos usos de mayúsculas sostenidas que
+   permite la sección 3, junto a las cabeceras de tabla. */
+.panelAviso {
+  align-self: flex-start;
+  margin-top: var(--space-2);
+  padding: 6px var(--space-2);
+  border: 1px solid var(--color-primary-mid);
+  border-radius: var(--radius-pill);
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+  color: var(--color-primary-soft);
+}
+
+/* ─────────────────────────── Formulario ─────────────────────────── */
+
+.zonaFormulario {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: var(--color-background);
+}
+
+/* Región común: todo el formulario vive en una tarjeta blanca que lo agrupa
+   como un solo bloque. Máximo 640 px, el ancho de formulario de una columna
+   que fija la sección 4. */
+.tarjeta {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.titulo {
+  font: var(--texto-titulo-tarjeta);
+  color: var(--color-primary-dark);
+}
+
+.ayuda {
+  margin-top: 6px;
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  /* Proximidad: 24 px entre campos frente a 8 px entre etiqueta y campo, para
+     que cada par se lea como una unidad. */
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.obligatorio {
+  color: var(--color-primary-dark);
+  margin-left: 2px;
+}
+
+.entrada {
+  width: 100%;
+  min-height: 44px; /* área táctil mínima, sección 7 */
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  font: var(--texto-cuerpo);
+  transition: border-color var(--transicion);
+}
+
+.entrada:hover:not(:disabled) {
+  border-color: var(--color-primary-mid);
+}
+
+.entrada:focus-visible {
+  outline: none;
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--anillo-foco);
+}
+
+.entrada[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.entrada:disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+/* El usuario institucional es un identificador: monoespaciada, como el resto
+   de datos identificadores del sistema. */
+.entradaUsuario {
+  font: var(--texto-dato);
+}
+
+.grupoContrasena {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.botonMostrar {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  color: var(--color-primary-dark);
+  font: var(--texto-etiqueta);
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion);
+}
+
+.botonMostrar:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-soft);
+}
+
+/* Error de campo: mensaje explícito bajo el campo, nunca solo borde de color. */
+.errorCampo {
+  font: var(--texto-auxiliar);
+  color: var(--color-danger);
+}
+
+.pieCampos {
+  margin-top: var(--space-3);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+/* Único objetivo de la pantalla: «Entrar» es la sola acción sólida. */
+.botonEntrar {
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--space-3);
+  padding: 12px var(--space-3);
+  border-radius: var(--radius-field);
+  background-color: var(--color-primary-dark);
+  color: var(--color-surface);
+  font: var(--texto-etiqueta);
+  transition:
+    background-color var(--transicion),
+    transform var(--transicion);
+}
+
+.botonEntrar:hover:not(:disabled) {
+  /* :hover oscurece un 8 % (sección 5). */
+  background-color: #802049;
+}
+
+.botonEntrar:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.botonEntrar:disabled {
+  background-color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Mensaje de error bajo el botón, como en el mock de la sección 5. */
+.errorGeneral {
+  margin-top: var(--space-2);
+  padding: 10px 12px;
+  border: 1px solid var(--color-danger);
+  border-left-width: 3px;
+  border-radius: var(--radius-field);
+  background-color: #fdf2f1;
+  color: var(--color-danger);
+  font: var(--texto-auxiliar);
+}
+
+/* ─────────────────────────── Móvil ─────────────────────────── */
+
+@media (max-width: 768px) {
+  /* El panel de marca se reduce a una banda superior de 120 px y el
+     formulario ocupa el ancho completo con 16 px de margen. */
+  .pagina {
+    grid-template-columns: 1fr;
+    grid-template-rows: 120px 1fr;
+  }
+
+  .panel {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-2);
+  }
+
+  /* En móvil el panel pasa a fila centrada y el logotipo se reduce. */
+  .marca {
+    align-self: center;
+    margin-left: 0;
+  }
+
+  /* Mismo criterio que el componente: manda el ancho, la altura se deduce.
+     44 px de alto x 1.45985 de proporción. */
+  .marca img {
+    width: 64px;
+    height: auto;
+  }
+
+  .panelTitulo {
+    font-size: 19px;
+    line-height: 26px;
+  }
+
+  .panelSubtitulo,
+  .panelAviso {
+    display: none;
+  }
+
+  .zonaFormulario {
+    align-items: flex-start;
+    padding: var(--space-3) var(--space-2);
+  }
+
+  .tarjeta {
+    max-width: 100%;
+    padding: var(--space-3);
+  }
+}
