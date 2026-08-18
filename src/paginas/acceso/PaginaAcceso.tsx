@@ -19,10 +19,16 @@ function textoDeError(error: unknown): string {
 
   const restantes = intentosRestantes(error);
   if (restantes === null || restantes === 0) return base;
-  if (restantes === 1) {
-    return base + " Le queda 1 intento antes del bloqueo temporal.";
-  }
-  return base + " Le quedan " + restantes + " intentos antes del bloqueo temporal.";
+
+  // Los mensajes del backend no siempre cierran con punto, y sin él la frase
+  // del conteo se pega a la anterior: «...incorrectos Le quedan 9 intentos».
+  const frase = /[.!?]$/.test(base) ? base : base + ".";
+  const aviso =
+    restantes === 1
+      ? "Le queda 1 intento antes del bloqueo temporal."
+      : "Le quedan " + restantes + " intentos antes del bloqueo temporal.";
+
+  return frase + " " + aviso;
 }
 
 function PaginaAcceso() {
