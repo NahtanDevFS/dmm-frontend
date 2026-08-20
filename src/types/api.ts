@@ -96,6 +96,21 @@ export const REPORTES: readonly Rol[] = [
 /** Gestión de usuarios y consulta de la bitácora de auditoría. */
 export const SOLO_ADMIN: readonly Rol[] = [ROL.ADMINISTRADOR];
 
+/**
+ * Resolución de solicitudes de apoyo: aprobar y rechazar.
+ *
+ * Es el único conjunto que se aparta a propósito del backend. El servidor
+ * admite DIRECTORA y ADMINISTRADOR en POST /solicitudes/:id/aprobar, pero la
+ * dirección de la DMM decidió que el dictamen es competencia exclusiva de la
+ * directora: administración existe para sostener el sistema, no para resolver
+ * expedientes de personas.
+ *
+ * La interfaz por tanto solo se lo ofrece a DIRECTORA. Un ADMINISTRADOR que
+ * llamara al endpoint a mano seguiría siendo aceptado por el servidor; cerrar
+ * también esa puerta exige un cambio de backend.
+ */
+export const RESOLUCION_SOLICITUD: readonly Rol[] = [ROL.DIRECTORA];
+
 export function tieneRol(
   rol: Rol | string | undefined,
   permitidos: readonly Rol[],
