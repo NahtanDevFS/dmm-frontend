@@ -1,0 +1,122 @@
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.etiqueta {
+  font: var(--texto-etiqueta);
+  color: var(--color-text-main);
+}
+
+.obligatorio {
+  margin-left: 2px;
+  color: var(--color-primary-dark);
+}
+
+/* Zona de selección con contorno discontinuo: se distingue de un campo de
+   texto sin recurrir a un icono, que la sección 9 prohíbe. */
+.zona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88px;
+  padding: var(--space-2);
+  border: 1px dashed var(--color-primary-soft);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  color: var(--color-primary-dark);
+  font: var(--texto-etiqueta);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion);
+}
+
+.zona:hover {
+  background-color: var(--color-primary-light);
+}
+
+/* El input nativo se oculta pero conserva foco: la zona lleva tabindex y el
+   anillo se pinta sobre ella. */
+.entrada {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.entrada:focus-visible + .zona {
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--anillo-foco);
+}
+
+.zonaArrastre {
+  border-color: var(--color-primary-dark);
+  background-color: var(--color-primary-light);
+}
+
+.zonaInvalida {
+  border-color: var(--color-danger);
+}
+
+/* Archivo elegido. La cursiva está permitida solo para nombres de documentos
+   adjuntos (sección 3). */
+.elegido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+}
+
+.nombre {
+  min-width: 0;
+  font: var(--texto-auxiliar);
+  font-style: italic;
+  color: var(--color-text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peso {
+  flex-shrink: 0;
+  font: var(--texto-auxiliar);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.quitar {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--radius-field);
+  color: var(--color-danger);
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+}
+
+.quitar:hover {
+  background-color: color-mix(in srgb, var(--color-danger) 8%, #fff);
+}
+
+.quitar:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+.ayuda {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.error {
+  font: var(--texto-auxiliar);
+  color: var(--color-danger);
+}
