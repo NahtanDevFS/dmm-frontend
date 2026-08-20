@@ -1,7 +1,9 @@
+import type { ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import LayoutApp from "../componentes/layout/LayoutApp";
 import EnConstruccion from "../paginas/EnConstruccion";
 import NoEncontrada from "../paginas/NoEncontrada";
+import PaginaInicio from "../paginas/inicio/PaginaInicio";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
 import { useAuth } from "../auth/useAuth";
@@ -12,8 +14,15 @@ import { useAuth } from "../auth/useAuth";
  * Se genera a partir del mismo modelo que alimenta el menú lateral, así que un
  * módulo no puede quedar en el menú sin ruta ni tener ruta sin aparecer en el
  * menú, ni protegerse con un conjunto de roles distinto al que decide su
- * visibilidad. Las pantallas reales van sustituyendo a EnConstruccion.
+ * visibilidad.
+ *
+ * PANTALLAS es el registro de módulos ya construidos: los que no aparecen ahí
+ * caen en EnConstruccion. Cada módulo se incorpora añadiendo una línea, sin
+ * tocar la navegación ni las guardas.
  */
+const PANTALLAS: Record<string, ReactNode> = {
+  "/": <PaginaInicio />,
+};
 function Rutas() {
   const { usuario } = useAuth();
   const inicio = rutaInicialDe(usuario?.rol);
@@ -35,7 +44,9 @@ function Rutas() {
                 <Navigate to={inicio} replace />
               ) : (
                 <RutaPorRol permitidos={item.roles}>
-                  <EnConstruccion titulo={item.etiqueta} />
+                  {PANTALLAS[item.ruta] ?? (
+                    <EnConstruccion titulo={item.etiqueta} />
+                  )}
                 </RutaPorRol>
               )
             }
