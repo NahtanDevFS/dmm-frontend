@@ -13,6 +13,7 @@ import {
   SeccionDiscapacidades,
   SeccionEncargados,
 } from "./secciones";
+import SeccionDocumentos from "./SeccionDocumentos";
 import estilos from "./Ficha.module.css";
 
 function Dato({ titulo, children }: { titulo: string; children: React.ReactNode }) {
@@ -135,6 +136,8 @@ function PaginaFicha() {
       />
 
       <SeccionContactos personaId={persona.id} contactos={persona.contactos} />
+
+      <SeccionDocumentos personaId={persona.id} />
 
     </>
   );
