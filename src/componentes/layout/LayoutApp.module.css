@@ -43,3 +43,14 @@
   top: var(--space-1);
   text-decoration: none;
 }
+
+@media (max-width: 768px) {
+  /* El menú deja de ser columna lateral y se apila sobre el contenido. */
+  .cuerpo {
+    flex-direction: column;
+  }
+
+  .contenido {
+    padding: var(--space-2);
+  }
+}
