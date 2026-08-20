@@ -34,6 +34,12 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  /* Bloque centrado en el panel. El eje de inicio único que pide la sección 6
+     rige el formulario y las tablas, donde el ojo recorre etiquetas y datos;
+     este panel es una composición de marca de tres piezas apiladas y se
+     equilibra mejor centrado. */
+  align-items: center;
+  text-align: center;
   gap: var(--space-3);
   padding: var(--space-4);
   background-color: var(--color-primary);
@@ -44,9 +50,10 @@
    el título, así que ahí se reduce. Se ajusta la altura de la imagen y no la
    variable --alto, que el componente fija en línea y ganaría a esta regla. */
 .marca {
-  /* Se compensa el resguardo interno para que el logotipo alinee su borde
-     izquierdo con el título, y no quede desplazado unos píxeles. */
-  margin-left: calc(var(--alto) * -0.08);
+  /* El componente se declara align-self: flex-start para no estirarse dentro
+     de un flex; aquí hay que devolverlo al centro, o ganaría al align-items
+     del panel y el logotipo quedaría pegado a la izquierda. */
+  align-self: center;
 }
 
 .panelTitulo {
@@ -64,13 +71,15 @@
   /* Blanco y no Rosa 200: a 15 px hace falta 4.5:1, y sobre Rosa 500 el
      Rosa 200 solo alcanza 3.22:1. */
   color: var(--color-surface);
+  /* La medida se mantiene acotada por legibilidad; auto la centra. */
   max-width: 34ch;
+  margin-inline: auto;
 }
 
 /* Microetiqueta: uno de los dos únicos usos de mayúsculas sostenidas que
    permite la sección 3, junto a las cabeceras de tabla. */
 .panelAviso {
-  align-self: flex-start;
+  align-self: center;
   margin-top: var(--space-2);
   padding: 6px var(--space-2);
   /* Rosa 300 caía a 1.96:1 sobre este fondo y el borde desaparecía. */
@@ -274,14 +283,16 @@
   .panel {
     flex-direction: row;
     align-items: center;
+    /* En la banda el logotipo y el título van uno junto a otro, así que el
+       texto vuelve a alinearse a la izquierda. */
+    text-align: left;
     gap: var(--space-2);
     padding: 0 var(--space-2);
   }
 
-  /* En móvil el panel pasa a fila centrada y el logotipo se reduce. */
+  /* En móvil el panel pasa a fila y el logotipo se reduce. */
   .marca {
     align-self: center;
-    margin-left: 0;
   }
 
   /* Mismo criterio que el componente: manda el ancho, la altura se deduce.
