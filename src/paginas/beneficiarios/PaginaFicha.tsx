@@ -1,12 +1,19 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
 import Insignia from "../../componentes/ui/Insignia";
 import { EstadoVacio, Esqueleto } from "../../componentes/ui/Estado";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { calcularEdad, esMenorDeEdad, formatearCui, formatearFecha } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
-import { CLAVE_PERSONAS, obtenerPersona } from "../../api/personas";
+import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
+import {
+  CLAVE_PERSONAS,
+  desactivarPersona,
+  obtenerPersona,
+  reactivarPersona,
+} from "../../api/personas";
 import type { Comunidad, ElementoCatalogo } from "../../types/api";
 import {
   SeccionContactos,
@@ -14,6 +21,7 @@ import {
   SeccionEncargados,
 } from "./secciones";
 import SeccionDocumentos from "./SeccionDocumentos";
+import ModalEditar from "./ModalEditar";
 import estilos from "./Ficha.module.css";
 
 function Dato({ titulo, children }: { titulo: string; children: React.ReactNode }) {
@@ -28,6 +36,19 @@ function Dato({ titulo, children }: { titulo: string; children: React.ReactNode 
 function PaginaFicha() {
   const { id } = useParams();
   const personaId = Number(id);
+  const clienteQuery = useQueryClient();
+  const { avisar, confirmar } = useAvisos();
+  const [editando, setEditando] = useState(false);
+
+  const cambioDeEstado = useMutation({
+    mutationFn: (activar: boolean) =>
+      activar ? reactivarPersona(personaId) : desactivarPersona(personaId),
+    onSuccess: async (_datos, activar) => {
+      await clienteQuery.invalidateQueries({ queryKey: [CLAVE_PERSONAS] });
+      avisar(activar ? "Beneficiario reactivado." : "Beneficiario desactivado.", "exito");
+    },
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
 
   const consulta = useQuery({
     queryKey: [CLAVE_PERSONAS, personaId],
@@ -92,6 +113,38 @@ function PaginaFicha() {
             {!persona.activo && <Insignia tono="neutra">Inactivo</Insignia>}
           </div>
         </div>
+
+        <div className={estilos.acciones}>
+          <Boton variante="secundaria" onClick={() => setEditando(true)}>
+            Editar datos
+          </Boton>
+          {persona.activo ? (
+            <Boton
+              variante="terciaria"
+              cargando={cambioDeEstado.isPending}
+              onClick={async () => {
+                const ok = await confirmar({
+                  titulo: "Desactivar beneficiario",
+                  mensaje:
+                    "Dejará de aparecer en los listados y no debería recibir nuevas entregas. Sus registros históricos se conservan y puede reactivarse después.",
+                  textoConfirmar: "Desactivar",
+                  destructiva: true,
+                });
+                if (ok) cambioDeEstado.mutate(false);
+              }}
+            >
+              Desactivar
+            </Boton>
+          ) : (
+            <Boton
+              variante="secundaria"
+              cargando={cambioDeEstado.isPending}
+              onClick={() => cambioDeEstado.mutate(true)}
+            >
+              Reactivar
+            </Boton>
+          )}
+        </div>
       </header>
 
       {!persona.activo && (
@@ -138,6 +191,14 @@ function PaginaFicha() {
       <SeccionContactos personaId={persona.id} contactos={persona.contactos} />
 
       <SeccionDocumentos personaId={persona.id} />
+
+      {editando && (
+        <ModalEditar
+          persona={persona}
+          abierto={editando}
+          onCerrar={() => setEditando(false)}
+        />
+      )}
 
     </>
   );
