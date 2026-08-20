@@ -6,6 +6,7 @@ import NoEncontrada from "../paginas/NoEncontrada";
 import PaginaInicio from "../paginas/inicio/PaginaInicio";
 import PaginaBeneficiarios from "../paginas/beneficiarios/PaginaBeneficiarios";
 import PaginaNuevoBeneficiario from "../paginas/beneficiarios/PaginaNuevoBeneficiario";
+import PaginaFicha from "../paginas/beneficiarios/PaginaFicha";
 import { OPERACION, type Rol } from "../types/api";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
@@ -39,6 +40,12 @@ const RUTAS_EXTRA: { ruta: string; roles: readonly Rol[]; elemento: ReactNode }[
       ruta: "/beneficiarios/nuevo",
       roles: OPERACION,
       elemento: <PaginaNuevoBeneficiario />,
+    },
+    {
+      // Va después de /nuevo: si fuera antes, «nuevo» se leería como un id.
+      ruta: "/beneficiarios/:id",
+      roles: OPERACION,
+      elemento: <PaginaFicha />,
     },
   ];
 function Rutas() {

@@ -2,6 +2,27 @@
 export const MAYORIA_DE_EDAD = 18;
 
 /**
+ * Convierte a fecha local sin que la zona horaria la desplace.
+ *
+ * El API devuelve las fechas como ISO en UTC («2015-05-10T00:00:00.000Z»), y
+ * `new Date()` sobre eso da las 18:00 del día anterior en Guatemala (UTC-6).
+ * Una fecha de nacimiento mal por un día no es cosmético: puede cambiar la
+ * edad justo en el límite de los 18 años, que es lo que decide si el
+ * beneficiario necesita encargado.
+ *
+ * Por eso se leen los tres primeros campos del texto y se construye la fecha
+ * en la zona local, en vez de dejar que el navegador la interprete.
+ */
+function aFechaLocal(valor: string): Date {
+  const soloFecha = /^(\d{4})-(\d{2})-(\d{2})/.exec(valor);
+  if (soloFecha) {
+    const [, anio, mes, dia] = soloFecha;
+    return new Date(Number(anio), Number(mes) - 1, Number(dia));
+  }
+  return new Date(valor);
+}
+
+/**
  * Edad cumplida a día de hoy.
  *
  * Se calcula restando años y descontando uno si aún no ha llegado el
@@ -13,7 +34,7 @@ export const MAYORIA_DE_EDAD = 18;
  * entrega**, no esta. Son cosas distintas.
  */
 export function calcularEdad(fechaNacimiento: string, referencia = new Date()): number {
-  const nacimiento = new Date(fechaNacimiento);
+  const nacimiento = aFechaLocal(fechaNacimiento);
   if (Number.isNaN(nacimiento.getTime())) return Number.NaN;
 
   let edad = referencia.getFullYear() - nacimiento.getFullYear();
@@ -32,7 +53,7 @@ export function esMenorDeEdad(fechaNacimiento: string): boolean {
 /** Fecha legible en formato guatemalteco: 03/04/2026. */
 export function formatearFecha(valor: string | null | undefined): string {
   if (!valor) return "—";
-  const fecha = new Date(valor);
+  const fecha = aFechaLocal(valor);
   if (Number.isNaN(fecha.getTime())) return "—";
   return fecha.toLocaleDateString("es-GT", {
     day: "2-digit",
