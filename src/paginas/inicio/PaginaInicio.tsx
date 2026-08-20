@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
 import {
   Esqueleto,
@@ -18,6 +19,34 @@ const NOMBRE_ROL: Record<string, string> = {
   ALCALDE: "Alcaldía",
   ADMINISTRADOR: "Administración",
 };
+
+interface AccionRapida {
+  titulo: string;
+  texto: string;
+  ruta: string;
+}
+
+/**
+ * Atajos del panel. Sin emojis ni iconos: la sección 9 los prohíbe en
+ * encabezados y botones, y el sketch original los usaba.
+ */
+const ACCIONES: AccionRapida[] = [
+  {
+    titulo: "Nuevo beneficiario",
+    texto: "Registrar a una persona y sus encargados.",
+    ruta: "/beneficiarios",
+  },
+  {
+    titulo: "Nueva recepción",
+    texto: "Ingresar una donación y sus lotes.",
+    ruta: "/donaciones",
+  },
+  {
+    titulo: "Registrar entrega",
+    texto: "Despachar un insumo a un beneficiario.",
+    ruta: "/entregas",
+  },
+];
 
 /** Valor del indicador, o su esqueleto mientras llega. */
 function Valor({
@@ -106,19 +135,6 @@ function PaginaInicio() {
             tono="advertencia"
           />
 
-          {/*
-            Los lotes ya caducados solo aparecen si los hay. Una tarjeta fija
-            en cero acostumbra a ignorarla, y cuando deje de estar en cero
-            nadie la mirará.
-          */}
-          {caducidades.vencidos > 0 && (
-            <TarjetaIndicador
-              titulo="Lotes vencidos"
-              valor={caducidades.vencidos}
-              detalle="Requieren baja de inventario"
-              tono="peligro"
-            />
-          )}
         </RejillaIndicadores>
 
         {algoFallo && (
@@ -131,6 +147,20 @@ function PaginaInicio() {
         )}
       </section>
 
+      <section className={estilos.seccion} aria-labelledby="acciones">
+        <h2 id="acciones" className={estilos.tituloSeccion}>
+          Acciones rápidas
+        </h2>
+
+        <div className={estilos.acciones}>
+          {ACCIONES.map((accion) => (
+            <Link key={accion.ruta} to={accion.ruta} className={estilos.accion}>
+              <span className={estilos.accionTitulo}>{accion.titulo}</span>
+              <span className={estilos.accionTexto}>{accion.texto}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
     </>
   );
 }

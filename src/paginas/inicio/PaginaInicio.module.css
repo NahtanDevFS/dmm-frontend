@@ -25,6 +25,56 @@
   border-bottom: 1px solid var(--color-border-soft);
 }
 
+.acciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-3);
+}
+
+/* Acción rápida: tarjeta pulsable, no un botón sólido. Son atajos de
+   navegación y no acciones primarias; si fueran sólidas habría cuatro
+   primarias en la misma pantalla. */
+.accion {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 88px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-main);
+  text-align: left;
+  text-decoration: none;
+  transition:
+    border-color var(--transicion),
+    box-shadow var(--transicion),
+    transform var(--transicion);
+}
+
+.accion:hover {
+  border-color: var(--color-primary-soft);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.accion:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+.accionTitulo {
+  font: var(--texto-titulo-tarjeta);
+  color: var(--color-primary-darker);
+}
+
+.accionTexto {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
 /* Aviso de fallo de carga. No se oculta el panel entero por un indicador
    caído: los demás siguen sirviendo. */
 .fallo {
