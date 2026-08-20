@@ -1,0 +1,14 @@
+.bienvenida {
+  margin-bottom: var(--space-4);
+}
+
+.saludo {
+  font: var(--texto-titulo-pagina);
+  color: var(--color-text-main);
+}
+
+.contexto {
+  margin-top: 4px;
+  font: var(--texto-cuerpo);
+  color: var(--color-text-muted);
+}
