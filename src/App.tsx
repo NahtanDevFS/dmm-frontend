@@ -1,5 +1,5 @@
 import { useAuth } from "./auth/useAuth";
-import SesionIniciada from "./auth/SesionIniciada";
+import LayoutApp from "./componentes/layout/LayoutApp";
 import PaginaAcceso from "./paginas/acceso/PaginaAcceso";
 
 function App() {
@@ -18,7 +18,15 @@ function App() {
     );
   }
 
-  return usuario ? <SesionIniciada /> : <PaginaAcceso />;
+  if (!usuario) return <PaginaAcceso />;
+
+  // El árbol de rutas entra en el siguiente commit; por ahora el marco se
+  // monta con un contenido de relleno para poder ejercitarlo.
+  return (
+    <LayoutApp>
+      <h1>Inicio</h1>
+    </LayoutApp>
+  );
 }
 
 export default App;
