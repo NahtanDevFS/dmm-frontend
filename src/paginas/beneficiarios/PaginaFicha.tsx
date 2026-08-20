@@ -8,6 +8,11 @@ import { calcularEdad, esMenorDeEdad, formatearCui, formatearFecha } from "../..
 import { mensajeDeError } from "../../lib/errores";
 import { CLAVE_PERSONAS, obtenerPersona } from "../../api/personas";
 import type { Comunidad, ElementoCatalogo } from "../../types/api";
+import {
+  SeccionContactos,
+  SeccionDiscapacidades,
+  SeccionEncargados,
+} from "./secciones";
 import estilos from "./Ficha.module.css";
 
 function Dato({ titulo, children }: { titulo: string; children: React.ReactNode }) {
@@ -118,82 +123,19 @@ function PaginaFicha() {
         </dl>
       </section>
 
-      {/*
-        Las discapacidades son datos de salud: aquí sí se muestran, porque la
-        ficha se abre a propósito sobre una persona concreta. Lo que la
-        sección 7 prohíbe es exponerlas en el listado general.
-      */}
-      <section
-        className={estilos.tarjeta + " " + estilos.tarjetaSensible}
-        aria-labelledby="f-discapacidades"
-      >
-        <div className={estilos.tituloTarjeta}>
-          <h2 id="f-discapacidades">Discapacidades</h2>
-        </div>
-        <p className={estilos.nota}>
-          Información de salud. No aparece en el listado general.
-        </p>
-        {persona.discapacidades.length === 0 ? (
-          <p className={estilos.elementoDetalle}>Ninguna registrada.</p>
-        ) : (
-          <div className={estilos.etiquetas}>
-            {persona.discapacidades.map((d) => (
-              <Insignia key={d.discapacidad_id} tono="informativa">
-                {d.nombre}
-              </Insignia>
-            ))}
-          </div>
-        )}
-      </section>
+      <SeccionDiscapacidades
+        personaId={persona.id}
+        discapacidades={persona.discapacidades}
+      />
 
-      <section className={estilos.tarjeta} aria-labelledby="f-encargados">
-        <div className={estilos.tituloTarjeta}>
-          <h2 id="f-encargados">Encargados</h2>
-        </div>
-        {persona.encargados.length === 0 ? (
-          <p className={estilos.elementoDetalle}>
-            {menor
-              ? "Ninguno registrado. Un menor sin CUI/DPI necesita encargado."
-              : "Ninguno registrado."}
-          </p>
-        ) : (
-          <div className={estilos.listaSimple}>
-            {persona.encargados.map((e) => (
-              <div key={e.encargado_id} className={estilos.elemento}>
-                <div className={estilos.elementoTexto}>
-                  <p className={estilos.elementoNombre}>
-                    {e.nombres} {e.apellidos}
-                  </p>
-                  <p className={estilos.elementoDetalle}>{e.parentesco_nombre}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <SeccionEncargados
+        personaId={persona.id}
+        encargados={persona.encargados}
+        menor={menor}
+      />
 
-      <section className={estilos.tarjeta} aria-labelledby="f-contactos">
-        <div className={estilos.tituloTarjeta}>
-          <h2 id="f-contactos">Contactos de referencia</h2>
-        </div>
-        {persona.contactos.length === 0 ? (
-          <p className={estilos.elementoDetalle}>Ninguno registrado.</p>
-        ) : (
-          <div className={estilos.listaSimple}>
-            {persona.contactos.map((c) => (
-              <div key={c.id} className={estilos.elemento}>
-                <div className={estilos.elementoTexto}>
-                  <p className={estilos.elementoNombre}>{c.nombre}</p>
-                  <p className={estilos.elementoDetalle}>
-                    {c.telefono ?? "Sin teléfono"}
-                    {c.observaciones ? " · " + c.observaciones : ""}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <SeccionContactos personaId={persona.id} contactos={persona.contactos} />
+
     </>
   );
 }
