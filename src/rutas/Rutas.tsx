@@ -4,6 +4,7 @@ import LayoutApp from "../componentes/layout/LayoutApp";
 import EnConstruccion from "../paginas/EnConstruccion";
 import NoEncontrada from "../paginas/NoEncontrada";
 import PaginaInicio from "../paginas/inicio/PaginaInicio";
+import PaginaBeneficiarios from "../paginas/beneficiarios/PaginaBeneficiarios";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
 import { useAuth } from "../auth/useAuth";
@@ -22,6 +23,7 @@ import { useAuth } from "../auth/useAuth";
  */
 const PANTALLAS: Record<string, ReactNode> = {
   "/": <PaginaInicio />,
+  "/beneficiarios": <PaginaBeneficiarios />,
 };
 function Rutas() {
   const { usuario } = useAuth();
