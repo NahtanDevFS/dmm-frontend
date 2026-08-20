@@ -1,7 +1,10 @@
 import { useState } from "react";
 import CatalogoGenerico from "./CatalogoGenerico";
+import SeccionComunidades from "./SeccionComunidades";
 import { CATALOGOS } from "./definiciones";
 import estilos from "./Catalogos.module.css";
+
+const COMUNIDADES = "comunidades";
 
 function PaginaCatalogos() {
   const [activo, setActivo] = useState<string>(CATALOGOS[0].ruta);
@@ -20,7 +23,7 @@ function PaginaCatalogos() {
       </header>
 
       {/*
-        Píldoras y no pestañas: son seis destinos y con pestañas se saldrían
+        Píldoras y no pestañas: son siete destinos y con pestañas se saldrían
         de la línea en cualquier pantalla estrecha. El activo lleva fondo,
         texto, borde y aria-pressed, que es la señal que oye un lector.
       */}
@@ -39,9 +42,22 @@ function PaginaCatalogos() {
             {catalogo.titulo}
           </button>
         ))}
+        <button
+          type="button"
+          className={
+            estilos.pildora +
+            (activo === COMUNIDADES ? " " + estilos.pildoraActiva : "")
+          }
+          aria-pressed={activo === COMUNIDADES}
+          onClick={() => setActivo(COMUNIDADES)}
+        >
+          Comunidades
+        </button>
       </div>
 
-      {definicion ? (
+      {activo === COMUNIDADES ? (
+        <SeccionComunidades />
+      ) : definicion ? (
         // La clave remonta el componente al cambiar de catálogo: si no, el
         // formulario de alta conservaría lo escrito para el anterior.
         <CatalogoGenerico key={definicion.ruta} definicion={definicion} />
