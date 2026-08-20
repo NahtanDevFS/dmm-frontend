@@ -1,0 +1,155 @@
+.encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.identidad {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.volver {
+  font: var(--texto-auxiliar);
+}
+
+.acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Región común: cada bloque de la ficha es su propia tarjeta sobre Rosa 50. */
+.tarjeta {
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+}
+
+/**
+ * Bloque de datos de salud. Se cierra como región propia con borde superior,
+ * el mismo recurso que el manual pide para la tarjeta de resolución de
+ * solicitudes: es información sensible y conviene que se lea aparte, no
+ * mezclada con los datos generales.
+ */
+.tarjetaSensible {
+  border-top: 3px solid var(--color-primary-mid);
+}
+
+.tituloTarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.nota {
+  margin-bottom: var(--space-2);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+/* Lista de datos: etiqueta arriba, valor debajo, en columnas de 250 px. */
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.dato dt {
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+}
+
+.dato dd {
+  margin-top: 2px;
+  font: var(--texto-cuerpo);
+  color: var(--color-text-main);
+}
+
+.datoIdentificador {
+  font: var(--texto-dato);
+}
+
+.etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.listaSimple {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.elemento {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 10px var(--space-2);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-field);
+}
+
+.elementoTexto {
+  min-width: 0;
+}
+
+.elementoNombre {
+  font: var(--texto-etiqueta);
+}
+
+.elementoDetalle {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.formularioEnLinea {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2);
+  align-items: end;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-border);
+}
+
+.inactivo {
+  padding: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-field);
+  background-color: color-mix(in srgb, var(--color-warning) 8%, #fff);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+}
+
+.adjunto {
+  font: var(--texto-auxiliar);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .encabezado {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
