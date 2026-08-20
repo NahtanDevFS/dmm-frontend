@@ -20,7 +20,12 @@ export function TarjetaIndicador({
   tono = "marca",
 }: {
   titulo: string;
-  valor: number | string;
+  /**
+   * Admite ReactNode además de número para que el panel pueda pasar un
+   * esqueleto mientras el conteo llega, sin que la tarjeta tenga que conocer
+   * los estados de carga de cada consulta.
+   */
+  valor: number | string | ReactNode;
   detalle?: string;
   tono?: "marca" | "advertencia" | "peligro";
 }) {
