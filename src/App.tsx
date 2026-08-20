@@ -1,5 +1,5 @@
 import { useAuth } from "./auth/useAuth";
-import LayoutApp from "./componentes/layout/LayoutApp";
+import Rutas from "./rutas/Rutas";
 import PaginaAcceso from "./paginas/acceso/PaginaAcceso";
 
 function App() {
@@ -18,15 +18,15 @@ function App() {
     );
   }
 
+  /**
+   * Sin sesión no se monta el router: la aplicación entera está detrás del
+   * acceso, así que no hay ninguna ruta pública que enrutar. Esto también
+   * evita que una dirección escrita a mano llegue a montar una pantalla antes
+   * de saber quién la abre.
+   */
   if (!usuario) return <PaginaAcceso />;
 
-  // El árbol de rutas entra en el siguiente commit; por ahora el marco se
-  // monta con un contenido de relleno para poder ejercitarlo.
-  return (
-    <LayoutApp>
-      <h1>Inicio</h1>
-    </LayoutApp>
-  );
+  return <Rutas />;
 }
 
 export default App;
