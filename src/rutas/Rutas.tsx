@@ -5,6 +5,8 @@ import EnConstruccion from "../paginas/EnConstruccion";
 import NoEncontrada from "../paginas/NoEncontrada";
 import PaginaInicio from "../paginas/inicio/PaginaInicio";
 import PaginaBeneficiarios from "../paginas/beneficiarios/PaginaBeneficiarios";
+import PaginaNuevoBeneficiario from "../paginas/beneficiarios/PaginaNuevoBeneficiario";
+import { OPERACION, type Rol } from "../types/api";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
 import { useAuth } from "../auth/useAuth";
@@ -25,6 +27,20 @@ const PANTALLAS: Record<string, ReactNode> = {
   "/": <PaginaInicio />,
   "/beneficiarios": <PaginaBeneficiarios />,
 };
+
+/**
+ * Rutas que no son ítems de menú: altas, fichas y detalles. Declaran su propio
+ * conjunto de roles porque no lo heredan de un ítem de navegación, y pasan por
+ * la misma guarda que el resto.
+ */
+const RUTAS_EXTRA: { ruta: string; roles: readonly Rol[]; elemento: ReactNode }[] =
+  [
+    {
+      ruta: "/beneficiarios/nuevo",
+      roles: OPERACION,
+      elemento: <PaginaNuevoBeneficiario />,
+    },
+  ];
 function Rutas() {
   const { usuario } = useAuth();
   const inicio = rutaInicialDe(usuario?.rol);
@@ -54,6 +70,16 @@ function Rutas() {
             }
           />
         ))}
+        {RUTAS_EXTRA.map((extra) => (
+          <Route
+            key={extra.ruta}
+            path={extra.ruta}
+            element={
+              <RutaPorRol permitidos={extra.roles}>{extra.elemento}</RutaPorRol>
+            }
+          />
+        ))}
+
         <Route path="*" element={<NoEncontrada />} />
       </Routes>
     </LayoutApp>

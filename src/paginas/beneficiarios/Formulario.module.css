@@ -1,0 +1,155 @@
+/* Formulario de registro — ajuste de Gestalt de la sección 6.
+   La proximidad es la que agrupa: 8 px entre etiqueta y campo, 24 px entre
+   campos y 40 px entre secciones. El espacio entre grupos tiene que ser mayor
+   que el interno, o «Datos generales», «Discapacidades» y «Encargado» se leen
+   como una lista continua en vez de tres bloques. */
+
+.formulario {
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 40 px entre secciones. */
+.seccion + .seccion {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  /* Cierre: una línea suave delimita sin necesidad de marcos completos. */
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.tituloSeccion {
+  font: var(--texto-titulo-tarjeta);
+  color: var(--color-primary-darker);
+}
+
+.descripcionSeccion {
+  margin-top: 4px;
+  margin-bottom: var(--space-3);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+/* 24 px entre campos, frente a los 8 px que el propio campo pone entre su
+   etiqueta y su control. Columnas mínimas de 250 px (sección 4). */
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+/* Fecha de nacimiento y edad calculada forman una unidad: la edad deriva de
+   la fecha, así que van juntas y más cerca entre sí que del resto. */
+.par {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-2);
+}
+
+.anchoCompleto {
+  grid-column: 1 / -1;
+}
+
+/* Discapacidades: casillas en fila envolvente. */
+.casillas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.casillaEtiqueta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font: var(--texto-etiqueta);
+  cursor: pointer;
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion);
+}
+
+.casillaEtiqueta:hover {
+  border-color: var(--color-primary-soft);
+  background-color: var(--color-primary-light);
+}
+
+.casillaEtiqueta:has(input:checked) {
+  border-color: var(--color-primary-dark);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.casillaEtiqueta:has(input:focus-visible) {
+  box-shadow: var(--anillo-foco);
+}
+
+.casilla {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+/* Aviso de la sección de encargado. Región propia con borde: pertenece a una
+   condición del beneficiario, no al bloque de datos generales. */
+.avisoEncargado {
+  padding: var(--space-2);
+  border-left: 3px solid var(--color-primary-mid);
+  border-radius: var(--radius-field);
+  background-color: var(--color-primary-light);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+}
+
+.avisoBloqueante {
+  border-left-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 8%, #fff);
+  color: var(--color-danger);
+}
+
+.seccionInactiva {
+  opacity: 0.55;
+}
+
+.contacto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2);
+  align-items: end;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-field);
+}
+
+.contacto + .contacto {
+  margin-top: var(--space-2);
+}
+
+.errorGeneral {
+  margin-top: var(--space-3);
+  padding: 10px 12px;
+  border: 1px solid var(--color-danger);
+  border-left-width: 3px;
+  border-radius: var(--radius-field);
+  background-color: #fdf2f1;
+  color: var(--color-danger);
+  font: var(--texto-auxiliar);
+}
+
+@media (max-width: 768px) {
+  .formulario {
+    padding: var(--space-3);
+  }
+
+  .par {
+    grid-template-columns: 1fr;
+  }
+}

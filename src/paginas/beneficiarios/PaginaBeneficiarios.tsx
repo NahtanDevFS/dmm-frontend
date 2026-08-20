@@ -46,9 +46,9 @@ function PaginaBeneficiarios() {
     <>
       <header className={estilos.encabezado}>
         <h1>Beneficiarios</h1>
-        <Boton variante="primaria" disabled>
-          Nuevo beneficiario
-        </Boton>
+        <Link to="/beneficiarios/nuevo">
+          <Boton variante="primaria">Nuevo beneficiario</Boton>
+        </Link>
       </header>
 
       <div className={estilos.tarjeta}>
