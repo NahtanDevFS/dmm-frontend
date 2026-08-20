@@ -1,0 +1,79 @@
+/* Tabla de datos — Manual de Marca v1.0, sección 5. */
+
+/* La tabla desborda por su cuenta; el cuerpo de la página nunca. */
+.envoltura {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--texto-cuerpo);
+}
+
+.tabla th {
+  padding: 10px var(--space-2);
+  /* Cabecera en Rosa 100 con texto Rosa 600. El tipo lo pone tipografia.css,
+     que ya define th con mayúsculas y +6 % de espaciado. */
+  background-color: var(--color-primary-light);
+  white-space: nowrap;
+}
+
+.tabla td {
+  padding: 12px var(--space-2);
+  /* Divisorias de 1 px. Sin bordes verticales: la alineación de columnas ya
+     agrupa por continuidad. */
+  border-bottom: 1px solid var(--color-border-soft);
+  vertical-align: middle;
+}
+
+/* Filas alternas en Rosa 50. */
+.tabla tbody tr:nth-child(even) td {
+  background-color: var(--color-background);
+}
+
+/* Hover de fila en Rosa 100 al 50 %. Se escribe con color-mix contra blanco
+   en vez de con opacidad, para que no aclare también el texto de la fila. */
+.tabla tbody tr:hover td {
+  background-color: color-mix(in srgb, var(--color-primary-light) 50%, #fff);
+}
+
+.tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Identificadores en monoespaciada y a la izquierda. */
+.identificador {
+  font: var(--texto-dato);
+  white-space: nowrap;
+}
+
+/* Cantidades a la derecha, tabulares, para compararlas por columna. */
+.cantidad {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Columna de acciones: no se estira ni se parte. */
+.acciones {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.acciones > * + * {
+  margin-left: var(--space-1);
+}
+
+/* Fila de un registro dado de baja: se atenúa, pero el estado se sigue
+   diciendo con texto en su propia celda. El color nunca es la única señal. */
+.inactiva td {
+  color: var(--color-text-muted);
+}
+
+.pieDeTabla {
+  padding: var(--space-2);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,134 @@
+/* Modal — Manual de Marca v1.0, sección 5. */
+
+.dialogo {
+  width: 90%;
+  max-width: 850px;
+  max-height: 90vh;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+/* Velo del modal. Figura y fondo: el modal se separa por contraste de valor. */
+.dialogo::backdrop {
+  background-color: rgba(36, 28, 32, 0.55);
+}
+
+/* Destino común: el modal y su velo aparecen juntos, 200 ms, sin moverse más
+   de 4 px. */
+.dialogo[open] {
+  animation: aparecer var(--transicion);
+}
+
+.dialogo[open]::backdrop {
+  animation: velar var(--transicion);
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@keyframes velar {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialogo[open],
+  .dialogo[open]::backdrop {
+    animation: none;
+  }
+}
+
+/* Rejilla de tres franjas: la cabecera y el pie quedan fijos y solo el cuerpo
+   se desplaza, para que las acciones no se pierdan en un formulario largo. */
+.marco {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  max-height: 90vh;
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.titulo {
+  font: var(--texto-titulo-tarjeta);
+  color: var(--color-primary-darker);
+}
+
+.descripcion {
+  margin-top: 4px;
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.cerrar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -10px -10px 0 0;
+  border-radius: var(--radius-field);
+  color: var(--color-text-muted);
+  font-size: 24px;
+  line-height: 1;
+  transition:
+    background-color var(--transicion),
+    color var(--transicion);
+}
+
+.cerrar:hover {
+  background-color: var(--color-disabled);
+  color: var(--color-text-main);
+}
+
+.cerrar:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+.cuerpo {
+  padding: var(--space-3) var(--space-4);
+  overflow-y: auto;
+}
+
+.pie {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* El pie ya trae su propia línea; el grupo de botones no necesita otra. */
+.pie > * {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+@media (max-width: 768px) {
+  .dialogo {
+    width: calc(100% - var(--space-3));
+  }
+
+  .cabecera,
+  .cuerpo,
+  .pie {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
+}

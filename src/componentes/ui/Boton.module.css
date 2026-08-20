@@ -1,0 +1,134 @@
+/* Botones — Manual de Marca v1.0, sección 5.
+   Una sola acción primaria por pantalla, siempre a la derecha del grupo. */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  /* Área táctil mínima de 44 x 44 px (sección 7). */
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-field);
+  font: var(--texto-etiqueta);
+  text-align: center;
+  white-space: nowrap;
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion),
+    color var(--transicion),
+    transform var(--transicion);
+}
+
+/* :hover oscurece 8 %; :active escala 0.98 (sección 5). El oscurecimiento se
+   expresa con color-mix para que sea la regla y no un hexadecimal calculado a
+   mano que nadie sabrá recalcular si cambia el token. */
+.boton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.boton:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  background-color: var(--color-disabled);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  transform: none;
+}
+
+/* ── Primaria: sólida en Rosa 600. Una por pantalla. ── */
+.primaria {
+  background-color: var(--color-primary-dark);
+  color: var(--color-surface);
+}
+
+.primaria:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-primary-dark) 92%, #000);
+}
+
+/* ── Secundaria: contorno rosa. ── */
+.secundaria {
+  background-color: transparent;
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-dark);
+}
+
+.secundaria:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+}
+
+/* ── Terciaria: contorno neutro. Cancelar y acciones de descarte. ── */
+.terciaria {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+.terciaria:hover:not(:disabled) {
+  background-color: var(--color-disabled);
+}
+
+/**
+ * Aprobar y rechazar usan verde y rojo porque son decisiones irreversibles,
+ * no porque estén por encima en la jerarquía. Por eso adoptan el peso de una
+ * acción sólida y dejan de heredar el estilo de «Cancelar», que es el ajuste
+ * de similitud que pide la sección 6.
+ */
+.aprobar {
+  background-color: var(--color-success);
+  color: var(--color-surface);
+}
+
+.aprobar:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-success) 92%, #000);
+}
+
+.rechazar {
+  background-color: var(--color-danger);
+  color: var(--color-surface);
+}
+
+.rechazar:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-danger) 92%, #000);
+}
+
+/* ── Tamaño reducido, para las acciones de fila de una tabla. ── */
+.pequeno {
+  min-height: 36px;
+  padding: 0 var(--space-2);
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+}
+
+.anchoCompleto {
+  width: 100%;
+}
+
+/* Grupo de acciones al pie de un formulario o modal: la primaria a la
+   derecha, siempre. */
+.grupo {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+@media (max-width: 768px) {
+  .grupo {
+    /* La primaria queda arriba al apilarse, que en móvil es la posición
+       equivalente a «a la derecha». */
+    flex-direction: column-reverse;
+  }
+
+  .grupo > .boton {
+    width: 100%;
+  }
+}
