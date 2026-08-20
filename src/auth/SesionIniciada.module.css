@@ -41,7 +41,8 @@
 }
 
 .botonSalir:hover:not(:disabled) {
-  background-color: #802049;
+  /* 8 % más oscuro que Rosa 600, la regla de :hover de la sección 5. */
+  background-color: #b21654;
 }
 
 .botonSalir:disabled {

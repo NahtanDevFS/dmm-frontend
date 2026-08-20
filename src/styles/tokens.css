@@ -14,7 +14,8 @@
 :root {
   /* Marca — escala rosa */
   --color-primary: #c43c74; /* barra superior, acento */
-  --color-primary-dark: #8c2150; /* acciones primarias, títulos */
+  --color-primary-dark: #c2185b; /* acciones primarias */
+  --color-primary-darker: #8a1246; /* títulos de sección */
   --color-primary-mid: #e486af; /* gráficas, acentos suaves */
   --color-primary-soft: #f5c3d8; /* bordes, anillo de foco */
   --color-primary-light: #fce4ee; /* zonas, fila activa */

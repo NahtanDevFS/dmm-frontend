@@ -1,12 +1,31 @@
 /* Pantalla de acceso — Manual de Marca v1.0, sección 5.
-   Estructura 40/60: panel de marca en Rosa 700 a la izquierda y formulario
-   sobre Rosa 50 a la derecha. */
+   Estructura 40/60: panel de marca a la izquierda y formulario sobre Rosa 50
+   a la derecha.
 
+   El panel usa Rosa 500, el mismo tono de la barra superior, para que el
+   acceso y el resto del sistema se lean como una sola aplicación. Es más
+   claro que el Rosa 700 del mock, así que todo lo que va encima subió a
+   blanco: sobre Rosa 500 el Rosa 200 se queda en 3.22:1 y el Rosa 300 en
+   1.96:1, por debajo del 4.5:1 que la sección 7 exige al cuerpo. */
+
+/* El manual dibuja un 40/60, pero ese reparto se pensó para un panel con
+   logotipo pequeño. Con el logotipo institucional a 300 px el peso visual está
+   en la marca, y dejar el 60 % a un formulario de dos campos abría un vacío de
+   más de 500 px a la derecha de la tarjeta en pantallas de 1920 px. Se invierte
+   a favor de la marca. */
 .pagina {
   display: grid;
-  grid-template-columns: 40% 60%;
+  grid-template-columns: 58% 42%;
   min-height: 100vh;
   min-height: 100dvh; /* en móvil, descuenta la barra del navegador */
+}
+
+/* Por debajo de 1200 px el 42 % deja de dar para una tarjeta cómoda, así que
+   el reparto se acerca a la mitad antes de llegar al punto de quiebre móvil. */
+@media (max-width: 1200px) {
+  .pagina {
+    grid-template-columns: 45% 55%;
+  }
 }
 
 /* ─────────────────────────── Panel de marca ─────────────────────────── */
@@ -15,9 +34,15 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  /* Bloque centrado en el panel. El eje de inicio único que pide la sección 6
+     rige el formulario y las tablas, donde el ojo recorre etiquetas y datos;
+     este panel es una composición de marca de tres piezas apiladas y se
+     equilibra mejor centrado. */
+  align-items: center;
+  text-align: center;
   gap: var(--space-3);
   padding: var(--space-4);
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
   color: var(--color-surface);
 }
 
@@ -25,9 +50,10 @@
    el título, así que ahí se reduce. Se ajusta la altura de la imagen y no la
    variable --alto, que el componente fija en línea y ganaría a esta regla. */
 .marca {
-  /* Se compensa el resguardo interno para que el logotipo alinee su borde
-     izquierdo con el título, y no quede desplazado unos píxeles. */
-  margin-left: calc(var(--alto) * -0.08);
+  /* El componente se declara align-self: flex-start para no estirarse dentro
+     de un flex; aquí hay que devolverlo al centro, o ganaría al align-items
+     del panel y el logotipo quedaría pegado a la izquierda. */
+  align-self: center;
 }
 
 .panelTitulo {
@@ -35,30 +61,35 @@
   font-size: 28px;
   line-height: 34px;
   font-weight: 700;
-  /* El título de página va en Tinta 900, pero aquí el fondo es Rosa 700 y el
-     manual exige texto blanco sobre Rosa 500 o más oscuro. */
+  /* El título de página va en Tinta 900, pero aquí el fondo es rosa saturado
+     y el manual admite blanco sobre Rosa 500 o más oscuro: 4.95:1. */
   color: var(--color-surface);
 }
 
 .panelSubtitulo {
   font: var(--texto-cuerpo);
-  color: var(--color-primary-soft);
+  /* Blanco y no Rosa 200: a 15 px hace falta 4.5:1, y sobre Rosa 500 el
+     Rosa 200 solo alcanza 3.22:1. */
+  color: var(--color-surface);
+  /* La medida se mantiene acotada por legibilidad; auto la centra. */
   max-width: 34ch;
+  margin-inline: auto;
 }
 
 /* Microetiqueta: uno de los dos únicos usos de mayúsculas sostenidas que
    permite la sección 3, junto a las cabeceras de tabla. */
 .panelAviso {
-  align-self: flex-start;
+  align-self: center;
   margin-top: var(--space-2);
   padding: 6px var(--space-2);
-  border: 1px solid var(--color-primary-mid);
+  /* Rosa 300 caía a 1.96:1 sobre este fondo y el borde desaparecía. */
+  border: 1px solid var(--color-primary-light);
   border-radius: var(--radius-pill);
   font: var(--texto-auxiliar);
   font-weight: 600;
   letter-spacing: 0.72px;
   text-transform: uppercase;
-  color: var(--color-primary-soft);
+  color: var(--color-surface);
 }
 
 /* ─────────────────────────── Formulario ─────────────────────────── */
@@ -66,6 +97,11 @@
 .zonaFormulario {
   display: flex;
   align-items: center;
+  /* Centrada en su zona. Al reducirse la zona al 42 %, el hueco a cada lado
+     baja de los 174 px de antes a unos 120 px, y queda simétrico: un margen
+     igual a ambos lados se lee como aire intencionado, mientras que el
+     anterior flex-start dejaba la tarjeta pegada al panel con un vacío enorme
+     al otro lado. */
   justify-content: center;
   padding: var(--space-4);
   background-color: var(--color-background);
@@ -76,7 +112,9 @@
    que fija la sección 4. */
 .tarjeta {
   width: 100%;
-  max-width: 420px;
+  /* Dentro del tope de 640 px que la sección 4 fija para un formulario de una
+     columna. */
+  max-width: 560px;
   padding: var(--space-4);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-soft);
@@ -86,7 +124,7 @@
 
 .titulo {
   font: var(--texto-titulo-tarjeta);
-  color: var(--color-primary-dark);
+  color: var(--color-primary-darker);
 }
 
 .ayuda {
@@ -117,8 +155,10 @@
 
 .entrada {
   width: 100%;
-  min-height: 44px; /* área táctil mínima, sección 7 */
-  padding: 10px 12px;
+  /* 48 px: por encima del área táctil mínima de 44 px de la sección 7, y
+     proporcionado a la tarjeta ampliada. */
+  min-height: 48px;
+  padding: 12px 14px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-field);
   background-color: var(--color-surface);
@@ -160,8 +200,8 @@
 .botonMostrar {
   flex-shrink: 0;
   min-width: 44px;
-  min-height: 44px;
-  padding: 0 12px;
+  min-height: 48px;
+  padding: 0 var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-field);
   background-color: var(--color-surface);
@@ -192,9 +232,9 @@
 /* Único objetivo de la pantalla: «Entrar» es la sola acción sólida. */
 .botonEntrar {
   width: 100%;
-  min-height: 44px;
-  margin-top: var(--space-3);
-  padding: 12px var(--space-3);
+  min-height: 48px;
+  margin-top: var(--space-4);
+  padding: 14px var(--space-3);
   border-radius: var(--radius-field);
   background-color: var(--color-primary-dark);
   color: var(--color-surface);
@@ -205,8 +245,8 @@
 }
 
 .botonEntrar:hover:not(:disabled) {
-  /* :hover oscurece un 8 % (sección 5). */
-  background-color: #802049;
+  /* :hover oscurece un 8 % (sección 5): Rosa 600 al 92 %. */
+  background-color: #b21654;
 }
 
 .botonEntrar:active:not(:disabled) {
@@ -243,14 +283,16 @@
   .panel {
     flex-direction: row;
     align-items: center;
+    /* En la banda el logotipo y el título van uno junto a otro, así que el
+       texto vuelve a alinearse a la izquierda. */
+    text-align: left;
     gap: var(--space-2);
     padding: 0 var(--space-2);
   }
 
-  /* En móvil el panel pasa a fila centrada y el logotipo se reduce. */
+  /* En móvil el panel pasa a fila y el logotipo se reduce. */
   .marca {
     align-self: center;
-    margin-left: 0;
   }
 
   /* Mismo criterio que el componente: manda el ancho, la altura se deduce.
