@@ -8,11 +8,24 @@
    blanco: sobre Rosa 500 el Rosa 200 se queda en 3.22:1 y el Rosa 300 en
    1.96:1, por debajo del 4.5:1 que la sección 7 exige al cuerpo. */
 
+/* El manual dibuja un 40/60, pero ese reparto se pensó para un panel con
+   logotipo pequeño. Con el logotipo institucional a 300 px el peso visual está
+   en la marca, y dejar el 60 % a un formulario de dos campos abría un vacío de
+   más de 500 px a la derecha de la tarjeta en pantallas de 1920 px. Se invierte
+   a favor de la marca. */
 .pagina {
   display: grid;
-  grid-template-columns: 40% 60%;
+  grid-template-columns: 58% 42%;
   min-height: 100vh;
   min-height: 100dvh; /* en móvil, descuenta la barra del navegador */
+}
+
+/* Por debajo de 1200 px el 42 % deja de dar para una tarjeta cómoda, así que
+   el reparto se acerca a la mitad antes de llegar al punto de quiebre móvil. */
+@media (max-width: 1200px) {
+  .pagina {
+    grid-template-columns: 45% 55%;
+  }
 }
 
 /* ─────────────────────────── Panel de marca ─────────────────────────── */
@@ -75,10 +88,12 @@
 .zonaFormulario {
   display: flex;
   align-items: center;
-  /* Pegada al panel en vez de centrada en su mitad. Centrada, la tarjeta
-     quedaba a 174 px del bloque de color en una ventana de 1280 px, y el
-     formulario se leía como algo suelto y sin relación con la marca. */
-  justify-content: flex-start;
+  /* Centrada en su zona. Al reducirse la zona al 42 %, el hueco a cada lado
+     baja de los 174 px de antes a unos 120 px, y queda simétrico: un margen
+     igual a ambos lados se lee como aire intencionado, mientras que el
+     anterior flex-start dejaba la tarjeta pegada al panel con un vacío enorme
+     al otro lado. */
+  justify-content: center;
   padding: var(--space-4);
   background-color: var(--color-background);
 }
@@ -88,9 +103,9 @@
    que fija la sección 4. */
 .tarjeta {
   width: 100%;
-  /* 600 px, dentro del tope de 640 px que la sección 4 fija para un
-     formulario de una columna. */
-  max-width: 600px;
+  /* Dentro del tope de 640 px que la sección 4 fija para un formulario de una
+     columna. */
+  max-width: 560px;
   padding: var(--space-4);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-soft);
@@ -101,15 +116,6 @@
 .titulo {
   font: var(--texto-titulo-tarjeta);
   color: var(--color-primary-darker);
-}
-
-/* El grupo de campos no se estira a los 600 px de la tarjeta: pasada cierta
-   anchura un input deja de leerse como un campo y el ojo pierde el recorrido
-   entre etiqueta y dato. La tarjeta crece, los campos respiran. */
-.campos,
-.botonEntrar,
-.errorGeneral {
-  max-width: 460px;
 }
 
 .ayuda {
