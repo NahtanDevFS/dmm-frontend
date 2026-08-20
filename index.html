@@ -1,10 +1,43 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dmm-frontend</title>
+
+    <title>Dirección Municipal de la Mujer - DMM </title>
+    <meta
+      name="description"
+      content="Sistema de gestión de beneficiarios, programas, donaciones, entregas e inventario de la Dirección Municipal de la Mujer de Usumatlán."
+    />
+
+    <!-- El sistema maneja datos personales y de discapacidad: no debe
+         aparecer en buscadores ni filtrar su dirección por el referente. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="same-origin" />
+
+    <!-- Rosa 500 del manual, el mismo de la barra superior. -->
+    <meta name="theme-color" content="#C43C74" />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/favicon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Los dos pesos presentes en cualquier pantalla: cuerpo y etiquetas.
+         Se precargan para evitar el salto de tipografía en el primer pintado. -->
+    <link
+      rel="preload"
+      href="/fuentes/ibm-plex-sans-400-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fuentes/ibm-plex-sans-600-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
   </head>
   <body>
     <div id="root"></div>

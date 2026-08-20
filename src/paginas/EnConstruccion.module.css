@@ -1,0 +1,14 @@
+/* Región común: el aviso vive en su propia tarjeta blanca sobre Rosa 50. */
+.aviso {
+  max-width: 640px;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border-left: 3px solid var(--color-primary-mid);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.texto {
+  color: var(--color-text-muted);
+}

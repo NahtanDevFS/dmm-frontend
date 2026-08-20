@@ -1,0 +1,57 @@
+/* Badges de estado — Manual de Marca v1.0, secciones 5 y 7.
+   Siempre color + texto: el color nunca es la única señal. */
+
+.insignia {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Los semánticos solo comunican estado y nunca decoran (sección 2). El fondo
+   se mezcla con blanco para que el texto conserve su contraste. */
+.pendiente {
+  background-color: color-mix(in srgb, var(--color-warning) 12%, #fff);
+  border-color: color-mix(in srgb, var(--color-warning) 30%, #fff);
+  color: var(--color-warning);
+}
+
+.aprobada {
+  background-color: color-mix(in srgb, var(--color-success) 12%, #fff);
+  border-color: color-mix(in srgb, var(--color-success) 30%, #fff);
+  color: var(--color-success);
+}
+
+.rechazada {
+  background-color: color-mix(in srgb, var(--color-danger) 12%, #fff);
+  border-color: color-mix(in srgb, var(--color-danger) 30%, #fff);
+  color: var(--color-danger);
+}
+
+.informativa {
+  background-color: color-mix(in srgb, var(--color-info) 12%, #fff);
+  border-color: color-mix(in srgb, var(--color-info) 30%, #fff);
+  color: var(--color-info);
+}
+
+/**
+ * Menor de edad. Es un dato de la persona, no un estado del expediente, así
+ * que usa la escala de marca y no un semántico: teñirlo de rojo o ámbar lo
+ * leería como problema, y ser menor no lo es.
+ */
+.marca {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
+/* Inactivo: neutro. Un registro dado de baja no es un error. */
+.neutra {
+  background-color: var(--color-disabled);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}

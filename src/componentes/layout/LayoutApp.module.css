@@ -1,0 +1,56 @@
+/* Marco de la aplicación — Manual de Marca v1.0, sección 4.
+   Barra superior de 60 px y menú lateral de 250 px, ambos fijos: el contenido
+   es la única zona con scroll. */
+
+.marco {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.cuerpo {
+  display: flex;
+  flex: 1;
+  /* Delega el scroll al contenido en lugar de al documento. Sin esto la barra
+     superior se iría hacia arriba al desplazarse por un listado largo. */
+  overflow: hidden;
+}
+
+.contenido {
+  flex: 1;
+  overflow-y: auto;
+  /* 40 px en escritorio, 16 px en móvil (sección 4). */
+  padding: var(--space-4);
+  background-color: var(--color-background);
+}
+
+/* Enlace de salto: primer tabulador de la página, para no obligar a quien
+   navega con teclado a recorrer los once ítems del menú en cada pantalla. */
+.saltar {
+  position: absolute;
+  left: -9999px;
+  z-index: 100;
+  padding: var(--space-1) var(--space-2);
+  background-color: var(--color-surface);
+  color: var(--color-primary-dark);
+  border-radius: var(--radius-field);
+  box-shadow: var(--shadow-md);
+}
+
+.saltar:focus {
+  left: var(--space-2);
+  top: var(--space-1);
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  /* El menú deja de ser columna lateral y se apila sobre el contenido. */
+  .cuerpo {
+    flex-direction: column;
+  }
+
+  .contenido {
+    padding: var(--space-2);
+  }
+}

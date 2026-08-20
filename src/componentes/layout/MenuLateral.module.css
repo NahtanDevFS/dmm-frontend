@@ -1,0 +1,100 @@
+/* Menú lateral — Manual de Marca v1.0, sección 5.
+   250 px y fijo; el contenido es la única zona con scroll. */
+
+.menu {
+  width: 250px;
+  flex-shrink: 0;
+  padding: var(--space-3) 0;
+  overflow-y: auto;
+  /* Rosa tintado en vez del gris #d9d9d9 del sketch: se separa del contenido
+     por matiz y no por gris, así que pertenece a la familia de marca. */
+  background-color: var(--color-sidebar);
+  border-right: 1px solid var(--color-sidebar-border);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.enlace {
+  display: flex;
+  align-items: center;
+  /* Área táctil mínima de 44 px (sección 7). */
+  min-height: 44px;
+  padding: 10px var(--space-3);
+  /* La barra del ítem activo mide 3 px; se reserva su hueco en todos para que
+     al activarse el texto no se desplace. */
+  border-left: 3px solid transparent;
+  color: var(--color-text-main);
+  font: var(--texto-etiqueta);
+  text-decoration: none;
+  transition:
+    background-color var(--transicion),
+    color var(--transicion);
+}
+
+.enlace:hover {
+  background-color: rgba(196, 60, 116, 0.08);
+  text-decoration: none;
+}
+
+.enlace:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+  /* El anillo se dibuja hacia dentro para no quedar cortado por el borde
+     derecho del menú. */
+  border-radius: 0;
+}
+
+/**
+ * Ítem activo con tres señales redundantes, no solo color: fondo Rosa 100,
+ * texto Rosa 600 y barra izquierda de 3 px. Además el enlace lleva
+ * aria-current, que es la cuarta señal, la que oye un lector de pantalla.
+ */
+.activo {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border-left-color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.activo:hover {
+  background-color: var(--color-primary-light);
+}
+
+/* ─────────────────────────── Móvil ─────────────────────────── */
+
+@media (max-width: 768px) {
+  /* El menú se convierte en tira horizontal con scroll. */
+  .menu {
+    width: 100%;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: none;
+    border-bottom: 1px solid var(--color-sidebar-border);
+  }
+
+  .lista {
+    flex-direction: row;
+    padding: var(--space-1);
+    gap: 4px;
+  }
+
+  .enlace {
+    flex-shrink: 0;
+    padding: 10px var(--space-2);
+    white-space: nowrap;
+    border-left: none;
+    /* La marca activa pasa al borde inferior. Se reserva en todos, igual que
+       la barra izquierda en escritorio, para que nada salte. */
+    border-bottom: 3px solid transparent;
+    border-radius: var(--radius-field) var(--radius-field) 0 0;
+  }
+
+  .activo {
+    border-left-color: transparent;
+    border-bottom-color: var(--color-primary-dark);
+  }
+}

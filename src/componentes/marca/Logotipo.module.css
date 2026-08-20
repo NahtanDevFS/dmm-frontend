@@ -1,0 +1,32 @@
+/* Logotipo institucional de la DMM.
+   Manual de Marca v1.0, sección 1 «Logotipo» y sección 9 «Usos incorrectos». */
+
+.logotipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Nunca se estira: dentro de un flex en columna heredaría align-self:
+     stretch y el logotipo quedaría flotando en una caja vacía. */
+  align-self: flex-start;
+  /* Área de resguardo: como mínimo la altura de la «R» del logotipo en los
+     cuatro lados. Sobre esta marca equivale a un 8 % de su altura. */
+  padding: calc(var(--alto) * 0.08);
+}
+
+.imagen {
+  /*
+   * Manda el ancho y la altura se deduce. Es al revés de lo intuitivo, pero es
+   * lo que hace que el logotipo encoja de verdad cuando el contenedor se
+   * estrecha: con la altura fija, la caja seguía reservando su alto completo
+   * aunque la imagen se pintara mucho más pequeña dentro, y dejaba un hueco
+   * muerto (a 820 px de ventana eran 147 px de aire bajo el logotipo).
+   *
+   * El factor es la proporción real del archivo, 400x274.
+   */
+  width: calc(var(--alto) * 1.45985);
+  max-width: 100%;
+  height: auto;
+  /* El alto mínimo de 24 px que pide la sección 1 lo garantiza el componente
+     con Math.max; aquí un min-height pelearía con height:auto y deformaría. */
+}
