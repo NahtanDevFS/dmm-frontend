@@ -100,7 +100,7 @@
 
 .titulo {
   font: var(--texto-titulo-tarjeta);
-  color: var(--color-primary-dark);
+  color: var(--color-primary-darker);
 }
 
 /* El grupo de campos no se estira a los 600 px de la tarjeta: pasada cierta
@@ -230,8 +230,8 @@
 }
 
 .botonEntrar:hover:not(:disabled) {
-  /* :hover oscurece un 8 % (sección 5). */
-  background-color: #802049;
+  /* :hover oscurece un 8 % (sección 5): Rosa 600 al 92 %. */
+  background-color: #b21654;
 }
 
 .botonEntrar:active:not(:disabled) {

@@ -4,11 +4,11 @@
 
    NIVEL                TAMAÑO/INTERLÍNEA   PESO Y COLOR              USO
    Título de página     28 / 34 px          700 · Tinta 900           «Beneficiarios»
-   Título de tarjeta    19 / 26 px          600 · Rosa 700            Secciones
+   Título de tarjeta    19 / 26 px          600 · Rosa 800            Secciones
    Cuerpo               15 / 24 px          400 · Tinta 900           Texto y celdas
    Etiqueta de campo    14 / 20 px          600 · Tinta 900           Labels
    Auxiliar             13 / 19 px          400 · Gris 500            Ayudas, paginación
-   Encabezado de tabla  12 px · +6 % letra  600 · Rosa 700, mayúsc.   Cabeceras th
+   Encabezado de tabla  12 px · +6 % letra  600 · Rosa 600, mayúsc.   Cabeceras th
    Dato identificador   14 px mono          500 · Tinta 900           CUI/DPI, lotes
 
    Regla de la sección 3: nunca más de tres tamaños distintos en una misma
@@ -33,12 +33,13 @@ h1,
   color: var(--color-text-main);
 }
 
-/* Título de tarjeta */
+/* Título de tarjeta. Rosa 800: es el tono que el manual reserva a los
+   títulos de sección, distinto del de las acciones primarias. */
 h2,
 h3,
 .texto-titulo-tarjeta {
   font: var(--texto-titulo-tarjeta);
-  color: var(--color-primary-dark);
+  color: var(--color-primary-darker);
 }
 
 /* Cuerpo */
