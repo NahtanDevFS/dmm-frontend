@@ -12,3 +12,26 @@
   font: var(--texto-cuerpo);
   color: var(--color-text-muted);
 }
+
+.seccion {
+  margin-top: var(--space-4);
+}
+
+/* Cierra la sección con su propio título y una línea, para que indicadores y
+   acciones se lean como dos bloques y no como una lista continua. */
+.tituloSeccion {
+  padding-bottom: var(--space-1);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+/* Aviso de fallo de carga. No se oculta el panel entero por un indicador
+   caído: los demás siguen sirviendo. */
+.fallo {
+  padding: var(--space-2);
+  border-left: 3px solid var(--color-danger);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  font: var(--texto-auxiliar);
+  color: var(--color-danger);
+}
