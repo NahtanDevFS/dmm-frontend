@@ -1,0 +1,127 @@
+/* Campos de formulario — Manual de Marca v1.0, secciones 5 y 6. */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  /* Proximidad: 8 px entre etiqueta y campo. Entre campos van 24 px, que los
+     pone la rejilla del formulario, no el campo. */
+  gap: var(--space-1);
+}
+
+.etiqueta {
+  font: var(--texto-etiqueta);
+  color: var(--color-text-main);
+}
+
+/* El asterisco va junto a la etiqueta, en Rosa 600. Nunca se marca lo
+   obligatorio solo con un borde de color (sección 5). */
+.obligatorio {
+  margin-left: 2px;
+  color: var(--color-primary-dark);
+}
+
+.control {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  font: var(--texto-cuerpo);
+  transition:
+    border-color var(--transicion),
+    box-shadow var(--transicion);
+}
+
+.control:hover:not(:disabled):not(:read-only) {
+  border-color: var(--color-primary-mid);
+}
+
+.control:focus-visible {
+  outline: none;
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--anillo-foco);
+}
+
+.control:disabled {
+  background-color: var(--color-disabled);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* El borde rojo acompaña al mensaje; nunca lo sustituye. */
+.control[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.control[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.2);
+}
+
+/**
+ * Campo calculado o de solo lectura, como la edad que deriva de la fecha de
+ * nacimiento. Va en gris tintado para que se lea como resultado y no como
+ * algo que se pueda escribir (sección 5).
+ */
+.calculado {
+  background-color: var(--color-disabled);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.calculado:hover {
+  border-color: var(--color-border);
+}
+
+/* Identificadores en monoespaciada: CUI/DPI, códigos de lote, folios. */
+.identificador {
+  font: var(--texto-dato);
+}
+
+/* Cantidades a la derecha y en cifras tabulares, para que se comparen por
+   columna sin saltos de ancho. */
+.numerico {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.areaTexto {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* El select no hereda la flecha del sistema si se le fija appearance, así que
+   se deja la nativa: es la única señal de que despliega. */
+.select {
+  cursor: pointer;
+}
+
+.ayuda {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+/* Mensaje de error bajo el campo, siempre acompañado del borde, nunca solo. */
+.error {
+  font: var(--texto-auxiliar);
+  color: var(--color-danger);
+}
+
+/* Campo con acción adjunta: «Comunidad + Nueva», «Beneficiario + Buscar». */
+.conAccion {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-1);
+}
+
+.conAccion > .control {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .conAccion {
+    flex-direction: column;
+  }
+}
