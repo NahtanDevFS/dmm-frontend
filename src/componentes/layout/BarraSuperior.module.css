@@ -1,0 +1,88 @@
+/* Barra superior — Manual de Marca v1.0, secciones 4 y 5.
+   60 px de alto y fija: el contenido es la única zona con scroll. */
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  height: 60px;
+  flex-shrink: 0;
+  padding: 0 var(--space-4);
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.identidad {
+  min-width: 0;
+  text-align: right;
+}
+
+.nombre {
+  font: var(--texto-etiqueta);
+  color: var(--color-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* El rol se escribe, no solo se deduce del menú disponible: el color y la
+   ausencia de opciones nunca son señal suficiente (sección 7). */
+.rol {
+  font: var(--texto-auxiliar);
+  /* Rosa 100 sobre Rosa 500 da 4.12:1, suficiente para una microetiqueta
+     secundaria; el nombre, que sí es dato, va en blanco a 4.95:1. */
+  color: var(--color-primary-light);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Píldora de 20 px de radio, como el mock de la barra superior. */
+.salir {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-primary-dark);
+  color: var(--color-surface);
+  font: var(--texto-etiqueta);
+  transition: background-color var(--transicion);
+}
+
+.salir:hover:not(:disabled) {
+  /* 8 % más oscuro que Rosa 600, la regla de :hover de la sección 5. */
+  background-color: #b21654;
+}
+
+.salir:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .barra {
+    padding: 0 var(--space-2);
+  }
+
+  /* En pantalla estrecha el nombre y el botón compiten; el rol se cae antes
+     que el nombre, que es lo que de verdad identifica la sesión. */
+  .rol {
+    display: none;
+  }
+}

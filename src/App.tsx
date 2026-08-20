@@ -1,5 +1,5 @@
 import { useAuth } from "./auth/useAuth";
-import SesionIniciada from "./auth/SesionIniciada";
+import Rutas from "./rutas/Rutas";
 import PaginaAcceso from "./paginas/acceso/PaginaAcceso";
 
 function App() {
@@ -18,7 +18,15 @@ function App() {
     );
   }
 
-  return usuario ? <SesionIniciada /> : <PaginaAcceso />;
+  /**
+   * Sin sesión no se monta el router: la aplicación entera está detrás del
+   * acceso, así que no hay ninguna ruta pública que enrutar. Esto también
+   * evita que una dirección escrita a mano llegue a montar una pantalla antes
+   * de saber quién la abre.
+   */
+  if (!usuario) return <PaginaAcceso />;
+
+  return <Rutas />;
 }
 
 export default App;

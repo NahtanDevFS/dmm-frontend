@@ -1,0 +1,52 @@
+.tarjeta {
+  max-width: 640px;
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  /* Región propia con borde superior, como la tarjeta de resolución de
+     solicitudes: es contenido que pertenece a otro rol de usuario. */
+  border-top: 3px solid var(--color-warning);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.texto {
+  color: var(--color-text-muted);
+}
+
+.texto + .texto {
+  margin-top: var(--space-2);
+}
+
+.rol {
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.acciones {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* Secundaria: contorno rosa (sección 5). No es la acción primaria de la
+   pantalla porque aquí no hay ninguna operación que completar. */
+.volver {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-primary-dark);
+  border-radius: var(--radius-field);
+  color: var(--color-primary-dark);
+  font: var(--texto-etiqueta);
+  text-decoration: none;
+  transition: background-color var(--transicion);
+}
+
+.volver:hover {
+  background-color: var(--color-primary-light);
+  text-decoration: none;
+}
