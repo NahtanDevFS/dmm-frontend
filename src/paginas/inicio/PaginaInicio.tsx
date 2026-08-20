@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
+import { DIRECCION, SOLO_ADMIN, tieneRol, type Rol } from "../../types/api";
 import {
   Esqueleto,
   RejillaIndicadores,
@@ -24,6 +25,7 @@ interface AccionRapida {
   titulo: string;
   texto: string;
   ruta: string;
+  roles?: readonly Rol[];
 }
 
 /**
@@ -45,6 +47,18 @@ const ACCIONES: AccionRapida[] = [
     titulo: "Registrar entrega",
     texto: "Despachar un insumo a un beneficiario.",
     ruta: "/entregas",
+  },
+  {
+    titulo: "Resolver solicitudes",
+    texto: "Aprobar o rechazar las que están pendientes.",
+    ruta: "/solicitudes",
+    roles: DIRECCION,
+  },
+  {
+    titulo: "Gestionar usuarios",
+    texto: "Altas, roles y restablecimiento de contraseñas.",
+    ruta: "/usuarios",
+    roles: SOLO_ADMIN,
   },
 ];
 
@@ -70,6 +84,10 @@ function PaginaInicio() {
   const beneficiarios = useTotalBeneficiarios();
   const pendientes = useSolicitudesPendientes();
   const caducidades = useCaducidades();
+
+  const acciones = ACCIONES.filter(
+    (accion) => !accion.roles || tieneRol(usuario?.rol, accion.roles),
+  );
 
   const algoFallo =
     beneficiarios.isError || pendientes.isError || caducidades.isError;
@@ -135,6 +153,19 @@ function PaginaInicio() {
             tono="advertencia"
           />
 
+          {/*
+            Los lotes ya caducados solo aparecen si los hay. Una tarjeta fija
+            en cero acostumbra a ignorarla, y cuando deje de estar en cero
+            nadie la mirará.
+          */}
+          {caducidades.vencidos > 0 && (
+            <TarjetaIndicador
+              titulo="Lotes vencidos"
+              valor={caducidades.vencidos}
+              detalle="Requieren baja de inventario"
+              tono="peligro"
+            />
+          )}
         </RejillaIndicadores>
 
         {algoFallo && (
@@ -153,7 +184,7 @@ function PaginaInicio() {
         </h2>
 
         <div className={estilos.acciones}>
-          {ACCIONES.map((accion) => (
+          {acciones.map((accion) => (
             <Link key={accion.ruta} to={accion.ruta} className={estilos.accion}>
               <span className={estilos.accionTitulo}>{accion.titulo}</span>
               <span className={estilos.accionTexto}>{accion.texto}</span>
