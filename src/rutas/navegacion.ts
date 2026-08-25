@@ -3,7 +3,7 @@ import {
   OPERACION,
   REPORTES,
   ROL,
-  SOLO_ADMIN,
+  ADMINISTRACION,
   tieneRol,
   type Rol,
 } from "../types/api";
@@ -34,8 +34,8 @@ export const NAVEGACION: readonly ItemNavegacion[] = [
   { etiqueta: "Préstamos", ruta: "/prestamos", roles: OPERACION },
   { etiqueta: "Catálogos", ruta: "/catalogos", roles: DIRECCION },
   { etiqueta: "Reportes", ruta: "/reportes", roles: REPORTES },
-  { etiqueta: "Usuarios", ruta: "/usuarios", roles: SOLO_ADMIN },
-  { etiqueta: "Auditoría", ruta: "/auditoria", roles: SOLO_ADMIN },
+  { etiqueta: "Usuarios", ruta: "/usuarios", roles: ADMINISTRACION },
+  { etiqueta: "Auditoría", ruta: "/auditoria", roles: ADMINISTRACION },
 ];
 
 /** Ítems visibles para un rol. El menú no muestra lo que no se puede abrir. */

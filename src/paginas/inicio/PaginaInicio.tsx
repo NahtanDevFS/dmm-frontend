@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
-import { DIRECCION, SOLO_ADMIN, tieneRol, type Rol } from "../../types/api";
+import { ADMINISTRACION, DIRECCION, tieneRol, type Rol } from "../../types/api";
 import {
   Esqueleto,
   RejillaIndicadores,
@@ -58,7 +58,7 @@ const ACCIONES: AccionRapida[] = [
     titulo: "Gestionar usuarios",
     texto: "Altas, roles y restablecimiento de contraseñas.",
     ruta: "/usuarios",
-    roles: SOLO_ADMIN,
+    roles: ADMINISTRACION,
   },
 ];
 
