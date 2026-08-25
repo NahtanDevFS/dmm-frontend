@@ -13,6 +13,8 @@ interface PropsModal {
    * curso: cerrar a media escritura dejaría al usuario sin saber si se guardó.
    */
   bloqueado?: boolean;
+  /** `amplio` para las fichas, que traen varias regiones y no un solo formulario. */
+  tamano?: "normal" | "amplio";
   children: ReactNode;
 }
 
@@ -31,6 +33,7 @@ function Modal({
   descripcion,
   pie,
   bloqueado = false,
+  tamano = "normal",
   children,
 }: PropsModal) {
   const referencia = useRef<HTMLDialogElement>(null);
@@ -54,6 +57,14 @@ function Modal({
     // DOM, que es lo que ocurre si el navegador cierra el diálogo por su
     // cuenta mientras `abierto` sigue en true.
     const alCancelar = (evento: Event) => {
+      /**
+       * Solo el Esc del propio diálogo. `cancel` no es exclusivo de `dialog`:
+       * un `input[type=file]` lo dispara —y burbujea— cuando el usuario cierra
+       * el selector de archivos sin elegir nada. Sin esta comprobación, abrir
+       * el selector y arrepentirse cerraba el modal entero y se perdía el
+       * formulario, que es justo lo contrario de lo que quería el usuario.
+       */
+      if (evento.target !== dialogo) return;
       evento.preventDefault();
       if (!bloqueado) onCerrar();
     };
@@ -80,7 +91,9 @@ function Modal({
   return (
     <dialog
       ref={referencia}
-      className={estilos.dialogo}
+      className={
+        estilos.dialogo + (tamano === "amplio" ? " " + estilos.amplio : "")
+      }
       aria-labelledby={idTitulo}
       aria-describedby={descripcion ? idDescripcion : undefined}
       onMouseDown={alPulsar}

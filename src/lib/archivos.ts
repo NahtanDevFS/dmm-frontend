@@ -29,3 +29,18 @@ export function formatearPeso(bytes: number): string {
   if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + " KB";
   return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 }
+
+/**
+ * URL de un archivo subido.
+ *
+ * Está tras la sesión: ni los documentos de identificación de un beneficiario
+ * ni las actas de una donación deben ser accesibles sin autenticar, así que el
+ * archivo se pide con la cookie y no puede servirse desde un enlace público.
+ *
+ * Vive aquí y no en el cliente de un módulo porque la ruta /archivos es única
+ * para todo el sistema: la comparten personas y recepciones, y tenerla
+ * duplicada invitaba a que una de las dos copias se quedara atrás.
+ */
+export function urlArchivo(ruta: string): string {
+  return import.meta.env.VITE_API_URL + "/archivos/" + ruta;
+}

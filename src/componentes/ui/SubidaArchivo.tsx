@@ -79,7 +79,16 @@ function SubidaArchivo({
 
   return (
     <div className={estilos.campo}>
-      <label className={estilos.etiqueta} htmlFor={id}>
+      {/*
+        Rótulo en un <span> y no en un <label for>. La zona de arrastre ya es
+        un label de este mismo input —es lo que hace que al pulsarla se abra el
+        selector sin JavaScript—, y dos labels sobre el mismo control dan un
+        nombre accesible concatenado («Archivo (obligatorio) Seleccione un
+        archivo o arrástrelo aquí») y hacen que pulsar el rótulo abra el
+        selector, que no es lo que un rótulo promete. El nombre correcto se fija
+        con aria-labelledby, que tiene prioridad sobre los label.
+      */}
+      <span className={estilos.etiqueta} id={id + "-titulo"}>
         {etiqueta}
         {obligatorio && (
           <>
@@ -89,7 +98,7 @@ function SubidaArchivo({
             <span className="solo-lectores"> (obligatorio)</span>
           </>
         )}
-      </label>
+      </span>
 
       {archivo ? (
         <div className={estilos.elegido}>
@@ -116,6 +125,7 @@ function SubidaArchivo({
             className={estilos.entrada}
             accept={EXTENSIONES_ACEPTADAS}
             disabled={disabled}
+            aria-labelledby={id + "-titulo"}
             aria-invalid={mensaje ? "true" : undefined}
             aria-describedby={mensaje ? id + "-error" : id + "-ayuda"}
             onChange={(evento) => aceptar(evento.target.files?.[0])}

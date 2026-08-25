@@ -1,4 +1,5 @@
 export type TonoInsignia =
+  | "vencida"
   | "pendiente"
   | "aprobada"
   | "rechazada"

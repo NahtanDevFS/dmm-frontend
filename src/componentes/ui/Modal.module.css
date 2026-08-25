@@ -1,6 +1,17 @@
 /* Modal — Manual de Marca v1.0, sección 5. */
 
 .dialogo {
+  /**
+   * Centrado. El navegador ya lo hace: la hoja de estilos del agente de
+   * usuario le da `margin: auto` a un dialog modal, que con `inset: 0` lo
+   * reparte por los cuatro lados. Pero el reset de base.css pone `margin: 0`
+   * a todo, y eso lo pegaba a la esquina superior izquierda.
+   *
+   * Se restituye aquí, en el componente, y no quitando el reset: el reset
+   * global es correcto y quien necesita margen automático es este elemento
+   * concreto, por cómo funciona la capa superior del navegador.
+   */
+  margin: auto;
   width: 90%;
   max-width: 850px;
   max-height: 90vh;
@@ -11,6 +22,17 @@
   color: var(--color-text-main);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+}
+
+/**
+ * Modal amplio. Lo usan las fichas, que no son un formulario de seis campos
+ * sino un expediente con varias regiones: a 850 px las listas de encargados y
+ * contactos parten sus líneas y la ficha se vuelve una columna estrecha muy
+ * larga. No se aplica por defecto porque un formulario corto dentro de una
+ * caja de 1100 px deja los campos huérfanos en medio del ancho.
+ */
+.amplio {
+  max-width: 1100px;
 }
 
 /* Velo del modal. Figura y fondo: el modal se separa por contraste de valor. */

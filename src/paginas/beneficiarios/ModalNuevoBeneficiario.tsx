@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useId } from "react";
 import {
   useForm,
   useFieldArray,
@@ -10,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
+import Modal from "../../componentes/ui/Modal";
+import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import {
   CampoTexto,
   CampoSelect,
@@ -21,8 +22,9 @@ import { calcularEdad, esMenorDeEdad } from "../../lib/fechas";
 import { errorDeCampo, mensajeDeError } from "../../lib/errores";
 import { CLAVE_PERSONAS, crearPersona } from "../../api/personas";
 import type { CrearPersona, EncargadoNuevo } from "../../api/personas";
-import type { Comunidad, ElementoCatalogo } from "../../types/api";
+import type { ElementoCatalogo } from "../../types/api";
 import { esquemaBeneficiario, type DatosBeneficiario } from "./esquema";
+import SelectorComunidad from "./SelectorComunidad";
 import estilos from "./Formulario.module.css";
 
 const numeroOpcional = (valor: string | undefined) =>
@@ -60,13 +62,35 @@ function armarEncargado(
   ];
 }
 
-function PaginaNuevoBeneficiario() {
-  const navegar = useNavigate();
+/**
+ * Registro de un beneficiario.
+ *
+ * Va en modal y no en pantalla propia porque el alta nace siempre desde el
+ * listado y vuelve a él: sacar al usuario de la tabla para traerlo de vuelta
+ * dos pantallas después le hacía perder el filtro y la página en la que
+ * estaba. El formulario es largo, pero el modal deja fijos el encabezado y el
+ * pie, así que las acciones no se pierden al desplazarse.
+ *
+ * El botón de guardar vive en el pie, que en el DOM es hermano del cuerpo y no
+ * está dentro del <form>. Por eso lleva `form={idFormulario}`: es lo que
+ * permite que un submit fuera del formulario siga siendo su submit, con la
+ * validación nativa y el Enter incluidos.
+ */
+function ModalNuevoBeneficiario({
+  abierto,
+  onCerrar,
+  onCreado,
+}: {
+  abierto: boolean;
+  onCerrar: () => void;
+  /** Recibe el id recién creado para que el listado abra su ficha. */
+  onCreado: (personaId: number) => void;
+}) {
+  const idFormulario = useId();
   const clienteQuery = useQueryClient();
   const { avisar } = useAvisos();
 
   const generos = useCatalogo<ElementoCatalogo>("tipos-genero");
-  const comunidades = useCatalogo<Comunidad>("comunidades");
   const discapacidades = useCatalogo<ElementoCatalogo>("discapacidades");
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
 
@@ -77,7 +101,7 @@ function PaginaNuevoBeneficiario() {
     setValue,
     setError,
     setFocus,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<DatosBeneficiario>({
     // El esquema valida y transforma, así que su tipo de salida no coincide
     // con el de los campos del formulario. El cast se limita a esta línea.
@@ -93,6 +117,19 @@ function PaginaNuevoBeneficiario() {
       discapacidadIds: [],
       contactos: [],
     },
+  });
+
+  /*
+    isDirty lo lleva react-hook-form comparando contra los valores por defecto,
+    así que no hay que rastrear a mano treinta campos repartidos en cuatro
+    secciones. Es además el formulario más largo del sistema: perderlo por un
+    clic fuera del modal es exactamente lo que este aviso evita.
+  */
+  const cerrar = useCierreSeguro({
+    hayCambios: isDirty,
+    onCerrar,
+    mensaje:
+      "Este registro tiene datos escritos que todavía no se han guardado. Si cierra ahora, se pierde todo el formulario.",
   });
 
   const contactos = useFieldArray({ control, name: "contactos" });
@@ -127,7 +164,9 @@ function PaginaNuevoBeneficiario() {
     onSuccess: async (persona) => {
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_PERSONAS] });
       avisar("Beneficiario registrado.", "exito");
-      navegar("/beneficiarios/" + persona.id);
+      // El listado cierra este modal y abre la ficha del recién creado: es lo
+      // que se quiere ver después de registrar a alguien.
+      onCreado(persona.id);
     },
   });
 
@@ -166,12 +205,37 @@ function PaginaNuevoBeneficiario() {
   });
 
   return (
-    <>
-      <header style={{ marginBottom: "var(--space-3)" }}>
-        <h1>Registrar nuevo beneficiario</h1>
-      </header>
-
-      <form className={estilos.formulario} onSubmit={enviar} noValidate>
+    <Modal
+      abierto={abierto}
+      onCerrar={cerrar}
+      titulo="Registrar nuevo beneficiario"
+      descripcion="Los documentos de identificación se adjuntan después, desde la ficha."
+      tamano="amplio"
+      // Cerrar a media escritura perdería el formulario entero sin avisar.
+      bloqueado={isSubmitting}
+      pie={
+        <GrupoBotones>
+          <Boton variante="terciaria" onClick={cerrar} disabled={isSubmitting}>
+            Cancelar
+          </Boton>
+          <Boton
+            type="submit"
+            form={idFormulario}
+            variante="primaria"
+            cargando={isSubmitting}
+            textoCargando="Guardando…"
+          >
+            Guardar beneficiario
+          </Boton>
+        </GrupoBotones>
+      }
+    >
+      <form
+        id={idFormulario}
+        className={estilos.formulario + " " + estilos.enModal}
+        onSubmit={enviar}
+        noValidate
+      >
         {/* ─────────────── Datos generales ─────────────── */}
         <section className={estilos.seccion} aria-labelledby="s-generales">
           <h2 id="s-generales" className={estilos.tituloSeccion}>
@@ -242,17 +306,24 @@ function PaginaNuevoBeneficiario() {
               ))}
             </CampoSelect>
 
-            <CampoSelect
-              etiqueta="Comunidad"
-              error={errors.comunidad_id?.message}
-              {...register("comunidad_id")}
-            >
-              {comunidades.opciones.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nombre}
-                </option>
-              ))}
-            </CampoSelect>
+            {/*
+              Tres selectores encadenados en lugar de un desplegable plano de
+              comunidades. Solo se guarda la comunidad —la persona no tiene
+              municipio ni departamento propios, cuelgan de ella—, pero sin
+              acotar por municipio la lista se vuelve inmanejable en cuanto el
+              catálogo crece.
+            */}
+            <Controller
+              control={control}
+              name="comunidad_id"
+              render={({ field }) => (
+                <SelectorComunidad
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  error={errors.comunidad_id?.message}
+                />
+              )}
+            />
           </div>
         </section>
 
@@ -445,26 +516,9 @@ function PaginaNuevoBeneficiario() {
           </p>
         )}
 
-        <GrupoBotones>
-          <Boton
-            variante="terciaria"
-            onClick={() => navegar("/beneficiarios")}
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Boton>
-          <Boton
-            type="submit"
-            variante="primaria"
-            cargando={isSubmitting}
-            textoCargando="Guardando…"
-          >
-            Guardar beneficiario
-          </Boton>
-        </GrupoBotones>
       </form>
-    </>
+    </Modal>
   );
 }
 
-export default PaginaNuevoBeneficiario;
+export default ModalNuevoBeneficiario;

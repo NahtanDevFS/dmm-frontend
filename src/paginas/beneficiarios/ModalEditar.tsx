@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
 import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
+import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { aFechaDeInput } from "../../lib/fechas";
@@ -34,7 +35,7 @@ function ModalEditar({
   const comunidades = useCatalogo<Comunidad>("comunidades");
   const generos = useCatalogo<ElementoCatalogo>("tipos-genero");
 
-  const [datos, setDatos] = useState({
+  const valoresIniciales = {
     cui_dpi: persona.cui_dpi ?? "",
     nombres: persona.nombres,
     apellidos: persona.apellidos,
@@ -42,8 +43,14 @@ function ModalEditar({
     genero_id: persona.genero_id ? String(persona.genero_id) : "",
     comunidad_id: persona.comunidad_id ? String(persona.comunidad_id) : "",
     telefono: persona.telefono ?? "",
-  });
+  };
+  const [datos, setDatos] = useState(valoresIniciales);
   const [errorCui, setErrorCui] = useState<string | undefined>();
+
+  const cerrar = useCierreSeguro({
+    hayCambios: JSON.stringify(datos) !== JSON.stringify(valoresIniciales),
+    onCerrar,
+  });
 
   const cambiar = (campo: keyof typeof datos) => (
     evento: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -74,7 +81,7 @@ function ModalEditar({
   return (
     <Modal
       abierto={abierto}
-      onCerrar={onCerrar}
+      onCerrar={cerrar}
       titulo="Editar datos generales"
       descripcion="Las discapacidades, encargados, contactos y documentos se editan en su propia sección."
       // Mientras guarda no se puede cerrar: hacerlo dejaría al usuario sin
@@ -84,7 +91,7 @@ function ModalEditar({
         <GrupoBotones>
           <Boton
             variante="terciaria"
-            onClick={onCerrar}
+            onClick={cerrar}
             disabled={mutacion.isPending}
           >
             Cancelar
