@@ -110,25 +110,38 @@ function SeccionSemaforo() {
             role="group"
             aria-label="Filtrar por nivel del semáforo"
           >
-            {ORDEN_SEMAFORO.map((valor) => (
-              <button
-                key={valor}
-                type="button"
-                className={
-                  estilos.resumenNivel +
-                  (nivel === valor ? " " + estilos.resumenActivo : "")
-                }
-                aria-pressed={nivel === valor}
-                onClick={() => setNivel((previo) => (previo === valor ? "" : valor))}
-              >
-                <span className={estilos.resumenCantidad}>
-                  {conteos[valor] ?? 0}
-                </span>
-                <Insignia tono={NIVELES[valor].tono}>
-                  {NIVELES[valor].etiqueta}
-                </Insignia>
-              </button>
-            ))}
+            {ORDEN_SEMAFORO.map((valor) => {
+              const cantidad = conteos[valor] ?? 0;
+              return (
+                <button
+                  key={valor}
+                  type="button"
+                  className={
+                    estilos.resumenNivel +
+                    (nivel === valor ? " " + estilos.resumenActivo : "")
+                  }
+                  aria-pressed={nivel === valor}
+                  /*
+                    El nombre que sale del contenido sería «3 Vencido», que no
+                    dice que el recuadro sea un filtro. Un lector de pantalla
+                    necesita oír qué hace el botón, no solo qué muestra.
+                  */
+                  aria-label={
+                    "Filtrar por " +
+                    NIVELES[valor].etiqueta.toLowerCase() +
+                    ": " +
+                    cantidad +
+                    (cantidad === 1 ? " lote" : " lotes")
+                  }
+                  onClick={() => setNivel((previo) => (previo === valor ? "" : valor))}
+                >
+                  <span className={estilos.resumenCantidad}>{cantidad}</span>
+                  <Insignia tono={NIVELES[valor].tono}>
+                    {NIVELES[valor].etiqueta}
+                  </Insignia>
+                </button>
+              );
+            })}
           </div>
 
           <div className={estilos.filtros}>

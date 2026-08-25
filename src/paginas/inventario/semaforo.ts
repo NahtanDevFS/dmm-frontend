@@ -64,10 +64,23 @@ export const ORDEN_SEMAFORO: readonly Semaforo[] = [
 ];
 
 /**
- * Nivel de un valor del API. El `null` llega cuando un insumo no tiene ningún
- * lote con existencias, y entonces no hay caducidad que clasificar.
+ * Nivel de un valor del API.
+ *
+ * Devuelve `null` cuando no hay nada que clasificar, y son dos casos que hay
+ * que distinguir a mano porque el backend los dice de formas distintas:
+ *
+ * - Un insumo desactivado queda fuera de v_stock_insumo y su semáforo llega
+ *   como `null`.
+ * - Un insumo sin lotes con existencias llega como GRIS, porque la vista
+ *   aplica fn_semaforo_caducidad sobre una fecha nula y esa función responde
+ *   GRIS tanto para «no caduca» como para «no hay fecha». Sin `sinExistencias`
+ *   la ficha de un insumo que sí exige caducidad diría «sin caducidad», que es
+ *   justo lo contrario de lo que ocurre.
  */
-export function nivelDe(valor: Semaforo | string | null): NivelSemaforo | null {
-  if (valor === null) return null;
+export function nivelDe(
+  valor: Semaforo | string | null,
+  sinExistencias = false,
+): NivelSemaforo | null {
+  if (valor === null || sinExistencias) return null;
   return NIVELES[valor as Semaforo] ?? null;
 }

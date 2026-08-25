@@ -100,7 +100,10 @@ function PaginaInsumo() {
 
   const insumo = consulta.data;
   const requisitos = BANDERAS.filter((bandera) => insumo[bandera.clave]);
-  const nivel = nivelDe(stock.data?.semaforo ?? null);
+  const nivel = nivelDe(
+    stock.data?.semaforo ?? null,
+    stock.data?.stock_total === 0,
+  );
   const categoria = categorias.opciones.find((c) => c.id === insumo.categoria_id);
   const unidadBase = unidades.opciones.find(
     (u) => u.id === insumo.unidad_medida_base_id,
@@ -188,9 +191,10 @@ function PaginaInsumo() {
                 </>
               ) : (
                 /*
-                  Sin semáforo no significa «en verde». Un insumo desactivado
-                  queda fuera de la vista de stock, y uno sin lotes con
-                  existencias no tiene ninguna caducidad que clasificar.
+                  Sin semáforo no significa «en verde», y tampoco «no caduca».
+                  Un insumo desactivado queda fuera de la vista de stock, y uno
+                  sin lotes disponibles no tiene ninguna fecha que clasificar,
+                  por mucho que exija caducidad al recibirlo.
                 */
                 <span className={estilos.banderaAyuda}>
                   Sin lotes con existencias que clasificar.

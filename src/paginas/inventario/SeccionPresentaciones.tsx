@@ -120,6 +120,19 @@ function SeccionPresentaciones({
   const stockDe = (presentacionId: number) =>
     stock.find((fila) => fila.presentacion_id === presentacionId);
 
+  /**
+   * El promedio llega como el numeric(12,4) de Postgres, es decir «100.0000».
+   * Se muestra sin los decimales que no aportan: una caja de cien unidades no
+   * se lee mejor por escribir cuatro ceros detrás.
+   */
+  const formatearPromedio = (valor: string | null) => {
+    if (valor === null) return "—";
+    const numero = Number(valor);
+    return Number.isFinite(numero)
+      ? numero.toLocaleString("es-GT", { maximumFractionDigits: 4 })
+      : valor;
+  };
+
   return (
     <section className={estilos.tarjeta} aria-labelledby="inv-presentaciones">
       <div className={estilos.tituloTarjeta}>
@@ -161,6 +174,10 @@ function SeccionPresentaciones({
           <tbody>
             {presentaciones.map((presentacion) => {
               const existencias = stockDe(presentacion.id);
+              // La vista devuelve la presentación aunque no tenga ningún lote,
+              // y entonces el promedio es nulo. Decir «promedio de 0 lotes» es
+              // ruido: si no hay lotes, no hay nada que promediar.
+              const lotes = Number(existencias?.lotes_considerados ?? 0);
               return (
                 <tr key={presentacion.id}>
                   <td>
@@ -172,14 +189,19 @@ function SeccionPresentaciones({
                     )}
                   </td>
                   <CeldaCantidad>
-                    {existencias?.unidades_por_presentacion_promedio ?? "—"}
-                    {existencias && (
+                    {lotes > 0 ? (
                       <>
-                        {" "}
+                        {formatearPromedio(
+                          existencias?.unidades_por_presentacion_promedio ?? null,
+                        )}{" "}
                         <span className={estilos.banderaAyuda}>
-                          (promedio de {existencias.lotes_considerados} lotes)
+                          {lotes === 1
+                            ? "(1 lote)"
+                            : "(promedio de " + lotes + " lotes)"}
                         </span>
                       </>
+                    ) : (
+                      "—"
                     )}
                   </CeldaCantidad>
                   <td>
