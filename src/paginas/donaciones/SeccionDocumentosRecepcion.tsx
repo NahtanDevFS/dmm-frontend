@@ -27,15 +27,28 @@ import estilos from "./Donaciones.module.css";
 function SeccionDocumentosRecepcion({
   recepcionId,
   documentos,
+  onBorrador,
 }: {
   recepcionId: number;
   documentos: DocumentoRecepcion[];
+  /** Avisa a la ficha de si hay un adjunto elegido y todavía sin subir. */
+  onBorrador?: (hay: boolean) => void;
 }) {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
 
   const [archivo, setArchivo] = useState<File | null>(null);
   const [descripcion, setDescripcion] = useState("");
+
+  const elegirArchivo = (nuevo: File | null) => {
+    setArchivo(nuevo);
+    onBorrador?.(nuevo !== null || descripcion.trim() !== "");
+  };
+
+  const escribirDescripcion = (texto: string) => {
+    setDescripcion(texto);
+    onBorrador?.(archivo !== null || texto.trim() !== "");
+  };
 
   const refrescar = () =>
     clienteQuery.invalidateQueries({
@@ -53,6 +66,7 @@ function SeccionDocumentosRecepcion({
       avisar("Documento adjuntado.", "exito");
       setArchivo(null);
       setDescripcion("");
+      onBorrador?.(false);
     },
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
@@ -136,14 +150,14 @@ function SeccionDocumentosRecepcion({
             etiqueta="Archivo"
             obligatorio
             archivo={archivo}
-            onCambiar={setArchivo}
+            onCambiar={elegirArchivo}
             disabled={subida.isPending}
           />
           <CampoTexto
             etiqueta="Descripción"
             maxLength={255}
             value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
+            onChange={(e) => escribirDescripcion(e.target.value)}
             ayuda="Cómo se llama el documento: «Acta de entrega», «Factura 4471». Sin ella se muestra el nombre del archivo."
           />
         </div>

@@ -7,6 +7,7 @@ import {
   CampoAreaTexto,
 } from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
+import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { errorDeCampo, mensajeDeError } from "../../lib/errores";
@@ -54,7 +55,7 @@ function ModalInsumo({
     incluirInactivos: true,
   });
 
-  const [datos, setDatos] = useState({
+  const valoresIniciales = {
     nombre: insumo?.nombre ?? "",
     descripcion: insumo?.descripcion ?? "",
     categoria_id: insumo ? String(insumo.categoria_id) : "",
@@ -62,8 +63,14 @@ function ModalInsumo({
     requiere_fecha_caducidad: insumo?.requiere_fecha_caducidad ?? false,
     requiere_codigo_fabricante: insumo?.requiere_codigo_fabricante ?? false,
     bloquea_solicitud_sin_stock: insumo?.bloquea_solicitud_sin_stock ?? false,
-  });
+  };
+  const [datos, setDatos] = useState(valoresIniciales);
   const [errores, setErrores] = useState<Record<string, string | undefined>>({});
+
+  const cerrar = useCierreSeguro({
+    hayCambios: JSON.stringify(datos) !== JSON.stringify(valoresIniciales),
+    onCerrar,
+  });
 
   const texto =
     (
@@ -155,7 +162,7 @@ function ModalInsumo({
   return (
     <Modal
       abierto={abierto}
-      onCerrar={onCerrar}
+      onCerrar={cerrar}
       titulo={insumo ? "Editar insumo" : "Nuevo insumo"}
       descripcion="Las presentaciones en las que se recibe el insumo se gestionan en su ficha, una vez creado."
       bloqueado={mutacion.isPending}
@@ -163,7 +170,7 @@ function ModalInsumo({
         <GrupoBotones>
           <Boton
             variante="terciaria"
-            onClick={onCerrar}
+            onClick={cerrar}
             disabled={mutacion.isPending}
           >
             Cancelar

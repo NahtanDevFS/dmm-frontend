@@ -7,6 +7,7 @@ import {
   CampoAreaTexto,
 } from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
+import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { aFechaDeInput, fechaDeHoy } from "../../lib/fechas";
@@ -53,15 +54,21 @@ function ModalRecepcion({
     { incluirInactivos: true },
   );
 
-  const [datos, setDatos] = useState({
+  const valoresIniciales = {
     institucion_id: recepcion ? String(recepcion.institucion_id) : "",
     fecha_recepcion: recepcion
       ? aFechaDeInput(recepcion.fecha_recepcion)
       : fechaDeHoy(),
     codigo_lote: recepcion?.codigo_lote ?? "",
     observaciones_generales: recepcion?.observaciones_generales ?? "",
-  });
+  };
+  const [datos, setDatos] = useState(valoresIniciales);
   const [errores, setErrores] = useState<Record<string, string | undefined>>({});
+
+  const cerrar = useCierreSeguro({
+    hayCambios: JSON.stringify(datos) !== JSON.stringify(valoresIniciales),
+    onCerrar,
+  });
 
   const cambiar =
     (campo: keyof typeof datos) =>
@@ -136,7 +143,7 @@ function ModalRecepcion({
   return (
     <Modal
       abierto={abierto}
-      onCerrar={onCerrar}
+      onCerrar={cerrar}
       titulo={recepcion ? "Editar recepción" : "Nueva recepción de donación"}
       descripcion="Los insumos que trajo el envío se registran después, uno a uno, desde la ficha de la recepción."
       bloqueado={mutacion.isPending}
@@ -144,7 +151,7 @@ function ModalRecepcion({
         <GrupoBotones>
           <Boton
             variante="terciaria"
-            onClick={onCerrar}
+            onClick={cerrar}
             disabled={mutacion.isPending}
           >
             Cancelar

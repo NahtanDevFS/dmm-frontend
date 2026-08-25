@@ -53,12 +53,25 @@ const VACIO = {
  * puede traer el mismo insumo en dos lotes distintos —con caducidades
  * distintas— y son dos filas, porque lo que vence es el lote.
  */
+/** Verdadero si el formulario de alta tiene algo escrito. */
+function esBorrador(datos: typeof VACIO): boolean {
+  return JSON.stringify(datos) !== JSON.stringify(VACIO);
+}
+
 function SeccionLotes({
   recepcionId,
   recepcionActiva,
+  onBorrador,
 }: {
   recepcionId: number;
   recepcionActiva: boolean;
+  /**
+   * Avisa a la ficha de si queda algo a medio escribir, para que pueda
+   * preguntar antes de cerrarse. Se llama desde los manejadores de cambio y no
+   * desde un efecto: derivarlo en un efecto duplicaria el estado y encadenaria
+   * renders, que es el fallo que ya costo una correccion en este proyecto.
+   */
+  onBorrador?: (hay: boolean) => void;
 }) {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
@@ -121,6 +134,11 @@ function SeccionLotes({
     datos.presentacion_recepcion_id ||
     (presentacionPorDefecto ? String(presentacionPorDefecto.id) : "");
 
+  const aplicar = (nuevos: typeof VACIO) => {
+    setDatos(nuevos);
+    onBorrador?.(esBorrador(nuevos));
+  };
+
   const cambiar =
     (campo: keyof typeof datos) =>
     (
@@ -128,16 +146,12 @@ function SeccionLotes({
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
       >,
     ) =>
-      setDatos((previos) => ({ ...previos, [campo]: evento.target.value }));
+      aplicar({ ...datos, [campo]: evento.target.value });
 
   // Cambiar de insumo invalida la presentación: pertenecen a otro producto y
   // la base rechaza la combinación con un mensaje que no ayuda a nadie.
   const cambiarInsumo = (valor: string) =>
-    setDatos((previos) => ({
-      ...previos,
-      insumo_id: valor,
-      presentacion_recepcion_id: "",
-    }));
+    aplicar({ ...datos, insumo_id: valor, presentacion_recepcion_id: "" });
 
   const cantidad = Number(datos.cantidad_recepcion_original);
   const porPresentacion = Number(datos.unidades_por_presentacion_lote);
@@ -216,7 +230,7 @@ function SeccionLotes({
       setPromocion(
         promovidas > 0 ? { insumo: insumoNombre, lineas: promovidas } : null,
       );
-      setDatos(VACIO);
+      aplicar(VACIO);
       setErrores({});
     },
     onError: (error) => {

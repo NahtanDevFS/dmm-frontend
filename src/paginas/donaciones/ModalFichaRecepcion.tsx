@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
 import Insignia from "../../componentes/ui/Insignia";
 import Modal from "../../componentes/ui/Modal";
+import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { EstadoVacio, Esqueleto } from "../../componentes/ui/Estado";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
@@ -48,6 +49,23 @@ function ModalFichaRecepcion({
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
   const [editando, setEditando] = useState(false);
+  /**
+   * Qué secciones tienen algo a medio escribir. La ficha en sí es de consulta
+   * —lo que se ve ya está guardado—, pero dentro conviven dos formularios: el
+   * de lote, que son ocho campos, y el de documentos. Sin esto, un clic fuera
+   * del modal se llevaba el renglón del camión que se estaba capturando.
+   */
+  const [borradores, setBorradores] = useState({
+    lotes: false,
+    documentos: false,
+  });
+
+  const cerrar = useCierreSeguro({
+    hayCambios: borradores.lotes || borradores.documentos,
+    onCerrar,
+    mensaje:
+      "Hay un formulario a medio llenar en esta recepción. Si cierra ahora se pierde lo escrito; lo ya registrado se conserva.",
+  });
 
   const consulta = useQuery({
     queryKey: [CLAVE_RECEPCIONES, recepcionId],
@@ -86,7 +104,7 @@ function ModalFichaRecepcion({
   return (
     <Modal
       abierto={abierto}
-      onCerrar={onCerrar}
+      onCerrar={cerrar}
       titulo={
         recepcion && institucion
           ? "Donación de " + institucion.nombre
@@ -106,7 +124,7 @@ function ModalFichaRecepcion({
       bloqueado={cambioDeEstado.isPending}
       pie={
         <GrupoBotones>
-          <Boton variante="terciaria" onClick={onCerrar}>
+          <Boton variante="terciaria" onClick={cerrar}>
             Cerrar
           </Boton>
           {recepcion &&
@@ -202,11 +220,17 @@ function ModalFichaRecepcion({
           <SeccionLotes
             recepcionId={recepcion.id}
             recepcionActiva={recepcion.activo}
+            onBorrador={(hay) =>
+              setBorradores((previos) => ({ ...previos, lotes: hay }))
+            }
           />
 
           <SeccionDocumentosRecepcion
             recepcionId={recepcion.id}
             documentos={recepcion.documentos}
+            onBorrador={(hay) =>
+              setBorradores((previos) => ({ ...previos, documentos: hay }))
+            }
           />
 
           {editando && (

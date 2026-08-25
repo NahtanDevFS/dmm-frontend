@@ -10,6 +10,7 @@ import type { Resolver } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
 import Modal from "../../componentes/ui/Modal";
+import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import {
   CampoTexto,
   CampoSelect,
@@ -100,7 +101,7 @@ function ModalNuevoBeneficiario({
     setValue,
     setError,
     setFocus,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<DatosBeneficiario>({
     // El esquema valida y transforma, así que su tipo de salida no coincide
     // con el de los campos del formulario. El cast se limita a esta línea.
@@ -116,6 +117,19 @@ function ModalNuevoBeneficiario({
       discapacidadIds: [],
       contactos: [],
     },
+  });
+
+  /*
+    isDirty lo lleva react-hook-form comparando contra los valores por defecto,
+    así que no hay que rastrear a mano treinta campos repartidos en cuatro
+    secciones. Es además el formulario más largo del sistema: perderlo por un
+    clic fuera del modal es exactamente lo que este aviso evita.
+  */
+  const cerrar = useCierreSeguro({
+    hayCambios: isDirty,
+    onCerrar,
+    mensaje:
+      "Este registro tiene datos escritos que todavía no se han guardado. Si cierra ahora, se pierde todo el formulario.",
   });
 
   const contactos = useFieldArray({ control, name: "contactos" });
@@ -193,7 +207,7 @@ function ModalNuevoBeneficiario({
   return (
     <Modal
       abierto={abierto}
-      onCerrar={onCerrar}
+      onCerrar={cerrar}
       titulo="Registrar nuevo beneficiario"
       descripcion="Los documentos de identificación se adjuntan después, desde la ficha."
       tamano="amplio"
@@ -201,7 +215,7 @@ function ModalNuevoBeneficiario({
       bloqueado={isSubmitting}
       pie={
         <GrupoBotones>
-          <Boton variante="terciaria" onClick={onCerrar} disabled={isSubmitting}>
+          <Boton variante="terciaria" onClick={cerrar} disabled={isSubmitting}>
             Cancelar
           </Boton>
           <Boton

@@ -4,6 +4,7 @@ import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
 import { CampoAreaTexto } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
 import Modal from "../../componentes/ui/Modal";
+import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { formatearFecha } from "../../lib/fechas";
 import { errorDeCampo, mensajeDeError } from "../../lib/errores";
@@ -68,6 +69,13 @@ function ModalBajaLote({
 
   const nivel = nivelDe(lote.semaforo ?? null);
 
+  const cerrar = useCierreSeguro({
+    hayCambios: motivo.trim() !== "",
+    onCerrar,
+    mensaje:
+      "Escribió un motivo de baja que no se ha registrado. Si cierra ahora, se pierde y el lote sigue activo.",
+  });
+
   const mutacion = useMutation({
     mutationFn: () => darBajaLote(lote.id, motivo.trim()),
     onSuccess: async () => {
@@ -91,7 +99,7 @@ function ModalBajaLote({
   return (
     <Modal
       abierto={abierto}
-      onCerrar={onCerrar}
+      onCerrar={cerrar}
       titulo="Dar de baja el lote"
       descripcion="Las existencias disponibles se descartan y el lote deja de aparecer en el inventario. No se puede deshacer."
       bloqueado={mutacion.isPending}
@@ -99,7 +107,7 @@ function ModalBajaLote({
         <GrupoBotones>
           <Boton
             variante="terciaria"
-            onClick={onCerrar}
+            onClick={cerrar}
             disabled={mutacion.isPending}
           >
             Cancelar
