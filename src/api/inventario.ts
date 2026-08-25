@@ -1,5 +1,5 @@
 import axiosClient from "./axiosClient";
-import type { Semaforo } from "../types/api";
+import { LIMITE_MAXIMO, type Semaforo, type Sobre } from "../types/api";
 
 /**
  * Inventario: insumos, sus presentaciones y el semáforo de caducidad.
@@ -112,6 +112,23 @@ export interface LoteSemaforo {
 
 export const CLAVE_INSUMOS = "insumos";
 export const CLAVE_SEMAFORO = "semaforo-inventario";
+
+/**
+ * Insumos activos para un <select>.
+ *
+ * GET /insumos pagina, así que se pide el límite máximo del backend en una
+ * sola llamada. Es deliberado y tiene techo: por encima de 200 insumos el
+ * desplegable se queda corto —y además deja de ser usable— y habrá que
+ * cambiarlo por un buscador con autocompletado, el mismo que ya se debe a
+ * personas. Con el catálogo de la DMM, que se mide en decenas, no compensa
+ * todavía.
+ */
+export async function listarInsumosParaSeleccion(): Promise<Insumo[]> {
+  const { data } = await axiosClient.get<Sobre<Insumo>>("insumos", {
+    params: { limite: LIMITE_MAXIMO },
+  });
+  return data.datos;
+}
 
 export async function obtenerInsumo(id: number): Promise<Insumo> {
   const { data } = await axiosClient.get<Insumo>("insumos/" + id);

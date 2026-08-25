@@ -217,12 +217,3 @@ export async function eliminarDocumento(
     "personas/" + personaId + "/documentos/" + documentoId,
   );
 }
-
-/**
- * URL de un archivo subido. Está tras la sesión: los documentos de
- * identificación no deben ser accesibles sin autenticar, así que la imagen se
- * pide con la cookie y no puede servirse desde un enlace público.
- */
-export function urlArchivo(ruta: string): string {
-  return import.meta.env.VITE_API_URL + "/archivos/" + ruta;
-}

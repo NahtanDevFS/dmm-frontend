@@ -6,12 +6,12 @@ import SubidaArchivo from "../../componentes/ui/SubidaArchivo";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { mensajeDeError } from "../../lib/errores";
+import { urlArchivo } from "../../lib/archivos";
 import {
   CLAVE_PERSONAS,
   eliminarDocumento,
   listarDocumentos,
   subirDocumento,
-  urlArchivo,
 } from "../../api/personas";
 import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Ficha.module.css";

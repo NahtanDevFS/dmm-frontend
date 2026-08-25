@@ -71,6 +71,21 @@ export function aFechaDeInput(valor: string | null | undefined): string {
   return valor.slice(0, 10);
 }
 
+/**
+ * Hoy en aaaa-mm-dd, para el atributo `max` de un input date.
+ *
+ * Se compone a mano en vez de recortar un toISOString(): ese devuelve UTC, y
+ * en Guatemala (UTC-6) a partir de las 18:00 daría el día siguiente. En un
+ * campo que impide elegir fechas futuras eso significa permitir justo la que
+ * la base va a rechazar, porque `recepcion_donacion_lote` tiene un CHECK de
+ * fecha_recepcion <= CURRENT_DATE.
+ */
+export function fechaDeHoy(referencia = new Date()): string {
+  const mes = String(referencia.getMonth() + 1).padStart(2, "0");
+  const dia = String(referencia.getDate()).padStart(2, "0");
+  return referencia.getFullYear() + "-" + mes + "-" + dia;
+}
+
 /** CUI/DPI agrupado como en el documento: 1234 56789 0101. */
 export function formatearCui(cui: string | null | undefined): string {
   if (!cui) return "—";
