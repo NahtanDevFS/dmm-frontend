@@ -1,0 +1,143 @@
+.encabezado {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.nota {
+  margin-top: 4px;
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+/* Región común: el listado vive en su propia tarjeta sobre Rosa 50. */
+.tarjeta {
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+}
+
+/**
+ * Las mismas regiones dentro del modal de la ficha. El modal ya es la
+ * superficie elevada; repetir fondo y sombra dibujaría tarjetas blancas sobre
+ * blanco. Lo que separaba las regiones era la elevación, y aquí lo hace una
+ * línea.
+ */
+.enModal .tarjeta {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.enModal .tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.tituloTarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.filtroSelect {
+  min-width: 260px;
+}
+
+.opcionesExtra {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  font: var(--texto-etiqueta);
+  cursor: pointer;
+}
+
+.casilla {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.institucion {
+  font-weight: 600;
+}
+
+.acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.dato dt {
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+}
+
+.dato dd {
+  margin-top: 2px;
+  font: var(--texto-cuerpo);
+  color: var(--color-text-main);
+}
+
+.datoIdentificador {
+  font: var(--texto-dato);
+}
+
+.auxiliar {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.inactiva {
+  padding: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-field);
+  background-color: color-mix(in srgb, var(--color-warning) 8%, #fff);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+}
+
+@media (max-width: 768px) {
+  .encabezado {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtros > * {
+    width: 100%;
+  }
+}
