@@ -150,6 +150,26 @@ function SeccionLotes({
   const nombreUnidad = (id: number | undefined) =>
     unidades.opciones.find((u) => u.id === id)?.nombre ?? "unidad base";
 
+  /**
+   * Las dos unidades que intervienen en el lote, con su nombre real.
+   *
+   * Son distintas y es justo lo que se presta a error: se recibe en una
+   * —«Caja»— y se cuenta en otra —«Blíster»—. Mientras los campos se llamaran
+   * «cantidad» y «unidades por presentación» a secas, no había forma de saber
+   * cuál iba en cuál sin reconstruir mentalmente el modelo de datos.
+   */
+  const presentacionActual = presentaciones.data?.find(
+    (p) => String(p.id) === presentacionElegida,
+  );
+  const unidadRecibida = presentacionActual
+    ? nombreUnidad(presentacionActual.unidad_medida_id)
+    : null;
+  const unidadContada = insumo
+    ? nombreUnidad(insumo.unidad_medida_base_id)
+    : null;
+  /** Verdadero cuando ya se sabe en qué unidad llega y en cuál se cuenta. */
+  const equivalenciaLista = unidadRecibida !== null && unidadContada !== null;
+
   const alta = useMutation({
     /**
      * Registrar el lote y medir a cuántas personas destrabó.
@@ -247,15 +267,19 @@ function SeccionLotes({
       "Insumo: " + (insumo?.nombre ?? "—"),
       "Presentación: " +
         (presentacion ? nombreUnidad(presentacion.unidad_medida_id) : "—"),
+      "Recibido: " +
+        cantidad.toLocaleString("es-GT", { maximumFractionDigits: 4 }) +
+        " " +
+        (presentacion ? nombreUnidad(presentacion.unidad_medida_id) : "—") +
+        ", con " +
+        porPresentacion.toLocaleString("es-GT", { maximumFractionDigits: 4 }) +
+        " " +
+        unidadBase +
+        " cada una",
       "Entra al inventario: " +
         unidadesBase.toLocaleString("es-GT") +
         " " +
-        unidadBase +
-        "  (" +
-        cantidad.toLocaleString("es-GT", { maximumFractionDigits: 4 }) +
-        " × " +
-        porPresentacion.toLocaleString("es-GT", { maximumFractionDigits: 4 }) +
-        ")",
+        unidadBase,
       "Caducidad: " +
         (datos.fecha_caducidad
           ? formatearFecha(datos.fecha_caducidad)
@@ -459,7 +483,11 @@ function SeccionLotes({
                   ? "Elija primero el insumo"
                   : "Seleccione la presentación"
               }
-              ayuda="La forma en que llegó: caja, bolsa, quintal."
+              ayuda={
+                presentacionActual?.es_default
+                  ? "Es la presentación predeterminada de este insumo. Cámbiela si el envío vino en otra."
+                  : "La forma en que llegó: caja, bolsa, quintal."
+              }
             >
               {(presentaciones.data ?? []).map((presentacion) => (
                 <option key={presentacion.id} value={presentacion.id}>
@@ -469,8 +497,29 @@ function SeccionLotes({
               ))}
             </CampoSelect>
 
+            {equivalenciaLista && (
+              /*
+                Recordatorio de las dos unidades en juego, con los nombres del
+                catálogo y no con ejemplos genéricos. Ocupa la fila entera y va
+                antes de los campos numéricos porque es lo que hay que tener
+                claro para llenarlos: en qué unidad llegó el bulto y en cuál se
+                va a contar el contenido.
+              */
+              <p className={estilos.equivalencia}>
+                Llega en <strong>{unidadRecibida}</strong>
+                {presentacionActual?.es_default && " (la predeterminada)"} y se
+                cuenta en <strong>{unidadContada}</strong>. Indique cuántas{" "}
+                {unidadRecibida} llegaron y cuántas {unidadContada} trae cada
+                una.
+              </p>
+            )}
+
             <CampoTexto
-              etiqueta="Cantidad recibida"
+              etiqueta={
+                unidadRecibida
+                  ? "Cuántas «" + unidadRecibida + "» llegaron"
+                  : "Cantidad recibida"
+              }
               type="number"
               min="0"
               step="0.0001"
@@ -479,11 +528,23 @@ function SeccionLotes({
               value={datos.cantidad_recepcion_original}
               onChange={cambiar("cantidad_recepcion_original")}
               error={errores.cantidad_recepcion_original}
-              ayuda="Cuántas presentaciones llegaron: 3 cajas, 5 bolsas."
+              ayuda={
+                unidadRecibida
+                  ? "El número de bultos que entregó la institución."
+                  : "Cuántas presentaciones llegaron: 3 cajas, 5 bolsas."
+              }
             />
 
             <CampoTexto
-              etiqueta="Unidades por presentación"
+              etiqueta={
+                equivalenciaLista
+                  ? "Cuántas «" +
+                    unidadContada +
+                    "» trae cada «" +
+                    unidadRecibida +
+                    "»"
+                  : "Unidades por presentación"
+              }
               type="number"
               min="0"
               step="0.0001"
@@ -492,7 +553,7 @@ function SeccionLotes({
               value={datos.unidades_por_presentacion_lote}
               onChange={cambiar("unidades_por_presentacion_lote")}
               error={errores.unidades_por_presentacion_lote}
-              ayuda="Cuántas unidades base trae cada una. Es de este lote: otro envío puede traer cajas distintas."
+              ayuda="Es de este lote y no del insumo: el próximo envío puede traer bultos de otro tamaño."
             />
 
             {/*

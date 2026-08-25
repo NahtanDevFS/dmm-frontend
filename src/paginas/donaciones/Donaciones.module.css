@@ -234,3 +234,19 @@
   font: var(--texto-etiqueta);
   overflow-wrap: anywhere;
 }
+
+/**
+ * Recordatorio de las dos unidades del lote.
+ *
+ * Zona de marca y no un semántico: no comunica un estado ni un problema, solo
+ * recuerda en qué unidad llegó el bulto y en cuál se cuenta su contenido, que
+ * es lo que hay que tener claro antes de teclear los dos números.
+ */
+.equivalencia {
+  grid-column: 1 / -1;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-field);
+  background-color: var(--color-primary-light);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+}
