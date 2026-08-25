@@ -29,6 +29,7 @@ import {
 } from "../../api/donaciones";
 import type { ElementoCatalogo } from "../../types/api";
 import { calcularUnidadesBase } from "./calculo";
+import { contarEnEsperaDe } from "./listaEspera";
 import estilos from "./Donaciones.module.css";
 
 const VACIO = {
@@ -62,6 +63,11 @@ function SeccionLotes({
   const { avisar } = useAvisos();
   const [datos, setDatos] = useState(VACIO);
   const [errores, setErrores] = useState<Record<string, string | undefined>>({});
+  /** Efecto del último lote sobre la lista de espera, si se pudo medir. */
+  const [promocion, setPromocion] = useState<{
+    insumo: string;
+    lineas: number;
+  } | null>(null);
 
   const insumos = useQuery({
     queryKey: [CLAVE_INSUMOS, "seleccion"],
@@ -129,8 +135,24 @@ function SeccionLotes({
     unidades.opciones.find((u) => u.id === id)?.nombre ?? "unidad base";
 
   const alta = useMutation({
-    mutationFn: () =>
-      crearLote(recepcionId, {
+    /**
+     * Registrar el lote y medir a cuántas personas destrabó.
+     *
+     * El backend llama a sp_procesar_donacion_pendientes dentro de la misma
+     * transacción que crea el lote, pero la respuesta del POST solo devuelve el
+     * lote: no dice cuántas líneas de solicitud pasaron de esperar existencias
+     * a estar listas para entrega. Se deduce contando la lista de espera de ese
+     * insumo antes y después.
+     *
+     * Los dos conteos son opcionales y no pueden hacer fallar el alta: si
+     * alguno no llega, el lote está registrado igual y lo único que se pierde
+     * es el aviso.
+     */
+    mutationFn: async () => {
+      const nombre = insumo?.nombre;
+      const antes = nombre ? await contarEnEsperaDe(nombre) : null;
+
+      const lote = await crearLote(recepcionId, {
         insumo_id: Number(datos.insumo_id),
         presentacion_recepcion_id: Number(presentacionElegida),
         cantidad_recepcion_original: cantidad,
@@ -139,8 +161,15 @@ function SeccionLotes({
         codigo_lote_fabricante: datos.codigo_lote_fabricante.trim() || null,
         fecha_caducidad: datos.fecha_caducidad || null,
         observaciones: datos.observaciones.trim() || null,
-      }),
-    onSuccess: async () => {
+      });
+
+      const despues = nombre ? await contarEnEsperaDe(nombre) : null;
+      const promovidas =
+        antes !== null && despues !== null ? Math.max(0, antes - despues) : 0;
+
+      return { lote, promovidas, insumoNombre: nombre ?? "" };
+    },
+    onSuccess: async ({ promovidas, insumoNombre }) => {
       await clienteQuery.invalidateQueries({
         queryKey: [CLAVE_RECEPCIONES, recepcionId],
       });
@@ -148,6 +177,9 @@ function SeccionLotes({
       // mostrarían existencias viejas si no se invalidaran también.
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_INSUMOS] });
       avisar("Lote agregado al inventario.", "exito");
+      setPromocion(
+        promovidas > 0 ? { insumo: insumoNombre, lineas: promovidas } : null,
+      );
       setDatos(VACIO);
       setErrores({});
     },
@@ -254,6 +286,36 @@ function SeccionLotes({
             ))}
           </tbody>
         </Tabla>
+      )}
+
+      {promocion && (
+        /*
+          role="status" y no "alert": es una buena noticia que puede esperar al
+          hueco natural del lector de pantalla, no una interrupción.
+        */
+        <div className={estilos.promocion} role="status">
+          <div>
+            <p className={estilos.promocionTitulo}>
+              {promocion.lineas === 1
+                ? "Una solicitud en espera quedó lista para entrega"
+                : promocion.lineas +
+                  " solicitudes en espera quedaron listas para entrega"}
+            </p>
+            <p className={estilos.promocionTexto}>
+              Al entrar «{promocion.insumo}» al inventario, la base resolvió la
+              lista de espera por orden de llegada y pasó esas líneas de
+              «pendiente de adquisición» a «pendiente de entrega». Todavía hay
+              que despacharlas desde Entregas: aquí solo quedaron reservadas.
+            </p>
+          </div>
+          <Boton
+            pequeno
+            variante="terciaria"
+            onClick={() => setPromocion(null)}
+          >
+            Entendido
+          </Boton>
+        </div>
       )}
 
       {!recepcionActiva ? (

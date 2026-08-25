@@ -178,3 +178,35 @@
   justify-content: flex-end;
   margin-top: var(--space-2);
 }
+
+/**
+ * Aviso de solicitudes destrabadas por el lote recién registrado.
+ *
+ * Se queda en pantalla en lugar de pasar como un mensaje efímero: no es la
+ * confirmación de que se guardó —eso ya lo dice el aviso corriente— sino una
+ * consecuencia con tarea detrás. Alguien tiene que ir a despachar esas
+ * entregas, y quien descarga el camión no siempre es quien las despacha.
+ */
+.promocion {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-success);
+  border-left-width: 3px;
+  border-radius: var(--radius-field);
+  background-color: color-mix(in srgb, var(--color-success) 8%, #fff);
+}
+
+.promocionTitulo {
+  font: var(--texto-etiqueta);
+  color: var(--color-text-main);
+}
+
+.promocionTexto {
+  margin-top: 4px;
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+}
