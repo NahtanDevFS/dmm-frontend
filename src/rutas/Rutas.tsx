@@ -65,6 +65,11 @@ const RUTAS_EXTRA: { ruta: string; roles: readonly Rol[]; elemento: ReactNode }[
       roles: OPERACION,
       elemento: <PaginaInventario />,
     },
+    {
+      ruta: "/donaciones/:id",
+      roles: OPERACION,
+      elemento: <PaginaDonaciones />,
+    },
   ];
 function Rutas() {
   const { usuario } = useAuth();

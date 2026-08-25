@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Boton from "../../componentes/ui/Boton";
 import { CampoSelect } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
 import Paginacion from "../../componentes/ui/Paginacion";
 import Tabla, {
+  CeldaAcciones,
   CeldaCantidad,
   CeldaIdentificador,
 } from "../../componentes/ui/Tabla";
@@ -14,6 +16,8 @@ import { formatearFecha } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
 import { CLAVE_RECEPCIONES, type Recepcion } from "../../api/donaciones";
 import type { InstitucionDonante } from "../../types/api";
+import ModalRecepcion from "./ModalRecepcion";
+import ModalFichaRecepcion from "./ModalFichaRecepcion";
 import estilos from "./Donaciones.module.css";
 
 /**
@@ -25,6 +29,12 @@ import estilos from "./Donaciones.module.css";
  * de cabeceras dejaría de leerse si intentara mostrarlos.
  */
 function PaginaDonaciones() {
+  const navegar = useNavigate();
+  const { id } = useParams();
+  const rutaId = id && /^\d+$/.test(id) ? Number(id) : null;
+
+  const [creando, setCreando] = useState(false);
+  const [fichaId, setFichaId] = useState<number | null>(rutaId);
   const [institucionId, setInstitucionId] = useState("");
   const [incluirInactivas, setIncluirInactivas] = useState(false);
 
@@ -51,6 +61,11 @@ function PaginaDonaciones() {
   const nombreInstitucion = (idInstitucion: number) =>
     instituciones.opciones.find((i) => i.id === idInstitucion)?.nombre ?? "—";
 
+  /** Devuelve la barra de direcciones al módulo si se entró por la ruta profunda. */
+  const limpiarRuta = () => {
+    if (rutaId !== null) navegar("/donaciones", { replace: true });
+  };
+
   return (
     <>
       <header className={estilos.encabezado}>
@@ -61,6 +76,9 @@ function PaginaDonaciones() {
             que trajo se registran dentro, como lotes de inventario.
           </p>
         </div>
+        <Boton variante="primaria" onClick={() => setCreando(true)}>
+          Nueva recepción
+        </Boton>
       </header>
 
       <section className={estilos.tarjeta} aria-labelledby="don-listado">
@@ -127,6 +145,7 @@ function PaginaDonaciones() {
                   <th>Institución donante</th>
                   <th>Código del envío</th>
                   <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -148,6 +167,15 @@ function PaginaDonaciones() {
                         <Insignia tono="neutra">Desactivada</Insignia>
                       )}
                     </td>
+                    <CeldaAcciones>
+                      <Boton
+                        pequeno
+                        variante="secundaria"
+                        onClick={() => setFichaId(recepcion.id)}
+                      >
+                        Ver recepción
+                      </Boton>
+                    </CeldaAcciones>
                   </tr>
                 ))}
               </tbody>
@@ -167,6 +195,30 @@ function PaginaDonaciones() {
           </>
         )}
       </section>
+
+      {creando && (
+        <ModalRecepcion
+          abierto={creando}
+          onCerrar={() => setCreando(false)}
+          // Registrar el envío y no poder abrirlo obligaría a buscarlo en la
+          // tabla, y lo que sigue después de registrarlo es cargar sus lotes.
+          onCreada={(recepcionNueva) => setFichaId(recepcionNueva)}
+        />
+      )}
+
+      {fichaId !== null && (
+        <ModalFichaRecepcion
+          // La clave remonta la ficha al cambiar de recepción: sin ella se
+          // reutilizaría el estado del modal de edición de la anterior.
+          key={fichaId}
+          recepcionId={fichaId}
+          abierto
+          onCerrar={() => {
+            setFichaId(null);
+            limpiarRuta();
+          }}
+        />
+      )}
     </>
   );
 }
