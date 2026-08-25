@@ -166,3 +166,26 @@
     grid-template-columns: 1fr;
   }
 }
+
+/**
+ * Alta de comunidad sin salir del registro. Ocupa la fila entera de la rejilla
+ * porque es una tarea aparte que se abre dentro de otra: repartida en una
+ * columna de 250 px se leería como un campo más del formulario, y no lo es.
+ */
+.altaEnLinea {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--space-2);
+  align-items: end;
+  padding: var(--space-2);
+  border: 1px dashed var(--color-primary-soft);
+  border-radius: var(--radius-field);
+  background-color: var(--color-primary-light);
+}
+
+@media (max-width: 768px) {
+  .altaEnLinea {
+    grid-template-columns: 1fr;
+  }
+}

@@ -21,8 +21,9 @@ import { calcularEdad, esMenorDeEdad } from "../../lib/fechas";
 import { errorDeCampo, mensajeDeError } from "../../lib/errores";
 import { CLAVE_PERSONAS, crearPersona } from "../../api/personas";
 import type { CrearPersona, EncargadoNuevo } from "../../api/personas";
-import type { Comunidad, ElementoCatalogo } from "../../types/api";
+import type { ElementoCatalogo } from "../../types/api";
 import { esquemaBeneficiario, type DatosBeneficiario } from "./esquema";
+import SelectorComunidad from "./SelectorComunidad";
 import estilos from "./Formulario.module.css";
 
 const numeroOpcional = (valor: string | undefined) =>
@@ -89,7 +90,6 @@ function ModalNuevoBeneficiario({
   const { avisar } = useAvisos();
 
   const generos = useCatalogo<ElementoCatalogo>("tipos-genero");
-  const comunidades = useCatalogo<Comunidad>("comunidades");
   const discapacidades = useCatalogo<ElementoCatalogo>("discapacidades");
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
 
@@ -292,17 +292,24 @@ function ModalNuevoBeneficiario({
               ))}
             </CampoSelect>
 
-            <CampoSelect
-              etiqueta="Comunidad"
-              error={errors.comunidad_id?.message}
-              {...register("comunidad_id")}
-            >
-              {comunidades.opciones.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nombre}
-                </option>
-              ))}
-            </CampoSelect>
+            {/*
+              Tres selectores encadenados en lugar de un desplegable plano de
+              comunidades. Solo se guarda la comunidad —la persona no tiene
+              municipio ni departamento propios, cuelgan de ella—, pero sin
+              acotar por municipio la lista se vuelve inmanejable en cuanto el
+              catálogo crece.
+            */}
+            <Controller
+              control={control}
+              name="comunidad_id"
+              render={({ field }) => (
+                <SelectorComunidad
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  error={errors.comunidad_id?.message}
+                />
+              )}
+            />
           </div>
         </section>
 
