@@ -8,10 +8,11 @@ import {
 } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
 import Tabla, {
+  CeldaAcciones,
   CeldaCantidad,
   CeldaIdentificador,
 } from "../../componentes/ui/Tabla";
-import { EstadoVacio } from "../../componentes/ui/Estado";
+import { EstadoVacio, EsqueletoTabla } from "../../componentes/ui/Estado";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { fechaDeHoy, formatearFecha } from "../../lib/fechas";
@@ -25,8 +26,10 @@ import {
 import {
   CLAVE_RECEPCIONES,
   crearLote,
+  listarLotes,
   type LoteRecepcion,
 } from "../../api/donaciones";
+import ModalBajaLote from "../inventario/ModalBajaLote";
 import type { ElementoCatalogo } from "../../types/api";
 import { calcularUnidadesBase } from "./calculo";
 import { contarEnEsperaDe } from "./listaEspera";
@@ -53,11 +56,9 @@ const VACIO = {
 function SeccionLotes({
   recepcionId,
   recepcionActiva,
-  lotes,
 }: {
   recepcionId: number;
   recepcionActiva: boolean;
-  lotes: LoteRecepcion[];
 }) {
   const clienteQuery = useQueryClient();
   const { avisar } = useAvisos();
@@ -68,6 +69,21 @@ function SeccionLotes({
     insumo: string;
     lineas: number;
   } | null>(null);
+
+  const [dandoBaja, setDandoBaja] = useState<LoteRecepcion | null>(null);
+
+  /**
+   * Los lotes se piden aquí, con los dados de baja incluidos, en vez de usar
+   * los que trae GET /recepciones/:id —que los omite—. Un lote descartado
+   * sigue siendo parte de lo que pasó con el envío: si desapareciera al darlo
+   * de baja, quien corrigió un renglón mal capturado no tendría forma de
+   * comprobar que la corrección quedó registrada.
+   */
+  const consulta = useQuery({
+    queryKey: [CLAVE_RECEPCIONES, recepcionId, "lotes"],
+    queryFn: () => listarLotes(recepcionId, true),
+  });
+  const lotes = consulta.data ?? [];
 
   const insumos = useQuery({
     queryKey: [CLAVE_INSUMOS, "seleccion"],
@@ -227,7 +243,14 @@ function SeccionLotes({
         vence es el lote.
       </p>
 
-      {lotes.length === 0 ? (
+      {consulta.isPending ? (
+        <EsqueletoTabla filas={3} columnas={6} />
+      ) : consulta.isError ? (
+        <EstadoVacio
+          titulo="No se pudieron cargar los lotes"
+          texto={mensajeDeError(consulta.error)}
+        />
+      ) : lotes.length === 0 ? (
         <EstadoVacio
           titulo="Sin lotes"
           texto={
@@ -246,6 +269,7 @@ function SeccionLotes({
               <th>Disponible</th>
               <th>Caducidad</th>
               <th>Código de fabricante</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -282,6 +306,19 @@ function SeccionLotes({
                 <CeldaIdentificador>
                   {lote.codigo_lote_fabricante ?? "—"}
                 </CeldaIdentificador>
+                <CeldaAcciones>
+                  {lote.activo ? (
+                    <Boton
+                      pequeno
+                      variante="terciaria"
+                      onClick={() => setDandoBaja(lote)}
+                    >
+                      Dar de baja
+                    </Boton>
+                  ) : (
+                    <span className={estilos.auxiliar}>Descartado</span>
+                  )}
+                </CeldaAcciones>
               </tr>
             ))}
           </tbody>
@@ -484,6 +521,19 @@ function SeccionLotes({
             </Boton>
           </div>
         </div>
+      )}
+      {dandoBaja && (
+        <ModalBajaLote
+          lote={{
+            id: dandoBaja.id,
+            insumoNombre: nombreInsumo(dandoBaja.insumo_id),
+            codigo: dandoBaja.codigo_lote_fabricante,
+            fechaCaducidad: dandoBaja.fecha_caducidad,
+            cantidadDisponible: dandoBaja.cantidad_disponible,
+          }}
+          abierto
+          onCerrar={() => setDandoBaja(null)}
+        />
       )}
     </section>
   );

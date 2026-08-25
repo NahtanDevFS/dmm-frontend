@@ -202,7 +202,6 @@ function ModalFichaRecepcion({
           <SeccionLotes
             recepcionId={recepcion.id}
             recepcionActiva={recepcion.activo}
-            lotes={recepcion.lotes}
           />
 
           <SeccionDocumentosRecepcion

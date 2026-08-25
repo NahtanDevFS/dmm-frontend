@@ -11,29 +11,53 @@ import {
   CLAVE_INSUMOS,
   CLAVE_SEMAFORO,
   darBajaLote,
-  type LoteSemaforo,
 } from "../../api/inventario";
-import { NIVELES } from "./semaforo";
+import { CLAVE_RECEPCIONES } from "../../api/donaciones";
+import { nivelDe } from "./semaforo";
 import estilos from "./Inventario.module.css";
 
 /**
- * Baja de un lote por vencimiento o daño.
+ * Lo que el modal necesita saber del lote. Se pide en piezas sueltas y no como
+ * una fila del semáforo porque lo abren dos sitios con formas distintas: el
+ * semáforo, donde el lote llega con su nivel de caducidad ya calculado, y la
+ * ficha de la recepción, donde llega como renglón del envío y sin semáforo.
+ */
+export interface LoteParaBaja {
+  id: number;
+  insumoNombre: string;
+  /** Código del envío o del fabricante, según desde dónde se abra. */
+  codigo: string | null;
+  fechaCaducidad: string | null;
+  cantidadDisponible: number;
+  /** Nivel del semáforo, si quien abre lo conoce. */
+  semaforo?: string | null;
+}
+
+/**
+ * Baja de un lote.
  *
- * No es una edición del lote: la base ejecuta sp_dar_baja_insumo_vencido, que
- * descarta las existencias disponibles y deja el motivo escrito en las
- * observaciones. No hay reverso, así que el modal enseña primero qué lote es y
- * cuánto se va a descartar, y solo después pide el motivo.
+ * No es una edición: la base ejecuta sp_dar_baja_insumo_vencido, que descarta
+ * las existencias disponibles y deja el motivo escrito en las observaciones.
+ * No hay reverso, así que el modal enseña primero qué lote es y cuánto se va a
+ * descartar, y solo después pide el motivo.
+ *
+ * Sirve para dos cosas que parecen distintas y en la base son la misma: el
+ * producto que se venció o se dañó, y el renglón que se capturó mal. El
+ * procedimiento admite dar de baja un lote no vencido —solo levanta un
+ * WARNING— justo para eso, y es hoy la única forma de deshacer un lote mal
+ * registrado, porque el API no tiene edición ni borrado de lotes.
  *
  * El motivo es obligatorio en el backend y aquí también, pero por una razón
- * distinta: sin él la bitácora registra que alguien tiró producto y no por
- * qué, que es lo único que un auditor va a querer saber.
+ * distinta: sin él la bitácora registra que alguien descartó producto y no por
+ * qué, que es lo único que un auditor va a querer saber. Y es lo que separa
+ * «se venció» de «me equivoqué al teclear».
  */
 function ModalBajaLote({
   lote,
   abierto,
   onCerrar,
 }: {
-  lote: LoteSemaforo;
+  lote: LoteParaBaja;
   abierto: boolean;
   onCerrar: () => void;
 }) {
@@ -42,17 +66,18 @@ function ModalBajaLote({
   const [motivo, setMotivo] = useState("");
   const [errorMotivo, setErrorMotivo] = useState<string | undefined>();
 
-  const nivel = NIVELES[lote.semaforo];
+  const nivel = nivelDe(lote.semaforo ?? null);
 
   const mutacion = useMutation({
-    mutationFn: () =>
-      darBajaLote(lote.detalle_inventario_lote_id, motivo.trim()),
+    mutationFn: () => darBajaLote(lote.id, motivo.trim()),
     onSuccess: async () => {
-      // El stock del insumo cambia con la baja, así que no basta con refrescar
-      // el semáforo: la ficha mostraría existencias que ya no están.
+      // La baja cambia el stock del insumo y la composición del envío del que
+      // salió, así que no basta con refrescar el semáforo: la ficha del insumo
+      // y la de la recepción mostrarían existencias que ya no están.
       await Promise.all([
         clienteQuery.invalidateQueries({ queryKey: [CLAVE_SEMAFORO] }),
         clienteQuery.invalidateQueries({ queryKey: [CLAVE_INSUMOS] }),
+        clienteQuery.invalidateQueries({ queryKey: [CLAVE_RECEPCIONES] }),
       ]);
       avisar("Lote dado de baja.", "exito");
       onCerrar();
@@ -94,23 +119,23 @@ function ModalBajaLote({
       <dl className={estilos.datos}>
         <div className={estilos.dato}>
           <dt>Insumo</dt>
-          <dd>{lote.insumo_nombre}</dd>
+          <dd>{lote.insumoNombre}</dd>
         </div>
         <div className={estilos.dato}>
           <dt>Lote</dt>
-          <dd>{lote.codigo_lote ?? "—"}</dd>
+          <dd>{lote.codigo ?? "—"}</dd>
         </div>
         <div className={estilos.dato}>
           <dt>Caducidad</dt>
-          <dd>{formatearFecha(lote.fecha_caducidad)}</dd>
+          <dd>{formatearFecha(lote.fechaCaducidad)}</dd>
         </div>
         <div className={estilos.dato}>
           <dt>Se descartarán</dt>
           <dd>
             <span className={estilos.cantidad}>
-              {lote.cantidad_disponible.toLocaleString("es-GT")}
+              {lote.cantidadDisponible.toLocaleString("es-GT")}
             </span>{" "}
-            <Insignia tono={nivel.tono}>{nivel.etiqueta}</Insignia>
+            {nivel && <Insignia tono={nivel.tono}>{nivel.etiqueta}</Insignia>}
           </dd>
         </div>
       </dl>
@@ -123,7 +148,7 @@ function ModalBajaLote({
         value={motivo}
         onChange={(e) => setMotivo(e.target.value)}
         error={errorMotivo}
-        ayuda="Queda escrito en las observaciones del lote y en la bitácora. Diga qué pasó: vencido, dañado en bodega, envase roto."
+        ayuda="Queda escrito en las observaciones del lote y en la bitácora. Diga qué pasó: vencido, dañado en bodega, envase roto, error de captura."
       />
     </Modal>
   );

@@ -243,7 +243,14 @@ function SeccionSemaforo({
 
       {dandoBaja && (
         <ModalBajaLote
-          lote={dandoBaja}
+          lote={{
+            id: dandoBaja.detalle_inventario_lote_id,
+            insumoNombre: dandoBaja.insumo_nombre,
+            codigo: dandoBaja.codigo_lote,
+            fechaCaducidad: dandoBaja.fecha_caducidad,
+            cantidadDisponible: dandoBaja.cantidad_disponible,
+            semaforo: dandoBaja.semaforo,
+          }}
           abierto
           onCerrar={() => setDandoBaja(null)}
         />
