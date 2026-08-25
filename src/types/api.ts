@@ -93,8 +93,20 @@ export const REPORTES: readonly Rol[] = [
   ROL.ADMINISTRADOR,
 ];
 
-/** Gestión de usuarios y consulta de la bitácora de auditoría. */
-export const SOLO_ADMIN: readonly Rol[] = [ROL.ADMINISTRADOR];
+/**
+ * Administración del sistema: gestión de usuarios, catálogo de roles y
+ * consulta de la bitácora de auditoría.
+ *
+ * Incluye a DIRECTORA por decisión de la DMM: en una dirección municipal
+ * pequeña no hay un área de sistemas aparte, y es la directora quien da de
+ * alta al personal y responde por lo que queda registrado. Espejo de
+ * ADMINISTRACION en dmm-backend/src/config/roles.ts, que se llamaba
+ * SOLO_ADMIN mientras el conjunto tuvo un solo rol.
+ *
+ * En la práctica deja los dos roles equivalentes en poder, porque quien
+ * gestiona usuarios puede crear otra cuenta de administrador.
+ */
+export const ADMINISTRACION: readonly Rol[] = [ROL.DIRECTORA, ROL.ADMINISTRADOR];
 
 /**
  * Resolución de solicitudes de apoyo: aprobar y rechazar.
