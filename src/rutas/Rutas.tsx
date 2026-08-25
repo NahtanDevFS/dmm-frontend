@@ -8,6 +8,7 @@ import PaginaBeneficiarios from "../paginas/beneficiarios/PaginaBeneficiarios";
 import PaginaNuevoBeneficiario from "../paginas/beneficiarios/PaginaNuevoBeneficiario";
 import PaginaFicha from "../paginas/beneficiarios/PaginaFicha";
 import PaginaCatalogos from "../paginas/catalogos/PaginaCatalogos";
+import PaginaInventario from "../paginas/inventario/PaginaInventario";
 import { OPERACION, type Rol } from "../types/api";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
@@ -29,6 +30,7 @@ const PANTALLAS: Record<string, ReactNode> = {
   "/": <PaginaInicio />,
   "/beneficiarios": <PaginaBeneficiarios />,
   "/catalogos": <PaginaCatalogos />,
+  "/inventario": <PaginaInventario />,
 };
 
 /**
