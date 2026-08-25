@@ -208,3 +208,102 @@
   padding-top: var(--space-3);
   border-top: 1px dashed var(--color-border);
 }
+
+/* ─────────────────────── Semáforo de caducidad ─────────────────────── */
+
+/* Selector de vista. Píldoras, no pestañas, igual que en catálogos. */
+.selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.pildora {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  font: var(--texto-etiqueta);
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion);
+}
+
+.pildora:hover {
+  border-color: var(--color-primary-soft);
+  background-color: var(--color-primary-light);
+}
+
+.pildora:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+.pildoraActiva {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+/**
+ * Resumen por nivel. Cada recuadro es además el filtro de su nivel: el gesto
+ * natural al leer «3 vencidos» es querer ver cuáles son.
+ */
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.resumenNivel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  text-align: left;
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion);
+}
+
+.resumenNivel:hover {
+  border-color: var(--color-primary-soft);
+  background-color: var(--color-primary-light);
+}
+
+.resumenNivel:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+/* Nivel filtrado: fondo, borde y peso, además de aria-pressed. */
+.resumenActivo {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-dark);
+}
+
+.resumenCantidad {
+  font: var(--texto-titulo-tarjeta);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-main);
+}
+
+.resumenActivo .resumenCantidad {
+  color: var(--color-primary-dark);
+}
+
+/* Fecha de caducidad ya pasada: el texto también lo dice, no solo el color. */
+.caducada {
+  color: var(--color-danger);
+  font-weight: 700;
+}
