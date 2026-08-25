@@ -57,7 +57,9 @@ function SeccionComunidades() {
     mutationFn: () =>
       crearElemento("comunidades", {
         nombre: nombre.trim(),
-        municipio_id: municipioId,
+        // El <select> entrega texto y el backend valida con z.number(): sin la
+        // conversión responde 400 «expected number, received string».
+        municipio_id: Number(municipioId),
       }),
     onSuccess: async () => {
       await refrescar();
