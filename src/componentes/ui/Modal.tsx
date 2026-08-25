@@ -57,6 +57,14 @@ function Modal({
     // DOM, que es lo que ocurre si el navegador cierra el diálogo por su
     // cuenta mientras `abierto` sigue en true.
     const alCancelar = (evento: Event) => {
+      /**
+       * Solo el Esc del propio diálogo. `cancel` no es exclusivo de `dialog`:
+       * un `input[type=file]` lo dispara —y burbujea— cuando el usuario cierra
+       * el selector de archivos sin elegir nada. Sin esta comprobación, abrir
+       * el selector y arrepentirse cerraba el modal entero y se perdía el
+       * formulario, que es justo lo contrario de lo que quería el usuario.
+       */
+      if (evento.target !== dialogo) return;
       evento.preventDefault();
       if (!bloqueado) onCerrar();
     };

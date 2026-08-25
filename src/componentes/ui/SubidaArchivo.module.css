@@ -62,14 +62,22 @@
   border-color: var(--color-danger);
 }
 
-/* Archivo elegido. La cursiva está permitida solo para nombres de documentos
-   adjuntos (sección 3). */
+/**
+ * Archivo elegido. La cursiva está permitida solo para nombres de documentos
+ * adjuntos (sección 3).
+ *
+ * Ocupa exactamente lo mismo que la zona de selección a la que sustituye. Sin
+ * el min-height, elegir un archivo encogía el campo 22 px de golpe: el
+ * formulario daba un salto, y en una rejilla arrastraba consigo la fila
+ * entera. El manual limita el movimiento a 4 px.
+ */
 .elegido {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  padding: 10px 12px;
+  min-height: 88px;
+  padding: var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-field);
   background-color: var(--color-surface);
