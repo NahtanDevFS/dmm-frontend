@@ -1,15 +1,24 @@
 import { useMemo, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
 import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
 import Paginacion from "../../componentes/ui/Paginacion";
-import Tabla from "../../componentes/ui/Tabla";
+import Tabla, { CeldaAcciones } from "../../componentes/ui/Tabla";
 import { EstadoVacio, EsqueletoTabla } from "../../componentes/ui/Estado";
+import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { useListadoPaginado } from "../../hooks/useListadoPaginado";
 import { mensajeDeError } from "../../lib/errores";
-import { CLAVE_INSUMOS, type Insumo } from "../../api/inventario";
+import {
+  CLAVE_INSUMOS,
+  desactivarInsumo,
+  reactivarInsumo,
+  type Insumo,
+} from "../../api/inventario";
 import type { ElementoCatalogo } from "../../types/api";
+import { BANDERAS } from "./banderas";
+import ModalInsumo from "./ModalInsumo";
 import estilos from "./Inventario.module.css";
 
 /**
@@ -19,10 +28,13 @@ import estilos from "./Inventario.module.css";
  * cuánto hay. Las existencias son cosa del semáforo y de la ficha de cada
  * insumo, porque viven a nivel de lote y no de insumo.
  */
-function SeccionInsumos() {
+function SeccionInsumos({ puedeGestionar }: { puedeGestionar: boolean }) {
+  const clienteQuery = useQueryClient();
+  const { avisar, confirmar } = useAvisos();
   const [busqueda, setBusqueda] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
   const [incluirInactivos, setIncluirInactivos] = useState(false);
+  const [editando, setEditando] = useState<Insumo | null>(null);
 
   /**
    * Con los inactivos incluidos: un insumo puede apuntar a una categoría o a
@@ -49,6 +61,22 @@ function SeccionInsumos() {
     clave: CLAVE_INSUMOS,
     ruta: "insumos",
     filtros,
+  });
+
+  const cambioEstado = useMutation({
+    mutationFn: ({ id, activar }: { id: number; activar: boolean }) =>
+      activar ? reactivarInsumo(id) : desactivarInsumo(id),
+    onSuccess: async (_datos, { activar }) => {
+      await clienteQuery.invalidateQueries({ queryKey: [CLAVE_INSUMOS] });
+      avisar(activar ? "Insumo reactivado." : "Insumo desactivado.", "exito");
+    },
+    /*
+      El 409 de aquí no es un fallo: el servidor comprueba que no queden
+      solicitudes activas ni existencias disponibles, y su mensaje dice cuál de
+      las dos cosas bloquea. Se muestra tal cual porque es lo único que le
+      indica al usuario qué tiene que resolver antes de volver a intentarlo.
+    */
+    onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
   const nombreDe = (catalogo: ElementoCatalogo[], id: number) =>
@@ -103,7 +131,7 @@ function SeccionInsumos() {
       </div>
 
       {listado.isPending ? (
-        <EsqueletoTabla filas={5} columnas={4} />
+        <EsqueletoTabla filas={5} columnas={5} />
       ) : listado.isError ? (
         <EstadoVacio
           titulo="No se pudo cargar el catálogo de insumos"
@@ -131,26 +159,97 @@ function SeccionInsumos() {
                 <th>Insumo</th>
                 <th>Categoría</th>
                 <th>Unidad base</th>
+                <th>Requisitos</th>
                 <th>Estado</th>
+                {puedeGestionar && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
-              {listado.datos.map((insumo) => (
-                <tr key={insumo.id}>
-                  <td className={estilos.nombre}>{insumo.nombre}</td>
-                  <td>{nombreDe(categorias.opciones, insumo.categoria_id)}</td>
-                  <td>
-                    {nombreDe(unidades.opciones, insumo.unidad_medida_base_id)}
-                  </td>
-                  <td>
-                    {insumo.activo ? (
-                      <Insignia tono="aprobada">Activo</Insignia>
-                    ) : (
-                      <Insignia tono="neutra">Inactivo</Insignia>
+              {listado.datos.map((insumo) => {
+                const requisitos = BANDERAS.filter(
+                  (bandera) => insumo[bandera.clave],
+                );
+                return (
+                  <tr key={insumo.id}>
+                    <td className={estilos.nombre}>{insumo.nombre}</td>
+                    <td>{nombreDe(categorias.opciones, insumo.categoria_id)}</td>
+                    <td>
+                      {nombreDe(unidades.opciones, insumo.unidad_medida_base_id)}
+                    </td>
+                    <td>
+                      {requisitos.length === 0 ? (
+                        "Ninguno"
+                      ) : (
+                        <span className={estilos.requisitos}>
+                          {requisitos.map((bandera) => (
+                            <Insignia key={bandera.clave} tono="informativa">
+                              {bandera.etiqueta}
+                            </Insignia>
+                          ))}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {insumo.activo ? (
+                        <Insignia tono="aprobada">Activo</Insignia>
+                      ) : (
+                        <Insignia tono="neutra">Inactivo</Insignia>
+                      )}
+                    </td>
+                    {puedeGestionar && (
+                      <CeldaAcciones>
+                        <span className={estilos.acciones}>
+                          <Boton
+                            pequeno
+                            variante="secundaria"
+                            onClick={() => setEditando(insumo)}
+                          >
+                            Editar
+                          </Boton>
+                          {insumo.activo ? (
+                            <Boton
+                              pequeno
+                              variante="terciaria"
+                              onClick={async () => {
+                                const ok = await confirmar({
+                                  titulo: "Desactivar insumo",
+                                  mensaje:
+                                    "«" +
+                                    insumo.nombre +
+                                    "» dejará de ofrecerse al registrar donaciones y solicitudes. Los lotes ya recibidos se conservan y puede reactivarse después.",
+                                  textoConfirmar: "Desactivar",
+                                  destructiva: true,
+                                });
+                                if (ok) {
+                                  cambioEstado.mutate({
+                                    id: insumo.id,
+                                    activar: false,
+                                  });
+                                }
+                              }}
+                            >
+                              Desactivar
+                            </Boton>
+                          ) : (
+                            <Boton
+                              pequeno
+                              variante="secundaria"
+                              onClick={() =>
+                                cambioEstado.mutate({
+                                  id: insumo.id,
+                                  activar: true,
+                                })
+                              }
+                            >
+                              Reactivar
+                            </Boton>
+                          )}
+                        </span>
+                      </CeldaAcciones>
                     )}
-                  </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </Tabla>
 
@@ -166,6 +265,18 @@ function SeccionInsumos() {
             cargando={listado.cambiandoPagina}
           />
         </>
+      )}
+
+      {editando && (
+        <ModalInsumo
+          // La clave remonta el formulario al cambiar de insumo: sin ella
+          // conservaría lo escrito para el anterior, porque el estado inicial
+          // solo se lee en el primer render.
+          key={editando.id}
+          insumo={editando}
+          abierto
+          onCerrar={() => setEditando(null)}
+        />
       )}
     </section>
   );

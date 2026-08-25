@@ -69,3 +69,59 @@
     width: 100%;
   }
 }
+
+/**
+ * Las tres banderas del insumo.
+ *
+ * Van con su explicación debajo y no solo con el nombre del campo: decir
+ * «requiere fecha de caducidad» no aclara qué pasa si se marca, y lo que pasa
+ * es que la base rechaza el lote que llegue sin fecha. Quien da de alta el
+ * insumo tiene que poder anticipar eso desde aquí.
+ */
+.banderas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-border);
+}
+
+.bandera {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: var(--space-1);
+  align-items: start;
+  cursor: pointer;
+}
+
+.bandera > input {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  accent-color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.banderaNombre {
+  font: var(--texto-etiqueta);
+  color: var(--color-text-main);
+}
+
+.banderaAyuda {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+/* Columna de requisitos del listado: las insignias no deben partirse. */
+.requisitos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
