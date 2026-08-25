@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useId } from "react";
 import {
   useForm,
   useFieldArray,
@@ -10,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
+import Modal from "../../componentes/ui/Modal";
 import {
   CampoTexto,
   CampoSelect,
@@ -60,8 +60,31 @@ function armarEncargado(
   ];
 }
 
-function PaginaNuevoBeneficiario() {
-  const navegar = useNavigate();
+/**
+ * Registro de un beneficiario.
+ *
+ * Va en modal y no en pantalla propia porque el alta nace siempre desde el
+ * listado y vuelve a él: sacar al usuario de la tabla para traerlo de vuelta
+ * dos pantallas después le hacía perder el filtro y la página en la que
+ * estaba. El formulario es largo, pero el modal deja fijos el encabezado y el
+ * pie, así que las acciones no se pierden al desplazarse.
+ *
+ * El botón de guardar vive en el pie, que en el DOM es hermano del cuerpo y no
+ * está dentro del <form>. Por eso lleva `form={idFormulario}`: es lo que
+ * permite que un submit fuera del formulario siga siendo su submit, con la
+ * validación nativa y el Enter incluidos.
+ */
+function ModalNuevoBeneficiario({
+  abierto,
+  onCerrar,
+  onCreado,
+}: {
+  abierto: boolean;
+  onCerrar: () => void;
+  /** Recibe el id recién creado para que el listado abra su ficha. */
+  onCreado: (personaId: number) => void;
+}) {
+  const idFormulario = useId();
   const clienteQuery = useQueryClient();
   const { avisar } = useAvisos();
 
@@ -127,7 +150,9 @@ function PaginaNuevoBeneficiario() {
     onSuccess: async (persona) => {
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_PERSONAS] });
       avisar("Beneficiario registrado.", "exito");
-      navegar("/beneficiarios/" + persona.id);
+      // El listado cierra este modal y abre la ficha del recién creado: es lo
+      // que se quiere ver después de registrar a alguien.
+      onCreado(persona.id);
     },
   });
 
@@ -166,12 +191,37 @@ function PaginaNuevoBeneficiario() {
   });
 
   return (
-    <>
-      <header style={{ marginBottom: "var(--space-3)" }}>
-        <h1>Registrar nuevo beneficiario</h1>
-      </header>
-
-      <form className={estilos.formulario} onSubmit={enviar} noValidate>
+    <Modal
+      abierto={abierto}
+      onCerrar={onCerrar}
+      titulo="Registrar nuevo beneficiario"
+      descripcion="Los documentos de identificación se adjuntan después, desde la ficha."
+      tamano="amplio"
+      // Cerrar a media escritura perdería el formulario entero sin avisar.
+      bloqueado={isSubmitting}
+      pie={
+        <GrupoBotones>
+          <Boton variante="terciaria" onClick={onCerrar} disabled={isSubmitting}>
+            Cancelar
+          </Boton>
+          <Boton
+            type="submit"
+            form={idFormulario}
+            variante="primaria"
+            cargando={isSubmitting}
+            textoCargando="Guardando…"
+          >
+            Guardar beneficiario
+          </Boton>
+        </GrupoBotones>
+      }
+    >
+      <form
+        id={idFormulario}
+        className={estilos.formulario + " " + estilos.enModal}
+        onSubmit={enviar}
+        noValidate
+      >
         {/* ─────────────── Datos generales ─────────────── */}
         <section className={estilos.seccion} aria-labelledby="s-generales">
           <h2 id="s-generales" className={estilos.tituloSeccion}>
@@ -445,26 +495,9 @@ function PaginaNuevoBeneficiario() {
           </p>
         )}
 
-        <GrupoBotones>
-          <Boton
-            variante="terciaria"
-            onClick={() => navegar("/beneficiarios")}
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Boton>
-          <Boton
-            type="submit"
-            variante="primaria"
-            cargando={isSubmitting}
-            textoCargando="Guardando…"
-          >
-            Guardar beneficiario
-          </Boton>
-        </GrupoBotones>
       </form>
-    </>
+    </Modal>
   );
 }
 
-export default PaginaNuevoBeneficiario;
+export default ModalNuevoBeneficiario;

@@ -154,6 +154,25 @@
   margin-top: var(--space-3);
 }
 
+/**
+ * Las mismas regiones dentro del modal de la ficha. El modal ya es la
+ * superficie elevada, así que repetir fondo y sombra dibujaría tarjetas
+ * blancas sobre blanco: la sombra no se ve y solo queda un relleno de más.
+ * Lo que separaba las regiones era la elevación; aquí lo hace una línea.
+ */
+.enModal .tarjeta {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.enModal .tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
 .tituloTarjeta {
   display: flex;
   align-items: center;
@@ -306,4 +325,30 @@
 .caducada {
   color: var(--color-danger);
   font-weight: 700;
+}
+
+/**
+ * Nombre del insumo en el semáforo. Es un botón porque abre un modal y no
+ * navega, pero se lee como el enlace que era: quitarle el aspecto de enlace
+ * escondería que la celda es pulsable.
+ */
+.enlaceInsumo {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-primary-dark);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.enlaceInsumo:hover {
+  color: color-mix(in srgb, var(--color-primary-dark) 92%, #000);
+}
+
+.enlaceInsumo:focus-visible {
+  outline: none;
+  border-radius: var(--radius-field);
+  box-shadow: var(--anillo-foco);
 }

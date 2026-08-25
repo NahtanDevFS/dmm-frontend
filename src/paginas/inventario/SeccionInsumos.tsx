@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
 import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
@@ -29,7 +28,13 @@ import estilos from "./Inventario.module.css";
  * cuánto hay. Las existencias son cosa del semáforo y de la ficha de cada
  * insumo, porque viven a nivel de lote y no de insumo.
  */
-function SeccionInsumos({ puedeGestionar }: { puedeGestionar: boolean }) {
+function SeccionInsumos({
+  puedeGestionar,
+  onVerFicha,
+}: {
+  puedeGestionar: boolean;
+  onVerFicha: (insumoId: number) => void;
+}) {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
   const [busqueda, setBusqueda] = useState("");
@@ -199,11 +204,13 @@ function SeccionInsumos({ puedeGestionar }: { puedeGestionar: boolean }) {
                     </td>
                     <CeldaAcciones>
                       <span className={estilos.acciones}>
-                        <Link to={"/inventario/insumos/" + insumo.id}>
-                          <Boton pequeno variante="secundaria">
-                            Ver ficha
-                          </Boton>
-                        </Link>
+                        <Boton
+                          pequeno
+                          variante="secundaria"
+                          onClick={() => onVerFicha(insumo.id)}
+                        >
+                          Ver ficha
+                        </Boton>
                         {puedeGestionar && (
                           <Boton
                             pequeno

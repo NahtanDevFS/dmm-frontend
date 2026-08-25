@@ -5,11 +5,8 @@ import EnConstruccion from "../paginas/EnConstruccion";
 import NoEncontrada from "../paginas/NoEncontrada";
 import PaginaInicio from "../paginas/inicio/PaginaInicio";
 import PaginaBeneficiarios from "../paginas/beneficiarios/PaginaBeneficiarios";
-import PaginaNuevoBeneficiario from "../paginas/beneficiarios/PaginaNuevoBeneficiario";
-import PaginaFicha from "../paginas/beneficiarios/PaginaFicha";
 import PaginaCatalogos from "../paginas/catalogos/PaginaCatalogos";
 import PaginaInventario from "../paginas/inventario/PaginaInventario";
-import PaginaInsumo from "../paginas/inventario/PaginaInsumo";
 import { OPERACION, type Rol } from "../types/api";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
@@ -38,19 +35,25 @@ const PANTALLAS: Record<string, ReactNode> = {
  * Rutas que no son ítems de menú: altas, fichas y detalles. Declaran su propio
  * conjunto de roles porque no lo heredan de un ítem de navegación, y pasan por
  * la misma guarda que el resto.
+ *
+ * Todas rinden la misma pantalla que su módulo. Las altas y las fichas se
+ * abren en modal sobre el listado, así que la ruta no cambia de vista: le dice
+ * a la pantalla qué modal abrir al entrar. Existen para que un enlace guardado
+ * o compartido siga llevando al mismo sitio; desde la propia tabla no se
+ * navega, para no perder el filtro ni la página.
  */
 const RUTAS_EXTRA: { ruta: string; roles: readonly Rol[]; elemento: ReactNode }[] =
   [
     {
       ruta: "/beneficiarios/nuevo",
       roles: OPERACION,
-      elemento: <PaginaNuevoBeneficiario />,
+      elemento: <PaginaBeneficiarios />,
     },
     {
       // Va después de /nuevo: si fuera antes, «nuevo» se leería como un id.
       ruta: "/beneficiarios/:id",
       roles: OPERACION,
-      elemento: <PaginaFicha />,
+      elemento: <PaginaBeneficiarios />,
     },
     {
       // La ficha del insumo es de consulta, no de gestión: cualquiera que
@@ -58,7 +61,7 @@ const RUTAS_EXTRA: { ruta: string; roles: readonly Rol[]; elemento: ReactNode }[
       // dirección son los botones de edición, no la puerta.
       ruta: "/inventario/insumos/:id",
       roles: OPERACION,
-      elemento: <PaginaInsumo />,
+      elemento: <PaginaInventario />,
     },
   ];
 function Rutas() {

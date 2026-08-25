@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Boton from "../../componentes/ui/Boton";
 import { useAuth } from "../../auth/useAuth";
 import { DIRECCION, tieneRol } from "../../types/api";
 import SeccionInsumos from "./SeccionInsumos";
 import SeccionSemaforo from "./SeccionSemaforo";
 import ModalInsumo from "./ModalInsumo";
+import ModalInsumoFicha from "./ModalInsumoFicha";
 import estilos from "./Inventario.module.css";
 
 const VISTAS = [
@@ -14,10 +16,29 @@ const VISTAS = [
 
 type Vista = (typeof VISTAS)[number]["clave"];
 
+/**
+ * Inventario y anfitrión de sus modales.
+ *
+ * La ficha de un insumo se abre encima de la vista en la que estaba el
+ * usuario, sea el catálogo o el semáforo. La ruta /inventario/insumos/:id
+ * sigue existiendo para los enlaces guardados y abre la ficha al entrar, pero
+ * desde las tablas no se navega: hacerlo obligaba a recuperar el filtro y la
+ * vista cada vez que se consultaba un insumo.
+ */
 function PaginaInventario() {
   const { usuario } = useAuth();
+  const navegar = useNavigate();
+  const { id } = useParams();
+  const rutaId = id && /^\d+$/.test(id) ? Number(id) : null;
+
   const [vista, setVista] = useState<Vista>("insumos");
   const [creando, setCreando] = useState(false);
+  const [fichaId, setFichaId] = useState<number | null>(rutaId);
+
+  /** Devuelve la barra de direcciones al módulo si se entró por la ruta profunda. */
+  const limpiarRuta = () => {
+    if (id) navegar("/inventario", { replace: true });
+  };
 
   /**
    * Consultar el inventario es de OPERACION, pero el insumo es dato maestro y
@@ -68,13 +89,30 @@ function PaginaInventario() {
       </div>
 
       {vista === "insumos" ? (
-        <SeccionInsumos puedeGestionar={puedeGestionar} />
+        <SeccionInsumos
+          puedeGestionar={puedeGestionar}
+          onVerFicha={setFichaId}
+        />
       ) : (
-        <SeccionSemaforo />
+        <SeccionSemaforo onVerFicha={setFichaId} />
       )}
 
       {creando && (
         <ModalInsumo abierto={creando} onCerrar={() => setCreando(false)} />
+      )}
+
+      {fichaId !== null && (
+        <ModalInsumoFicha
+          // La clave remonta la ficha al cambiar de insumo: sin ella se
+          // reutilizaría el estado del modal de edición del anterior.
+          key={fichaId}
+          insumoId={fichaId}
+          abierto
+          onCerrar={() => {
+            setFichaId(null);
+            limpiarRuta();
+          }}
+        />
       )}
     </>
   );

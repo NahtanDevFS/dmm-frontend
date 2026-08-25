@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
 import { CampoSelect } from "../../componentes/ui/Campo";
@@ -36,7 +35,11 @@ import estilos from "./Inventario.module.css";
  * inventario de la DMM se mide en cientos de lotes; si algún día creciera de
  * verdad, lo que hace falta es un endpoint de resumen, no paginar este.
  */
-function SeccionSemaforo() {
+function SeccionSemaforo({
+  onVerFicha,
+}: {
+  onVerFicha: (insumoId: number) => void;
+}) {
   const [nivel, setNivel] = useState<Semaforo | "">("");
   const [insumoId, setInsumoId] = useState("");
   const [dandoBaja, setDandoBaja] = useState<LoteSemaforo | null>(null);
@@ -189,9 +192,18 @@ function SeccionSemaforo() {
                   return (
                     <tr key={lote.detalle_inventario_lote_id}>
                       <td className={estilos.nombre}>
-                        <Link to={"/inventario/insumos/" + lote.insumo_id}>
+                        {/*
+                          Abre la ficha encima de esta misma tabla. Si navegara,
+                          se perdería el nivel filtrado y habría que volver a
+                          elegirlo para seguir revisando los lotes que vencen.
+                        */}
+                        <button
+                          type="button"
+                          className={estilos.enlaceInsumo}
+                          onClick={() => onVerFicha(lote.insumo_id)}
+                        >
                           {lote.insumo_nombre}
-                        </Link>
+                        </button>
                       </td>
                       <CeldaIdentificador>
                         {lote.codigo_lote ?? "—"}

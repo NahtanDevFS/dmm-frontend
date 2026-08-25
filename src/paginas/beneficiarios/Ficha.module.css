@@ -39,6 +39,33 @@
 }
 
 /**
+ * Las mismas regiones dentro del modal de la ficha.
+ *
+ * El modal ya es la superficie elevada, así que repetir fondo y sombra en cada
+ * bloque dibujaría tarjetas blancas sobre blanco: la sombra no se ve y solo
+ * queda un relleno que estrecha el contenido. Lo que separaba las regiones era
+ * la elevación; aquí lo hace una línea, que es el mismo recurso que usa el
+ * resto del sistema cuando no hay cambio de plano.
+ *
+ * La regla es descendente y no una clase por bloque porque las secciones
+ * —discapacidades, encargados, contactos, documentos— son componentes aparte
+ * que comparten esta hoja: pedirles que sepan si están dentro de un modal
+ * obligaría a pasarles una prop que no tiene nada que ver con lo que hacen.
+ */
+.enModal .tarjeta {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.enModal .tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/**
  * Bloque de datos de salud. Se cierra como región propia con borde superior,
  * el mismo recurso que el manual pide para la tarjeta de resolución de
  * solicitudes: es información sensible y conviene que se lea aparte, no
