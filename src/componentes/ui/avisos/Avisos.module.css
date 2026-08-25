@@ -122,4 +122,12 @@
 .textoConfirmacion {
   font: var(--texto-cuerpo);
   color: var(--color-text-main);
+  /*
+    Respeta los saltos de línea del mensaje. Las confirmaciones que resumen lo
+    que se va a guardar —insumo, cantidad, caducidad— se leen como una lista de
+    campos, y en un solo párrafo corrido esa estructura se pierde justo cuando
+    lo que se pide al usuario es que la revise. `pre-line` y no `pre` para que
+    las líneas largas sigan ajustándose al ancho.
+  */
+  white-space: pre-line;
 }

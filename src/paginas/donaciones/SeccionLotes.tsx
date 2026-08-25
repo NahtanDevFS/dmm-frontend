@@ -61,7 +61,7 @@ function SeccionLotes({
   recepcionActiva: boolean;
 }) {
   const clienteQuery = useQueryClient();
-  const { avisar } = useAvisos();
+  const { avisar, confirmar } = useAvisos();
   const [datos, setDatos] = useState(VACIO);
   const [errores, setErrores] = useState<Record<string, string | undefined>>({});
   /** Efecto del último lote sobre la lista de espera, si se pudo medir. */
@@ -227,6 +227,71 @@ function SeccionLotes({
 
   const nombreInsumo = (id: number) =>
     insumos.data?.find((i) => i.id === id)?.nombre ?? "—";
+
+  /**
+   * Resumen de lo que se va a guardar, para confirmarlo antes de registrar.
+   *
+   * Enseña el **resultado** y no lo tecleado. El campo calculado del
+   * formulario ya muestra la cantidad final, pero se lee de pasada mientras se
+   * escribe; el error que motiva todo esto —transponer dígitos, 2.5 donde iban
+   * 25— solo se ve al leer el total en unidad base, y para eso hay que
+   * detenerse. Un lote mal registrado no se puede editar: la única salida es
+   * darlo de baja y volver a capturarlo, así que el momento de mirar es este.
+   */
+  const resumenParaConfirmar = () => {
+    const presentacion = presentaciones.data?.find(
+      (p) => String(p.id) === presentacionElegida,
+    );
+    const unidadBase = nombreUnidad(insumo?.unidad_medida_base_id);
+    const lineas = [
+      "Insumo: " + (insumo?.nombre ?? "—"),
+      "Presentación: " +
+        (presentacion ? nombreUnidad(presentacion.unidad_medida_id) : "—"),
+      "Entra al inventario: " +
+        unidadesBase.toLocaleString("es-GT") +
+        " " +
+        unidadBase +
+        "  (" +
+        cantidad.toLocaleString("es-GT", { maximumFractionDigits: 4 }) +
+        " × " +
+        porPresentacion.toLocaleString("es-GT", { maximumFractionDigits: 4 }) +
+        ")",
+      "Caducidad: " +
+        (datos.fecha_caducidad
+          ? formatearFecha(datos.fecha_caducidad)
+          : "sin fecha"),
+      "Código de fabricante: " +
+        (datos.codigo_lote_fabricante.trim() || "sin código"),
+    ];
+
+    // El truncamiento se dice aparte y con todas las letras: es la única parte
+    // del cálculo que hace desaparecer producto sin dejar rastro después.
+    if (unidadesBase !== cantidad * porPresentacion) {
+      lineas.push(
+        "",
+        "Se pierde la fracción: " +
+          (cantidad * porPresentacion).toLocaleString("es-GT", {
+            maximumFractionDigits: 4,
+          }) +
+          " se trunca a " +
+          unidadesBase.toLocaleString("es-GT") +
+          " " +
+          unidadBase +
+          ".",
+      );
+    }
+
+    return lineas.join("\n");
+  };
+
+  const confirmarYRegistrar = async () => {
+    const ok = await confirmar({
+      titulo: "Registrar este lote",
+      mensaje: resumenParaConfirmar(),
+      textoConfirmar: "Registrar lote",
+    });
+    if (ok) alta.mutate();
+  };
 
   const unidadBaseDe = (id: number) =>
     nombreUnidad(insumos.data?.find((i) => i.id === id)?.unidad_medida_base_id);
@@ -515,7 +580,7 @@ function SeccionLotes({
               disabled={!completo}
               cargando={alta.isPending}
               textoCargando="Registrando…"
-              onClick={() => alta.mutate()}
+              onClick={confirmarYRegistrar}
             >
               Agregar lote
             </Boton>
