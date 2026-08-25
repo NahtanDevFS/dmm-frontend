@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
 import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
@@ -161,7 +162,7 @@ function SeccionInsumos({ puedeGestionar }: { puedeGestionar: boolean }) {
                 <th>Unidad base</th>
                 <th>Requisitos</th>
                 <th>Estado</th>
-                {puedeGestionar && <th>Acciones</th>}
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -196,9 +197,14 @@ function SeccionInsumos({ puedeGestionar }: { puedeGestionar: boolean }) {
                         <Insignia tono="neutra">Inactivo</Insignia>
                       )}
                     </td>
-                    {puedeGestionar && (
-                      <CeldaAcciones>
-                        <span className={estilos.acciones}>
+                    <CeldaAcciones>
+                      <span className={estilos.acciones}>
+                        <Link to={"/inventario/insumos/" + insumo.id}>
+                          <Boton pequeno variante="secundaria">
+                            Ver ficha
+                          </Boton>
+                        </Link>
+                        {puedeGestionar && (
                           <Boton
                             pequeno
                             variante="secundaria"
@@ -206,7 +212,9 @@ function SeccionInsumos({ puedeGestionar }: { puedeGestionar: boolean }) {
                           >
                             Editar
                           </Boton>
-                          {insumo.activo ? (
+                        )}
+                        {puedeGestionar &&
+                          (insumo.activo ? (
                             <Boton
                               pequeno
                               variante="terciaria"
@@ -243,10 +251,9 @@ function SeccionInsumos({ puedeGestionar }: { puedeGestionar: boolean }) {
                             >
                               Reactivar
                             </Boton>
-                          )}
-                        </span>
-                      </CeldaAcciones>
-                    )}
+                          ))}
+                      </span>
+                    </CeldaAcciones>
                   </tr>
                 );
               })}

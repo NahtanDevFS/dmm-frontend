@@ -125,3 +125,86 @@
   gap: var(--space-2);
   flex-wrap: wrap;
 }
+
+/* ─────────────────────── Ficha del insumo ─────────────────────── */
+
+.encabezadoFicha {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.volver {
+  font: var(--texto-auxiliar);
+}
+
+.identidad {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+}
+
+.tituloTarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.dato dt {
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+}
+
+.dato dd {
+  margin-top: 2px;
+  font: var(--texto-cuerpo);
+  color: var(--color-text-main);
+}
+
+/* Cantidad de existencias: cifras tabulares, como en las celdas numéricas. */
+.cantidad {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.inactivo {
+  padding: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-field);
+  background-color: color-mix(in srgb, var(--color-warning) 8%, #fff);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+}
+
+.formularioEnLinea {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2);
+  align-items: end;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-border);
+}

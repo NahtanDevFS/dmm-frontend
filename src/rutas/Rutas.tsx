@@ -9,6 +9,7 @@ import PaginaNuevoBeneficiario from "../paginas/beneficiarios/PaginaNuevoBenefic
 import PaginaFicha from "../paginas/beneficiarios/PaginaFicha";
 import PaginaCatalogos from "../paginas/catalogos/PaginaCatalogos";
 import PaginaInventario from "../paginas/inventario/PaginaInventario";
+import PaginaInsumo from "../paginas/inventario/PaginaInsumo";
 import { OPERACION, type Rol } from "../types/api";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
@@ -50,6 +51,14 @@ const RUTAS_EXTRA: { ruta: string; roles: readonly Rol[]; elemento: ReactNode }[
       ruta: "/beneficiarios/:id",
       roles: OPERACION,
       elemento: <PaginaFicha />,
+    },
+    {
+      // La ficha del insumo es de consulta, no de gestión: cualquiera que
+      // trabaje a diario necesita ver cuánto queda. Lo que se restringe a
+      // dirección son los botones de edición, no la puerta.
+      ruta: "/inventario/insumos/:id",
+      roles: OPERACION,
+      elemento: <PaginaInsumo />,
     },
   ];
 function Rutas() {
