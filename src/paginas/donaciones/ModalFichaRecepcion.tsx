@@ -16,6 +16,7 @@ import {
 } from "../../api/donaciones";
 import type { InstitucionDonante } from "../../types/api";
 import ModalRecepcion from "./ModalRecepcion";
+import SeccionLotes from "./SeccionLotes";
 import estilos from "./Donaciones.module.css";
 
 function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
@@ -196,6 +197,12 @@ function ModalFichaRecepcion({
               </Dato>
             </dl>
           </section>
+
+          <SeccionLotes
+            recepcionId={recepcion.id}
+            recepcionActiva={recepcion.activo}
+            lotes={recepcion.lotes}
+          />
 
           {editando && (
             <ModalRecepcion

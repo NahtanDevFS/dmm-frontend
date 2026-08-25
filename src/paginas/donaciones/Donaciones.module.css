@@ -141,3 +141,40 @@
     width: 100%;
   }
 }
+
+/* ─────────────────────── Alta de lote ─────────────────────── */
+
+/**
+ * El formulario de lote se cierra como bloque propio dentro de la sección.
+ * No es «un campo más» de la ficha: es la tarea de descargar el camión, y
+ * mientras dure se repite varias veces seguidas sin salir de aquí.
+ */
+.formularioLote {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-border);
+}
+
+.tituloFormulario {
+  margin-bottom: var(--space-2);
+  font: var(--texto-etiqueta);
+  color: var(--color-primary-darker);
+}
+
+.rejillaLote {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.anchoCompleto {
+  grid-column: 1 / -1;
+}
+
+/* Una sola acción, a la derecha del grupo. */
+.accionLote {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+}
