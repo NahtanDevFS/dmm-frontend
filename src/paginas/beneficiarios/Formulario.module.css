@@ -11,6 +11,19 @@
   box-shadow: var(--shadow-sm);
 }
 
+/**
+ * El mismo formulario dentro de un modal. El modal ya es la tarjeta —tiene su
+ * superficie, su sombra y su propio relleno—, así que repetirlos aquí dejaría
+ * una tarjeta dentro de otra y un doble margen que estrecha los campos.
+ * El ritmo entre secciones, que es lo que agrupa, se conserva intacto.
+ */
+.enModal {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
 /* 40 px entre secciones. */
 .seccion + .seccion {
   margin-top: var(--space-4);

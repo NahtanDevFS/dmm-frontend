@@ -13,6 +13,8 @@ interface PropsModal {
    * curso: cerrar a media escritura dejaría al usuario sin saber si se guardó.
    */
   bloqueado?: boolean;
+  /** `amplio` para las fichas, que traen varias regiones y no un solo formulario. */
+  tamano?: "normal" | "amplio";
   children: ReactNode;
 }
 
@@ -31,6 +33,7 @@ function Modal({
   descripcion,
   pie,
   bloqueado = false,
+  tamano = "normal",
   children,
 }: PropsModal) {
   const referencia = useRef<HTMLDialogElement>(null);
@@ -80,7 +83,9 @@ function Modal({
   return (
     <dialog
       ref={referencia}
-      className={estilos.dialogo}
+      className={
+        estilos.dialogo + (tamano === "amplio" ? " " + estilos.amplio : "")
+      }
       aria-labelledby={idTitulo}
       aria-describedby={descripcion ? idDescripcion : undefined}
       onMouseDown={alPulsar}

@@ -26,6 +26,19 @@
   color: var(--color-success);
 }
 
+/**
+ * Vencido. Es el unico tono con relleno solido, y lo lleva porque el semaforo
+ * de caducidad tiene dos niveles de rojo —vencido y por vencer en menos de
+ * tres meses— que con el mismo borde tenue se leerian como el mismo estado en
+ * una tabla larga. El texto blanco sobre el rojo semantico da 6.54:1, por
+ * encima del 4.5:1 que exige la seccion 4.
+ */
+.vencida {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
 .rechazada {
   background-color: color-mix(in srgb, var(--color-danger) 12%, #fff);
   border-color: color-mix(in srgb, var(--color-danger) 30%, #fff);
