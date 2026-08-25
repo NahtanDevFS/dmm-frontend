@@ -5,6 +5,7 @@ import Boton from "../../componentes/ui/Boton";
 import { CampoSelect } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
 import Tabla, {
+  CeldaAcciones,
   CeldaCantidad,
   CeldaIdentificador,
 } from "../../componentes/ui/Tabla";
@@ -18,6 +19,7 @@ import {
 } from "../../api/inventario";
 import { SEMAFORO, type Semaforo } from "../../types/api";
 import { NIVELES, ORDEN_SEMAFORO } from "./semaforo";
+import ModalBajaLote from "./ModalBajaLote";
 import estilos from "./Inventario.module.css";
 
 /**
@@ -37,6 +39,7 @@ import estilos from "./Inventario.module.css";
 function SeccionSemaforo() {
   const [nivel, setNivel] = useState<Semaforo | "">("");
   const [insumoId, setInsumoId] = useState("");
+  const [dandoBaja, setDandoBaja] = useState<LoteSemaforo | null>(null);
 
   const consulta = useQuery({
     queryKey: [CLAVE_SEMAFORO],
@@ -163,6 +166,7 @@ function SeccionSemaforo() {
                   <th>Recibido</th>
                   <th>Disponible</th>
                   <th>Semáforo</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -194,6 +198,15 @@ function SeccionSemaforo() {
                           {definicion.etiqueta}
                         </Insignia>
                       </td>
+                      <CeldaAcciones>
+                        <Boton
+                          pequeno
+                          variante="terciaria"
+                          onClick={() => setDandoBaja(lote)}
+                        >
+                          Dar de baja
+                        </Boton>
+                      </CeldaAcciones>
                     </tr>
                   );
                 })}
@@ -201,6 +214,14 @@ function SeccionSemaforo() {
             </Tabla>
           )}
         </>
+      )}
+
+      {dandoBaja && (
+        <ModalBajaLote
+          lote={dandoBaja}
+          abierto
+          onCerrar={() => setDandoBaja(null)}
+        />
       )}
     </section>
   );
