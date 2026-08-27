@@ -11,6 +11,10 @@ export type TonoInsignia =
 const TONO_ESTADO_SOLICITUD: Record<string, TonoInsignia> = {
   PENDIENTE_ENTREGA: "pendiente",
   PENDIENTE_ADQUISICION: "pendiente",
+  // Distinto de "pendiente" a propósito: ya tiene algo de stock reservado,
+  // solo falta completar la cantidad. Confundirla con "pendiente" a secas le
+  // ocultaría al lector que ya hay avance.
+  PENDIENTE_ENTREGA_PARCIAL: "informativa",
   ENTREGADA: "aprobada",
   RECHAZADA: "rechazada",
   CANCELADA: "neutra",

@@ -1,5 +1,5 @@
 import axiosClient from "./axiosClient";
-import type { Persona } from "../types/api";
+import type { Persona, Sobre } from "../types/api";
 
 /* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
 
@@ -80,6 +80,16 @@ export const CLAVE_PERSONAS = "personas";
 export async function obtenerPersona(id: number): Promise<PersonaDetalle> {
   const { data } = await axiosClient.get<PersonaDetalle>("personas/" + id);
   return data;
+}
+
+export async function buscarPersonas(
+  texto: string,
+  limite = 8,
+): Promise<Persona[]> {
+  const { data } = await axiosClient.get<Sobre<Persona>>("personas", {
+    params: { busqueda: texto, limite },
+  });
+  return data.datos;
 }
 
 export async function crearPersona(datos: CrearPersona): Promise<Persona> {
