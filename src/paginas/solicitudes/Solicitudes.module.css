@@ -1,0 +1,353 @@
+.encabezado {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.nota {
+  margin-top: 4px;
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+/* Región común: el listado vive en su propia tarjeta sobre Rosa 50. */
+.tarjeta {
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+}
+
+/**
+ * Las mismas regiones dentro del modal de la ficha. El modal ya es la
+ * superficie elevada; repetir fondo y sombra dibujaría tarjetas blancas sobre
+ * blanco. Lo que separaba las regiones era la elevación, y aquí lo hace una
+ * línea.
+ */
+.enModal .tarjeta {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.enModal .tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/**
+ * Región de resolución (aprobar/rechazar). Ajuste de Gestalt exigido por el
+ * manual: se cierra como bloque propio con título y borde superior Rosa 300,
+ * porque la decisión pertenece a otro rol (DIRECTORA) y no al resto de la
+ * ficha, que cualquiera de OPERACION puede ver.
+ */
+.enModal .resolucion {
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+  border-top: 2px solid var(--color-primary-mid);
+}
+
+.tituloTarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.filtroSelect {
+  min-width: 220px;
+}
+
+.filtroPersona {
+  min-width: 220px;
+}
+
+.opcionesExtra {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  font: var(--texto-etiqueta);
+  cursor: pointer;
+}
+
+.limpiarFiltros {
+  align-self: flex-end;
+}
+
+.casilla {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.persona {
+  font-weight: 600;
+}
+
+.celdaEstado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.dato dt {
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+}
+
+.dato dd {
+  margin-top: 2px;
+  font: var(--texto-cuerpo);
+  color: var(--color-text-main);
+}
+
+.datoIdentificador {
+  font: var(--texto-dato);
+}
+
+.auxiliar {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.inactiva {
+  padding: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-field);
+  background-color: color-mix(in srgb, var(--color-warning) 8%, #fff);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+}
+
+@media (max-width: 768px) {
+  .encabezado {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtros > * {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* ─────────────────────── Líneas de la solicitud ─────────────────────── */
+
+.formularioLote {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-border);
+}
+
+.tituloFormulario {
+  margin-bottom: var(--space-2);
+  font: var(--texto-etiqueta);
+  color: var(--color-primary-darker);
+}
+
+.rejillaLote {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.anchoCompleto {
+  grid-column: 1 / -1;
+}
+
+.accionLote {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+}
+
+/* ─────────────────────── Buscador de persona ─────────────────────── */
+
+.contenedorBuscador {
+  position: relative;
+}
+
+.resultadosBusqueda {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding: var(--space-1);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/**
+ * Variante no flotante: dentro de un modal, el panel absoluto queda cortado
+ * por el overflow-y: auto del cuerpo del modal (Modal.module.css), que es lo
+ * que mantiene la cabecera y el pie fijos mientras el contenido larga hace
+ * scroll. Ahí el panel empuja el resto del formulario hacia abajo en vez de
+ * flotar por encima: hay espacio de sobra para eso dentro de un modal
+ * amplio, a diferencia de una fila compacta de filtros.
+ */
+.resultadosBusquedaFijos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding: var(--space-1);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.resultadoPersona {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px var(--space-1);
+  border: none;
+  border-radius: var(--radius-field);
+  background: none;
+  font: var(--texto-cuerpo);
+  color: var(--color-text-main);
+  text-align: left;
+  cursor: pointer;
+  min-height: 44px;
+  justify-content: center;
+}
+
+.resultadoPersona:hover,
+.resultadoPersona:focus-visible {
+  background-color: var(--color-primary-light);
+}
+
+.personaElegida {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 10px var(--space-2);
+  border: 1px solid var(--color-primary-soft);
+  border-radius: var(--radius-field);
+  background-color: var(--color-primary-light);
+}
+
+.personaElegidaNombre {
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+/* ─────────────────────── Recetas médicas ─────────────────────── */
+
+.listaDocumentos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.documento {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 10px var(--space-2);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-field);
+}
+
+.documentoNombre {
+  min-width: 0;
+  font: var(--texto-etiqueta);
+  overflow-wrap: anywhere;
+}
+
+.diasEsperando {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.pildora {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  font: var(--texto-etiqueta);
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion);
+}
+
+.pildora:hover {
+  border-color: var(--color-primary-soft);
+  background-color: var(--color-primary-light);
+}
+
+.pildora:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+/* Activa: fondo, texto y borde, tres señales además de aria-pressed. */
+.pildoraActiva {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
