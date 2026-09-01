@@ -22,6 +22,8 @@ import {
   cancelarLinea,
   type LineaSolicitud,
 } from "../../api/solicitudes";
+import ModalDespacho from "../entregas/ModalDespacho";
+import ModalFormulariosLinea from "../formularios/ModalFormulariosLinea";
 import estilos from "./Solicitudes.module.css";
 
 /** Estados en los que una línea todavía admite cancelarse desde aquí. */
@@ -31,13 +33,22 @@ const ESTADOS_CANCELABLES = new Set([
   "PENDIENTE_ENTREGA_PARCIAL",
 ]);
 
+/** Estados en los que ya hay algo que despachar: la base ya asignó stock. */
+const ESTADOS_DESPACHABLES = new Set([
+  "PENDIENTE_ENTREGA",
+  "PENDIENTE_ENTREGA_PARCIAL",
+]);
+
 function SeccionLineasSolicitud({
   solicitudId,
+  personaId,
   lineas,
   solicitudActiva,
   onBorrador,
 }: {
   solicitudId: number;
+  /** Necesaria para el despacho: la entrega se registra a nombre de esta persona. */
+  personaId: number;
   lineas: LineaSolicitud[];
   /** Una solicitud cancelada o inactiva no admite líneas nuevas. */
   solicitudActiva: boolean;
@@ -48,6 +59,10 @@ function SeccionLineasSolicitud({
 
   const [insumoId, setInsumoId] = useState("");
   const [cantidad, setCantidad] = useState("");
+  const [despachando, setDespachando] = useState<LineaSolicitud | null>(null);
+  const [verFormularios, setVerFormularios] = useState<LineaSolicitud | null>(
+    null,
+  );
 
   // El catálogo de estados es {id, nombre}: aquí solo hace falta el nombre
   // para reutilizar el mismo tono e insignia que ya usa el listado.
@@ -149,6 +164,22 @@ function SeccionLineasSolicitud({
                     )}
                   </td>
                   <CeldaAcciones>
+                    {ESTADOS_DESPACHABLES.has(nombre) && linea.activo && (
+                      <Boton
+                        pequeno
+                        variante="secundaria"
+                        onClick={() => setDespachando(linea)}
+                      >
+                        Despachar
+                      </Boton>
+                    )}
+                    <Boton
+                      pequeno
+                      variante="secundaria"
+                      onClick={() => setVerFormularios(linea)}
+                    >
+                      Formularios
+                    </Boton>
                     {cancelable && (
                       <Boton
                         pequeno
@@ -215,6 +246,37 @@ function SeccionLineasSolicitud({
             </Boton>
           </div>
         </div>
+      )}
+
+      {despachando && (
+        <ModalDespacho
+          solicitudId={solicitudId}
+          lineaId={despachando.id}
+          personaId={personaId}
+          insumoId={despachando.insumo_id}
+          insumoNombre={
+            insumos.data?.find((i) => i.id === despachando.insumo_id)?.nombre ??
+            "el insumo"
+          }
+          pendiente={
+            despachando.cantidad_requerida - despachando.cantidad_entregada
+          }
+          abierto
+          onCerrar={() => setDespachando(null)}
+        />
+      )}
+
+      {verFormularios && (
+        <ModalFormulariosLinea
+          detalleSolicitudId={verFormularios.id}
+          insumoNombre={
+            insumos.data?.find((i) => i.id === verFormularios.insumo_id)
+              ?.nombre ?? "este insumo"
+          }
+          soloLectura={!solicitudActiva || !verFormularios.activo}
+          abierto
+          onCerrar={() => setVerFormularios(null)}
+        />
       )}
     </section>
   );
