@@ -1,0 +1,234 @@
+.encabezado {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.nota {
+  margin-top: 4px;
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.tarjeta {
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+}
+
+/**
+ * Las mismas regiones dentro del modal de la ficha. El modal ya es la
+ * superficie elevada; repetir fondo y sombra dibujaría tarjetas blancas sobre
+ * blanco.
+ */
+.enModal .tarjeta {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.enModal .tarjeta + .tarjeta {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/**
+ * Región de anulación. Mismo ajuste de Gestalt que la resolución de
+ * solicitudes: se cierra como bloque propio con borde superior Rosa 300,
+ * porque la decisión pertenece a otro rol (DIRECCION).
+ */
+.enModal .anulacion {
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+  border-top: 2px solid var(--color-primary-mid);
+}
+
+.tituloTarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.filtroAncho {
+  min-width: 200px;
+}
+
+.opcionesExtra {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  font: var(--texto-etiqueta);
+  cursor: pointer;
+}
+
+.casilla {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.limpiarFiltros {
+  align-self: flex-end;
+}
+
+.persona {
+  font-weight: 600;
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.dato dt {
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+}
+
+.dato dd {
+  margin-top: 2px;
+  font: var(--texto-cuerpo);
+  color: var(--color-text-main);
+}
+
+.datoIdentificador {
+  font: var(--texto-dato);
+}
+
+.auxiliar {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.inactiva {
+  padding: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-field);
+  background-color: color-mix(in srgb, var(--color-warning) 8%, #fff);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+}
+
+@media (max-width: 768px) {
+  .encabezado {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtros > * {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* ─────────────────────── Lotes de origen (FEFO/FIFO) ─────────────────────── */
+
+.listaLotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.lote {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 10px var(--space-2);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-field);
+}
+
+.loteCodigo {
+  font: var(--texto-dato);
+}
+
+.previaFifo {
+  padding: var(--space-2);
+  margin-top: var(--space-2);
+  border: 1px dashed var(--color-primary-soft);
+  border-radius: var(--radius-field);
+  background-color: var(--color-primary-light);
+}
+
+/* ─────────────────────── Evidencias ─────────────────────── */
+
+.listaDocumentos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.documento {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 10px var(--space-2);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-field);
+}
+
+.documentoNombre {
+  min-width: 0;
+  font: var(--texto-etiqueta);
+  overflow-wrap: anywhere;
+}
+
+.acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.formularioLote {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-border);
+}
+
+.rejillaLote {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.anchoCompleto {
+  grid-column: 1 / -1;
+}
+
+.accionLote {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+}
