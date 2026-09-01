@@ -10,6 +10,7 @@ import PaginaInventario from "../paginas/inventario/PaginaInventario";
 import PaginaDonaciones from "../paginas/donaciones/PaginaDonaciones";
 import PaginaSolicitudes from "../paginas/solicitudes/PaginaSolicitudes";
 import PaginaEntregas from "../paginas/entregas/PaginaEntregas";
+import PaginaUsuarios from "../paginas/usuarios/PaginaUsuarios";
 import { OPERACION, type Rol } from "../types/api";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
@@ -35,6 +36,7 @@ const PANTALLAS: Record<string, ReactNode> = {
   "/donaciones": <PaginaDonaciones />,
   "/solicitudes": <PaginaSolicitudes />,
   "/entregas": <PaginaEntregas />,
+  "/usuarios": <PaginaUsuarios />,
 };
 
 /**
