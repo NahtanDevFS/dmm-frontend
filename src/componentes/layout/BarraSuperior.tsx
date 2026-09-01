@@ -1,5 +1,7 @@
+import { useState } from "react";
 import Logotipo from "../marca/Logotipo";
 import { useAuth } from "../../auth/useAuth";
+import ModalCambiarPassword from "../../paginas/usuarios/ModalCambiarPassword";
 import estilos from "./BarraSuperior.module.css";
 
 /** Etiquetas legibles de los roles. El API devuelve el identificador crudo. */
@@ -12,6 +14,7 @@ const NOMBRE_ROL: Record<string, string> = {
 
 function BarraSuperior() {
   const { usuario, salir, saliendo } = useAuth();
+  const [cambiandoPassword, setCambiandoPassword] = useState(false);
 
   return (
     <header className={estilos.barra}>
@@ -27,6 +30,13 @@ function BarraSuperior() {
           <p className={estilos.rol}>
             {usuario ? (NOMBRE_ROL[usuario.rol] ?? usuario.rol) : null}
           </p>
+          <button
+            type="button"
+            className={estilos.botonCuenta}
+            onClick={() => setCambiandoPassword(true)}
+          >
+            Cambiar contraseña
+          </button>
         </div>
         <button
           type="button"
@@ -37,6 +47,13 @@ function BarraSuperior() {
           {saliendo ? "Cerrando…" : "Cerrar sesión"}
         </button>
       </div>
+
+      {cambiandoPassword && (
+        <ModalCambiarPassword
+          abierto
+          onCerrar={() => setCambiandoPassword(false)}
+        />
+      )}
     </header>
   );
 }
