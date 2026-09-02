@@ -1,0 +1,156 @@
+.encabezado {
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.nota {
+  margin-top: 4px;
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.tarjeta {
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.tituloTarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.pildora {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  font: var(--texto-etiqueta);
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion);
+}
+
+.pildora:hover {
+  border-color: var(--color-primary-soft);
+  background-color: var(--color-primary-light);
+}
+
+.pildora:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+.pildoraActiva {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.filtroSelect {
+  min-width: 200px;
+}
+
+.filtroTexto {
+  min-width: 160px;
+}
+
+.opcionesExtra {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  font: var(--texto-etiqueta);
+  cursor: pointer;
+}
+
+.casilla {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.accionesFiltro {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.resumen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.totalRegistros {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.exportar {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.celdaVacia {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  .filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtros > * {
+    width: 100%;
+    max-width: none;
+  }
+
+  .accionesFiltro {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .resumen {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .exportar {
+    width: 100%;
+  }
+
+  .exportar > * {
+    flex: 1;
+  }
+}
