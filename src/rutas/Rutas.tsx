@@ -11,6 +11,7 @@ import PaginaDonaciones from "../paginas/donaciones/PaginaDonaciones";
 import PaginaSolicitudes from "../paginas/solicitudes/PaginaSolicitudes";
 import PaginaEntregas from "../paginas/entregas/PaginaEntregas";
 import PaginaUsuarios from "../paginas/usuarios/PaginaUsuarios";
+import PaginaPrestamos from "../paginas/prestamos/PaginaPrestamos";
 import { OPERACION, type Rol } from "../types/api";
 import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
@@ -37,6 +38,7 @@ const PANTALLAS: Record<string, ReactNode> = {
   "/solicitudes": <PaginaSolicitudes />,
   "/entregas": <PaginaEntregas />,
   "/usuarios": <PaginaUsuarios />,
+  "/prestamos": <PaginaPrestamos />,
 };
 
 /**
@@ -88,6 +90,11 @@ const RUTAS_EXTRA: {
     ruta: "/entregas/:id",
     roles: OPERACION,
     elemento: <PaginaEntregas />,
+  },
+  {
+    ruta: "/prestamos/:id",
+    roles: OPERACION,
+    elemento: <PaginaPrestamos />,
   },
 ];
 function Rutas() {

@@ -241,6 +241,7 @@ function ModalFichaSolicitud({
 
           <SeccionLineasSolicitud
             solicitudId={solicitud.id}
+            personaId={solicitud.persona_id}
             lineas={solicitud.lineas}
             solicitudActiva={solicitud.activo}
             onBorrador={(hay) =>
