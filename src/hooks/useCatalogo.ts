@@ -37,6 +37,7 @@ export const CATALOGOS_LECTURA = [
   "tipos-parentesco",
   "tipos-documento-persona",
   "tipos-evidencia-entrega",
+  "tipos-evidencia-contrato",
   "tipos-multa-prestamo",
   "estados-solicitud",
   "estados-contrato-prestamo",
@@ -78,7 +79,11 @@ function limpiar(
  */
 export function useCatalogo<T>(
   ruta: RutaCatalogo,
-  { parametros, incluirInactivos = false, habilitado = true }: OpcionesCatalogo = {},
+  {
+    parametros,
+    incluirInactivos = false,
+    habilitado = true,
+  }: OpcionesCatalogo = {},
 ) {
   const query = {
     ...limpiar(parametros),
