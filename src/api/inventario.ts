@@ -132,6 +132,11 @@ export interface LoteSemaforo {
   cantidad_disponible: number;
   cantidad_inicial: number;
   semaforo: Semaforo;
+  /** Código impreso por el fabricante, distinto del código del envío. */
+  codigo_lote_fabricante: string | null;
+  /** En qué presentación llegó este lote: caja, quintal, unidad. */
+  presentacion_nombre: string;
+  institucion_nombre: string;
 }
 
 /* ═══════════════════════════ Cliente ═══════════════════════════ */

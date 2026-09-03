@@ -1,23 +1,30 @@
 import { useMemo, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
 import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
 import Paginacion from "../../componentes/ui/Paginacion";
-import Tabla, { CeldaAcciones } from "../../componentes/ui/Tabla";
+import Tabla, {
+  CeldaAcciones,
+  CeldaCantidad,
+} from "../../componentes/ui/Tabla";
 import { EstadoVacio, EsqueletoTabla } from "../../componentes/ui/Estado";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { useListadoPaginado } from "../../hooks/useListadoPaginado";
 import { mensajeDeError } from "../../lib/errores";
+import { formatearFecha } from "../../lib/fechas";
 import {
   CLAVE_INSUMOS,
   desactivarInsumo,
   reactivarInsumo,
+  listarStockInsumos,
   type Insumo,
+  type StockInsumoListado,
 } from "../../api/inventario";
 import type { ElementoCatalogo } from "../../types/api";
 import { BANDERAS } from "./banderas";
+import { nivelDe } from "./semaforo";
 import ModalInsumo from "./ModalInsumo";
 import estilos from "./Inventario.module.css";
 
@@ -62,6 +69,28 @@ function SeccionInsumos({
     }),
     [busqueda, categoriaId, incluirInactivos],
   );
+
+  /**
+   * Existencias de todos los insumos en una sola consulta, para poder
+   * mostrarlas en el listado.
+   *
+   * Sin esto, la tabla decía qué insumos existen pero no si había alguno: para
+   * contestar «¿hay acetaminofén?» había que entrar a la ficha de cada uno. El
+   * dato que se busca en un catálogo de insumos casi siempre es cuánto queda.
+   *
+   * Se consulta aparte del listado porque este está paginado y filtrado por el
+   * servidor, y v_stock_insumo no conoce esos filtros; se cruzan por id.
+   */
+  const stock = useQuery({
+    queryKey: [CLAVE_INSUMOS, "stock"],
+    queryFn: () => listarStockInsumos(),
+  });
+
+  const stockPorInsumo = useMemo(() => {
+    const mapa = new Map<number, StockInsumoListado>();
+    for (const fila of stock.data ?? []) mapa.set(fila.insumo_id, fila);
+    return mapa;
+  }, [stock.data]);
 
   const listado = useListadoPaginado<Insumo>({
     clave: CLAVE_INSUMOS,
@@ -165,6 +194,8 @@ function SeccionInsumos({
                 <th>Insumo</th>
                 <th>Categoría</th>
                 <th>Unidad base</th>
+                <th>Disponible</th>
+                <th>Próxima caducidad</th>
                 <th>Requisitos</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -175,12 +206,52 @@ function SeccionInsumos({
                 const requisitos = BANDERAS.filter(
                   (bandera) => insumo[bandera.clave],
                 );
+                const existencias = stockPorInsumo.get(insumo.id);
+                // Un insumo desactivado queda fuera de v_stock_insumo: no es
+                // que tenga cero, es que no se consulta. Decir "0" sería
+                // afirmar algo que nadie comprobó.
+                const sinDato = existencias === undefined;
+                const nivel = existencias
+                  ? nivelDe(existencias.semaforo, existencias.stock_total === 0)
+                  : null;
                 return (
                   <tr key={insumo.id}>
                     <td className={estilos.nombre}>{insumo.nombre}</td>
-                    <td>{nombreDe(categorias.opciones, insumo.categoria_id)}</td>
                     <td>
-                      {nombreDe(unidades.opciones, insumo.unidad_medida_base_id)}
+                      {nombreDe(categorias.opciones, insumo.categoria_id)}
+                    </td>
+                    <td>
+                      {nombreDe(
+                        unidades.opciones,
+                        insumo.unidad_medida_base_id,
+                      )}
+                    </td>
+                    <CeldaCantidad>
+                      {sinDato ? (
+                        "—"
+                      ) : existencias.stock_total === 0 ? (
+                        <Insignia tono="rechazada">Sin existencias</Insignia>
+                      ) : (
+                        existencias.stock_total.toLocaleString("es-GT")
+                      )}
+                    </CeldaCantidad>
+                    <td>
+                      {existencias?.proxima_caducidad ? (
+                        <span className={estilos.requisitos}>
+                          {formatearFecha(existencias.proxima_caducidad)}
+                          {nivel && (
+                            <Insignia tono={nivel.tono}>
+                              {nivel.etiqueta}
+                            </Insignia>
+                          )}
+                        </span>
+                      ) : insumo.requiere_fecha_caducidad ? (
+                        // Exige caducidad pero no hay ningún lote vigente del
+                        // cual leerla: no es lo mismo que "no caduca".
+                        <span className={estilos.banderaAyuda}>Sin lotes</span>
+                      ) : (
+                        "No caduca"
+                      )}
                     </td>
                     <td>
                       {requisitos.length === 0 ? (
