@@ -29,7 +29,13 @@ import SeccionDocumentos from "./SeccionDocumentos";
 import ModalEditar from "./ModalEditar";
 import estilos from "./Ficha.module.css";
 
-function Dato({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Dato({
+  titulo,
+  children,
+}: {
+  titulo: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className={estilos.dato}>
       <dt>{titulo}</dt>
@@ -104,7 +110,9 @@ function ModalFicha({
       abierto={abierto}
       onCerrar={onCerrar}
       titulo={
-        persona ? persona.nombres + " " + persona.apellidos : "Ficha del beneficiario"
+        persona
+          ? persona.nombres + " " + persona.apellidos
+          : "Ficha del beneficiario"
       }
       /*
         Subtítulo con lo que identifica a la persona de un vistazo. El CUI se
@@ -175,7 +183,10 @@ function ModalFicha({
           titulo="No se pudo cargar la ficha"
           texto={mensajeDeError(consulta.error)}
           accion={
-            <Boton variante="secundaria" onClick={() => void consulta.refetch()}>
+            <Boton
+              variante="secundaria"
+              onClick={() => void consulta.refetch()}
+            >
               Reintentar
             </Boton>
           }
@@ -226,9 +237,14 @@ function ModalFicha({
             personaId={persona.id}
             encargados={persona.encargados}
             menor={menor}
+            tieneDiscapacidad={persona.discapacidades.length > 0}
+            tieneCui={Boolean(persona.cui_dpi)}
           />
 
-          <SeccionContactos personaId={persona.id} contactos={persona.contactos} />
+          <SeccionContactos
+            personaId={persona.id}
+            contactos={persona.contactos}
+          />
 
           <SeccionDocumentos personaId={persona.id} />
 

@@ -122,16 +122,6 @@
   color: var(--color-text-main);
 }
 
-.avisoBloqueante {
-  border-left-color: var(--color-danger);
-  background-color: color-mix(in srgb, var(--color-danger) 8%, #fff);
-  color: var(--color-danger);
-}
-
-.seccionInactiva {
-  opacity: 0.55;
-}
-
 .contacto {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

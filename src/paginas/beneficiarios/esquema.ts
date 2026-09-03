@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { MAYORIA_DE_EDAD, calcularEdad } from "../../lib/fechas";
 
 /**
  * Espejo de crearPersonaSchema en el backend, con una regla añadida que allí
@@ -133,31 +132,20 @@ export const esquemaBeneficiario = datosBasePersona
     contactos: z.array(esquemaContacto).default([]),
   })
   /**
-   * Reglas del encargado, todas juntas.
+   * Reglas del encargado.
    *
-   * La primera la impone el backend con un constraint diferido de la base, no
-   * con Zod: rechaza la transacción entera al confirmarla. Se comprueba
-   * también aquí para que el usuario lo sepa antes de rellenar el formulario
-   * completo y perderlo contra un 400.
+   * No tener encargado NUNCA bloquea, ni siquiera en un menor sin CUI/DPI: la
+   * base dejó de exigirlo en la migración 22 y la interfaz solo lo recomienda.
+   * Negarse a registrar a alguien por un dato que no trae encima no protege a
+   * nadie; lo que ocurre en la práctica es que se inventa el dato o la
+   * persona no queda registrada.
+   *
+   * Lo que sí se valida es la coherencia: si alguien empezó a escribir el
+   * bloque, hay que completarlo, porque un encargado a medias no se puede
+   * crear.
    */
   .superRefine((datos, ctx) => {
-    const vacio = encargadoVacio(datos.encargado);
-    const menor =
-      Boolean(datos.fecha_nacimiento) &&
-      calcularEdad(datos.fecha_nacimiento) < MAYORIA_DE_EDAD;
-
-    if (vacio) {
-      if (menor && !datos.cui_dpi) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["encargado"],
-          message:
-            "Un beneficiario menor de edad sin CUI/DPI debe tener un encargado registrado.",
-        });
-      }
-      // Sin encargado y sin obligación: no hay nada más que validar.
-      return;
-    }
+    if (encargadoVacio(datos.encargado)) return;
 
     // Alguien empezó a escribir: entonces sí se exige lo mínimo para crearlo.
     const obligatorios = [

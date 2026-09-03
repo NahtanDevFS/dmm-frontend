@@ -33,7 +33,9 @@ interface Elemento {
 function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
-  const [incluirInactivos, setIncluirInactivos] = useState(true);
+  // Ocultos por defecto, como en el resto del sistema: lo desactivado es la
+  // excepción y mezclarlo con lo vigente obliga a leer estado en cada fila.
+  const [incluirInactivos, setIncluirInactivos] = useState(false);
   const [nuevo, setNuevo] = useState<Record<string, string>>({});
   /** Detalle del último 409, para explicarlo en su propia región. */
   const [conflicto, setConflicto] = useState<string | null>(null);
@@ -41,7 +43,9 @@ function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
   const consulta = useCatalogo<Elemento>(definicion.ruta, { incluirInactivos });
 
   const refrescar = () =>
-    clienteQuery.invalidateQueries({ queryKey: claveCatalogo(definicion.ruta) });
+    clienteQuery.invalidateQueries({
+      queryKey: claveCatalogo(definicion.ruta),
+    });
 
   const valor = (clave: string) => nuevo[clave] ?? "";
   const cambiar = (clave: string, v: string) =>
@@ -72,7 +76,10 @@ function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
     onSuccess: async (_d, { activar }) => {
       await refrescar();
       setConflicto(null);
-      avisar(activar ? "Registro reactivado." : "Registro desactivado.", "exito");
+      avisar(
+        activar ? "Registro reactivado." : "Registro desactivado.",
+        "exito",
+      );
     },
     onError: (error) => {
       /**
@@ -163,7 +170,8 @@ function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
                           textoConfirmar: "Desactivar",
                           destructiva: true,
                         });
-                        if (ok) cambioEstado.mutate({ id: fila.id, activar: false });
+                        if (ok)
+                          cambioEstado.mutate({ id: fila.id, activar: false });
                       }}
                     >
                       Desactivar
@@ -172,7 +180,9 @@ function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
                     <Boton
                       pequeno
                       variante="secundaria"
-                      onClick={() => cambioEstado.mutate({ id: fila.id, activar: true })}
+                      onClick={() =>
+                        cambioEstado.mutate({ id: fila.id, activar: true })
+                      }
                     >
                       Reactivar
                     </Boton>

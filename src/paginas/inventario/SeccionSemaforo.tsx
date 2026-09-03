@@ -96,7 +96,10 @@ function SeccionSemaforo({
           titulo="No se pudo cargar el semáforo"
           texto={mensajeDeError(consulta.error)}
           accion={
-            <Boton variante="secundaria" onClick={() => void consulta.refetch()}>
+            <Boton
+              variante="secundaria"
+              onClick={() => void consulta.refetch()}
+            >
               Reintentar
             </Boton>
           }
@@ -136,7 +139,9 @@ function SeccionSemaforo({
                     cantidad +
                     (cantidad === 1 ? " lote" : " lotes")
                   }
-                  onClick={() => setNivel((previo) => (previo === valor ? "" : valor))}
+                  onClick={() =>
+                    setNivel((previo) => (previo === valor ? "" : valor))
+                  }
                 >
                   <span className={estilos.resumenCantidad}>{cantidad}</span>
                   <Insignia tono={NIVELES[valor].tono}>
@@ -178,6 +183,7 @@ function SeccionSemaforo({
                 <tr>
                   <th>Insumo</th>
                   <th>Lote</th>
+                  <th>Presentación</th>
                   <th>Caducidad</th>
                   <th>Recibido</th>
                   <th>Disponible</th>
@@ -207,7 +213,19 @@ function SeccionSemaforo({
                       </td>
                       <CeldaIdentificador>
                         {lote.codigo_lote ?? "—"}
+                        {/* Dos códigos distintos: el del envío que lo trajo y
+                            el que imprime el fabricante en la caja. Al buscar
+                            un lote físico se lee el segundo. */}
+                        {lote.codigo_lote_fabricante && (
+                          <span className={estilos.banderaAyuda}>
+                            {" fab. " + lote.codigo_lote_fabricante}
+                          </span>
+                        )}
+                        <span className={estilos.banderaAyuda}>
+                          {" " + lote.institucion_nombre}
+                        </span>
                       </CeldaIdentificador>
+                      <td>{lote.presentacion_nombre}</td>
                       <td className={vencido ? estilos.caducada : undefined}>
                         {formatearFecha(lote.fecha_caducidad)}
                       </td>
@@ -215,7 +233,8 @@ function SeccionSemaforo({
                       <CeldaCantidad>
                         {lote.cantidad_disponible.toLocaleString("es-GT")}
                         <span className={estilos.banderaAyuda}>
-                          {" de " + lote.cantidad_inicial.toLocaleString("es-GT")}
+                          {" de " +
+                            lote.cantidad_inicial.toLocaleString("es-GT")}
                         </span>
                       </CeldaCantidad>
                       <td>

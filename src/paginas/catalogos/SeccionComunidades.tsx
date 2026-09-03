@@ -45,9 +45,14 @@ function SeccionComunidades() {
     habilitado: Boolean(departamentoId),
   });
 
+  // Ocultas por defecto, como en el resto del sistema: lo desactivado es la
+  // excepción y mezclarlo con lo vigente obliga a leer el estado en cada fila
+  // para saber qué se puede usar.
+  const [incluirInactivas, setIncluirInactivas] = useState(false);
+
   const comunidades = useCatalogo<Comunidad>("comunidades", {
     parametros: { municipioId: filtroMunicipio || undefined },
-    incluirInactivos: true,
+    incluirInactivos: incluirInactivas,
   });
 
   const refrescar = () =>
@@ -78,7 +83,10 @@ function SeccionComunidades() {
     onSuccess: async (_d, { activar }) => {
       await refrescar();
       setConflicto(null);
-      avisar(activar ? "Comunidad reactivada." : "Comunidad desactivada.", "exito");
+      avisar(
+        activar ? "Comunidad reactivada." : "Comunidad desactivada.",
+        "exito",
+      );
     },
     onError: (error) => {
       if (esConflicto(error)) setConflicto(mensajeDeError(error));
@@ -93,6 +101,15 @@ function SeccionComunidades() {
     <section className={estilos.tarjeta} aria-labelledby="cat-comunidades">
       <div className={estilos.tituloTarjeta}>
         <h2 id="cat-comunidades">Comunidades</h2>
+        <label className={estilos.opciones}>
+          <input
+            type="checkbox"
+            className={estilos.casilla}
+            checked={incluirInactivas}
+            onChange={(e) => setIncluirInactivas(e.target.checked)}
+          />
+          Mostrar inactivas
+        </label>
       </div>
       <p className={estilos.nota}>
         Cada comunidad pertenece a un municipio. Dos municipios pueden tener
@@ -148,7 +165,11 @@ function SeccionComunidades() {
                           textoConfirmar: "Desactivar",
                           destructiva: true,
                         });
-                        if (ok) cambioEstado.mutate({ id: comunidad.id, activar: false });
+                        if (ok)
+                          cambioEstado.mutate({
+                            id: comunidad.id,
+                            activar: false,
+                          });
                       }}
                     >
                       Desactivar

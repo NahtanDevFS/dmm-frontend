@@ -105,6 +105,8 @@ function SeccionLineasSolicitud({
     mutationFn: () =>
       agregarLinea(solicitudId, {
         insumo_id: Number(insumoId),
+        // Esta pantalla pide en unidad base. Elegir presentación se hace al
+        // crear la solicitud, donde está el selector con la equivalencia.
         cantidad_requerida: Number(cantidad),
         modalidad_solicitud_id: Number(modalidadId),
       }),

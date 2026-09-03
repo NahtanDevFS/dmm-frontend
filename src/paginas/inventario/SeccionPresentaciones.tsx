@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
-import { CampoSelect } from "../../componentes/ui/Campo";
+import { CampoSelect, CampoTexto } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
-import Tabla, { CeldaAcciones, CeldaCantidad } from "../../componentes/ui/Tabla";
+import Tabla, {
+  CeldaAcciones,
+  CeldaCantidad,
+} from "../../componentes/ui/Tabla";
 import { EstadoVacio, EsqueletoTabla } from "../../componentes/ui/Estado";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
@@ -47,6 +50,9 @@ function SeccionPresentaciones({
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
   const [nuevaUnidad, setNuevaUnidad] = useState("");
+  const [nuevoFactor, setNuevoFactor] = useState("");
+  const [editandoFactor, setEditandoFactor] = useState<number | null>(null);
+  const [factorBorrador, setFactorBorrador] = useState("");
 
   const unidades = useCatalogo<ElementoCatalogo>("unidades-medida", {
     incluirInactivos: true,
@@ -66,11 +72,32 @@ function SeccionPresentaciones({
     mutationFn: () =>
       crearPresentacion(insumoId, {
         unidad_medida_id: Number(nuevaUnidad),
+        unidades_por_presentacion: Number(nuevoFactor) || 1,
       }),
     onSuccess: async () => {
       await refrescar();
       setNuevaUnidad("");
+      setNuevoFactor("");
       avisar("Presentación agregada.", "exito");
+    },
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
+
+  /**
+   * El factor NOMINAL de la presentación: "una caja son 100 tabletas". Se usa
+   * para convertir cuando alguien pide en esa presentación al hacer una
+   * solicitud. No es el dato del inventario —cada lote registra el suyo, que
+   * puede diferir— sino la referencia con la que se pide.
+   */
+  const editarFactor = useMutation({
+    mutationFn: ({ id, factor }: { id: number; factor: number }) =>
+      editarPresentacion(insumoId, id, {
+        unidades_por_presentacion: factor,
+      }),
+    onSuccess: async () => {
+      await refrescar();
+      setEditandoFactor(null);
+      avisar("Equivalencia actualizada.", "exito");
     },
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
@@ -166,7 +193,8 @@ function SeccionPresentaciones({
           <thead>
             <tr>
               <th>Unidad de la presentación</th>
-              <th>Unidades por presentación</th>
+              <th>Equivale a (para pedir)</th>
+              <th>Unidades por presentación (lotes recibidos)</th>
               <th>Estado</th>
               {puedeGestionar && <th>Acciones</th>}
             </tr>
@@ -189,10 +217,73 @@ function SeccionPresentaciones({
                     )}
                   </td>
                   <CeldaCantidad>
+                    {presentacion.es_default ? (
+                      <span className={estilos.banderaAyuda}>
+                        1 (es la unidad base)
+                      </span>
+                    ) : editandoFactor === presentacion.id ? (
+                      <span className={estilos.acciones}>
+                        <CampoTexto
+                          etiqueta="Equivale a"
+                          type="number"
+                          min="0.0001"
+                          step="any"
+                          value={factorBorrador}
+                          onChange={(e) => setFactorBorrador(e.target.value)}
+                        />
+                        <Boton
+                          pequeno
+                          variante="secundaria"
+                          disabled={Number(factorBorrador) <= 0}
+                          cargando={editarFactor.isPending}
+                          onClick={() =>
+                            editarFactor.mutate({
+                              id: presentacion.id,
+                              factor: Number(factorBorrador),
+                            })
+                          }
+                        >
+                          Guardar
+                        </Boton>
+                        <Boton
+                          pequeno
+                          variante="terciaria"
+                          onClick={() => setEditandoFactor(null)}
+                        >
+                          Cancelar
+                        </Boton>
+                      </span>
+                    ) : (
+                      <>
+                        {Number(
+                          presentacion.unidades_por_presentacion,
+                        ).toLocaleString("es-GT")}
+                        {puedeGestionar && presentacion.activo && (
+                          <>
+                            {" "}
+                            <Boton
+                              pequeno
+                              variante="terciaria"
+                              onClick={() => {
+                                setEditandoFactor(presentacion.id);
+                                setFactorBorrador(
+                                  presentacion.unidades_por_presentacion,
+                                );
+                              }}
+                            >
+                              Cambiar
+                            </Boton>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </CeldaCantidad>
+                  <CeldaCantidad>
                     {lotes > 0 ? (
                       <>
                         {formatearPromedio(
-                          existencias?.unidades_por_presentacion_promedio ?? null,
+                          existencias?.unidades_por_presentacion_promedio ??
+                            null,
                         )}{" "}
                         <span className={estilos.banderaAyuda}>
                           {lotes === 1
@@ -218,7 +309,9 @@ function SeccionPresentaciones({
                           <Boton
                             pequeno
                             variante="secundaria"
-                            onClick={() => marcarDefault.mutate(presentacion.id)}
+                            onClick={() =>
+                              marcarDefault.mutate(presentacion.id)
+                            }
                           >
                             Marcar predeterminada
                           </Boton>
@@ -288,6 +381,20 @@ function SeccionPresentaciones({
               </option>
             ))}
           </CampoSelect>
+          <CampoTexto
+            etiqueta="Equivale a (unidades base)"
+            type="number"
+            min="0.0001"
+            step="any"
+            value={nuevoFactor}
+            onChange={(e) => setNuevoFactor(e.target.value)}
+            ayuda={
+              presentaciones.length === 0
+                ? "La primera es la unidad base: su equivalencia es 1."
+                : "Cuántas unidades base trae normalmente. Ejemplo: una caja, 100 tabletas."
+            }
+            disabled={presentaciones.length === 0}
+          />
           <Boton
             variante="secundaria"
             disabled={!nuevaUnidad}
