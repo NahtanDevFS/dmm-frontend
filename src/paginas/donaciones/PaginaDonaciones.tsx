@@ -70,10 +70,10 @@ function PaginaDonaciones() {
     <>
       <header className={estilos.encabezado}>
         <div>
-          <h1>Donaciones</h1>
+          <h1>Ingreso de lotes</h1>
           <p className={estilos.nota}>
-            Cada recepción es un envío de una institución donante. Los insumos
-            que trajo se registran dentro, como lotes de inventario.
+            Cada ingreso es un envío recibido de una institución donante. Los
+            insumos que trajo se registran dentro, como lotes de inventario.
           </p>
         </div>
         <Boton variante="primaria" onClick={() => setCreando(true)}>

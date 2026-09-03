@@ -161,14 +161,26 @@ export function SeccionDiscapacidades({
 
 /* ═════════════════════════ Encargados ═════════════════════════ */
 
+/**
+ * Encargados de una persona ya registrada.
+ *
+ * El encargado se recomienda para menores de edad y para quienes tienen
+ * alguna discapacidad registrada, pero nunca bloquea: la base dejó de
+ * exigirlo en la migración 22. La ficha usa el mismo criterio y el mismo tono
+ * que el alta, para que la regla no se lea distinta según por dónde se entre.
+ */
 export function SeccionEncargados({
   personaId,
   encargados,
   menor,
+  tieneDiscapacidad = false,
+  tieneCui = true,
 }: {
   personaId: number;
   encargados: EncargadoDePersona[];
   menor: boolean;
+  tieneDiscapacidad?: boolean;
+  tieneCui?: boolean;
 }) {
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
   const { ejecutar, confirmar } = useAccionFicha(personaId);
@@ -187,8 +199,11 @@ export function SeccionEncargados({
       {encargados.length === 0 ? (
         <p className={estilos.elementoDetalle}>
           {menor
-            ? "Ninguno registrado. Un menor sin CUI/DPI necesita encargado."
-            : "Ninguno registrado."}
+            ? "Ninguno registrado. La persona es menor de edad, así que conviene anotar quién responde por ella" +
+              (tieneCui ? "." : ", sobre todo porque no tiene CUI/DPI.")
+            : tieneDiscapacidad
+              ? "Ninguno registrado. La persona tiene una discapacidad registrada, así que conviene anotar quién responde por ella."
+              : "Ninguno registrado."}
         </p>
       ) : (
         <div className={estilos.listaSimple}>

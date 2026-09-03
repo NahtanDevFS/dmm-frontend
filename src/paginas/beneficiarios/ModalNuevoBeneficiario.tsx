@@ -139,12 +139,20 @@ function ModalNuevoBeneficiario({
   const cui = useWatch({ control, name: "cui_dpi" });
   const edad = fechaNacimiento ? calcularEdad(fechaNacimiento) : Number.NaN;
   const menor = Boolean(fechaNacimiento) && esMenorDeEdad(fechaNacimiento);
+  const discapacidadesElegidas = useWatch({
+    control,
+    name: "discapacidadIds",
+  });
+
   /**
-   * Un menor sin CUI/DPI no puede guardarse sin encargado: lo rechaza un
-   * constraint diferido de la base al confirmar la transacción. Se avisa antes
-   * de que el formulario esté lleno.
+   * A quién CONVIENE registrarle un encargado: menores de edad y personas con
+   * alguna discapacidad. Es una recomendación, nunca un bloqueo — la base
+   * dejó de exigirlo en la migración 22. Negarse a registrar a alguien por un
+   * dato que no trae encima no protege a nadie: en la práctica se termina
+   * inventando el dato, o la persona no queda registrada y su ayuda tampoco.
    */
-  const encargadoObligatorio = menor && !cui;
+  const encargadoRecomendado =
+    menor || (discapacidadesElegidas?.length ?? 0) > 0;
 
   useEffect(() => setFocus("cui_dpi"), [setFocus]);
 
@@ -365,53 +373,40 @@ function ModalNuevoBeneficiario({
         </section>
 
         {/* ─────────────── Encargado ─────────────── */}
-        <section
-          className={
-            estilos.seccion + (menor ? "" : " " + estilos.seccionInactiva)
-          }
-          aria-labelledby="s-encargado"
-        >
+        <section className={estilos.seccion} aria-labelledby="s-encargado">
           <h2 id="s-encargado" className={estilos.tituloSeccion}>
             Encargado
           </h2>
 
-          {!fechaNacimiento ? (
-            <p className={estilos.descripcionSeccion}>
-              Se habilita al indicar una fecha de nacimiento de menos de 18
-              años.
-            </p>
-          ) : !menor ? (
-            <p className={estilos.descripcionSeccion}>
-              No aplica: el beneficiario tiene {edad} años.
-            </p>
-          ) : (
-            <p
-              className={
-                estilos.avisoEncargado +
-                (encargadoObligatorio ? " " + estilos.avisoBloqueante : "")
-              }
-            >
-              {encargadoObligatorio
+          {/* Siempre disponible: cualquier persona puede tener a alguien que
+              responda por ella. Lo que cambia es el énfasis del aviso. */}
+          {encargadoRecomendado ? (
+            <p className={estilos.avisoEncargado}>
+              {menor
                 ? "El beneficiario tiene " +
                   edad +
-                  " años y no se registró CUI/DPI, así que el encargado es obligatorio: la base de datos rechazará el registro sin él."
-                : "El beneficiario tiene " +
-                  edad +
-                  " años. Puede registrar un encargado."}
+                  " años. Conviene registrar un encargado" +
+                  (cui ? "." : ", sobre todo porque no tiene CUI/DPI.")
+                : "El beneficiario tiene una discapacidad registrada. Conviene anotar quién responde por él."}{" "}
+              No es obligatorio: puede guardarse sin él y agregarlo después.
+            </p>
+          ) : (
+            <p className={estilos.descripcionSeccion}>
+              Opcional. Regístrelo si alguien más responde por esta persona.
             </p>
           )}
 
-          {menor && (
+          {
             <div className={estilos.rejilla}>
               <CampoTexto
                 etiqueta="Nombres del encargado"
-                obligatorio={encargadoObligatorio}
+                obligatorio={false}
                 error={errors.encargado?.nombres?.message}
                 {...register("encargado.nombres")}
               />
               <CampoTexto
                 etiqueta="Apellidos del encargado"
-                obligatorio={encargadoObligatorio}
+                obligatorio={false}
                 error={errors.encargado?.apellidos?.message}
                 {...register("encargado.apellidos")}
               />
@@ -425,7 +420,7 @@ function ModalNuevoBeneficiario({
               <CampoTexto
                 etiqueta="Fecha de nacimiento del encargado"
                 type="date"
-                obligatorio={encargadoObligatorio}
+                obligatorio={false}
                 error={errors.encargado?.fecha_nacimiento?.message}
                 {...register("encargado.fecha_nacimiento")}
               />
@@ -437,7 +432,7 @@ function ModalNuevoBeneficiario({
               />
               <CampoSelect
                 etiqueta="Parentesco"
-                obligatorio={encargadoObligatorio}
+                obligatorio={false}
                 error={errors.encargado?.tipoParentescoId?.message}
                 {...register("encargado.tipoParentescoId")}
               >
@@ -448,7 +443,7 @@ function ModalNuevoBeneficiario({
                 ))}
               </CampoSelect>
             </div>
-          )}
+          }
 
           {errors.encargado?.message && (
             <p className={estilos.errorGeneral} role="alert">

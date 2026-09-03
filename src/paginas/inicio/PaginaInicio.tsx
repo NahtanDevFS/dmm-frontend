@@ -39,8 +39,8 @@ const ACCIONES: AccionRapida[] = [
     ruta: "/beneficiarios",
   },
   {
-    titulo: "Nueva recepción",
-    texto: "Ingresar una donación y sus lotes.",
+    titulo: "Ingresar lote",
+    texto: "Registrar un envío recibido y los insumos que trajo.",
     ruta: "/donaciones",
   },
   {
@@ -103,10 +103,12 @@ function PaginaInicio() {
           «Le damos la bienvenida» evita marcar género, que el sistema tampoco
           conoce, y encaja con el tono directo y respetuoso del manual.
         */}
-        <h1 className={estilos.saludo}>Le damos la bienvenida, {usuario?.username}</h1>
+        <h1 className={estilos.saludo}>
+          Le damos la bienvenida, {usuario?.username}
+        </h1>
         <p className={estilos.contexto}>
-          {usuario ? (NOMBRE_ROL[usuario.rol] ?? usuario.rol) : null} · Dirección
-          Municipal de la Mujer, Usumatlán
+          {usuario ? (NOMBRE_ROL[usuario.rol] ?? usuario.rol) : null} ·
+          Dirección Municipal de la Mujer, Usumatlán
         </p>
       </header>
 
