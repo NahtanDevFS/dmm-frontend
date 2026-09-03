@@ -1,10 +1,12 @@
 import { useState } from "react";
 import CatalogoGenerico from "./CatalogoGenerico";
 import SeccionComunidades from "./SeccionComunidades";
+import SeccionFormulariosCategoria from "./SeccionFormulariosCategoria";
 import { CATALOGOS } from "./definiciones";
 import estilos from "./Catalogos.module.css";
 
 const COMUNIDADES = "comunidades";
+const FORMULARIOS = "formularios-categoria";
 
 function PaginaCatalogos() {
   const [activo, setActivo] = useState<string>(CATALOGOS[0].ruta);
@@ -27,7 +29,11 @@ function PaginaCatalogos() {
         de la línea en cualquier pantalla estrecha. El activo lleva fondo,
         texto, borde y aria-pressed, que es la señal que oye un lector.
       */}
-      <div className={estilos.selector} role="group" aria-label="Elegir catálogo">
+      <div
+        className={estilos.selector}
+        role="group"
+        aria-label="Elegir catálogo"
+      >
         {CATALOGOS.map((catalogo) => (
           <button
             key={catalogo.ruta}
@@ -53,10 +59,23 @@ function PaginaCatalogos() {
         >
           Comunidades
         </button>
+        <button
+          type="button"
+          className={
+            estilos.pildora +
+            (activo === FORMULARIOS ? " " + estilos.pildoraActiva : "")
+          }
+          aria-pressed={activo === FORMULARIOS}
+          onClick={() => setActivo(FORMULARIOS)}
+        >
+          Formularios por categoría
+        </button>
       </div>
 
       {activo === COMUNIDADES ? (
         <SeccionComunidades />
+      ) : activo === FORMULARIOS ? (
+        <SeccionFormulariosCategoria />
       ) : definicion ? (
         // La clave remonta el componente al cambiar de catálogo: si no, el
         // formulario de alta conservaría lo escrito para el anterior.

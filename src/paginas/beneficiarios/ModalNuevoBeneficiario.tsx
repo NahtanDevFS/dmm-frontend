@@ -1,10 +1,5 @@
 import { useEffect, useId } from "react";
-import {
-  useForm,
-  useFieldArray,
-  useWatch,
-  Controller,
-} from "react-hook-form";
+import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -259,7 +254,8 @@ function ModalNuevoBeneficiario({
             <CampoTexto
               etiqueta="Teléfono de contacto"
               type="tel"
-              placeholder="5555-4444"
+              placeholder="5512 3344"
+              ayuda="8 dígitos."
               error={errors.telefono?.message}
               {...register("telefono")}
             />
@@ -481,7 +477,11 @@ function ModalNuevoBeneficiario({
               />
               <CampoTexto
                 etiqueta="Teléfono"
+                obligatorio
                 type="tel"
+                placeholder="5512 3344"
+                ayuda="8 dígitos."
+                error={errors.contactos?.[indice]?.telefono?.message}
                 {...register(`contactos.${indice}.telefono`)}
               />
               <CampoAreaTexto
@@ -502,7 +502,11 @@ function ModalNuevoBeneficiario({
             <Boton
               variante="secundaria"
               onClick={() =>
-                contactos.append({ nombre: "", telefono: "", observaciones: "" })
+                contactos.append({
+                  nombre: "",
+                  telefono: "",
+                  observaciones: "",
+                })
               }
             >
               Agregar contacto
@@ -515,7 +519,6 @@ function ModalNuevoBeneficiario({
             {errors.root.message}
           </p>
         )}
-
       </form>
     </Modal>
   );

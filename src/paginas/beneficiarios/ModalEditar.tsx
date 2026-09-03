@@ -11,6 +11,7 @@ import { errorDeCampo, mensajeDeError } from "../../lib/errores";
 import { CLAVE_PERSONAS, editarPersona } from "../../api/personas";
 import type { PersonaDetalle } from "../../api/personas";
 import type { Comunidad, ElementoCatalogo } from "../../types/api";
+import { telefonoValido } from "../../lib/telefono";
 import estilos from "./Ficha.module.css";
 
 /**
@@ -52,9 +53,10 @@ function ModalEditar({
     onCerrar,
   });
 
-  const cambiar = (campo: keyof typeof datos) => (
-    evento: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => setDatos((previos) => ({ ...previos, [campo]: evento.target.value }));
+  const cambiar =
+    (campo: keyof typeof datos) =>
+    (evento: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setDatos((previos) => ({ ...previos, [campo]: evento.target.value }));
 
   const mutacion = useMutation({
     mutationFn: () =>
@@ -119,8 +121,15 @@ function ModalEditar({
         <CampoTexto
           etiqueta="Teléfono"
           type="tel"
+          placeholder="5512 3344"
+          ayuda="8 dígitos. Puede dejarse en blanco."
           value={datos.telefono}
           onChange={cambiar("telefono")}
+          error={
+            datos.telefono.trim() !== "" && !telefonoValido(datos.telefono)
+              ? "El teléfono debe tener 8 dígitos."
+              : undefined
+          }
         />
         <CampoTexto
           etiqueta="Nombres"

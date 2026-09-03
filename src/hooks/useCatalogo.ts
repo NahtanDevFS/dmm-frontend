@@ -40,6 +40,10 @@ export const CATALOGOS_LECTURA = [
   "tipos-evidencia-contrato",
   "tipos-multa-prestamo",
   "estados-solicitud",
+  // No es administrable a propósito: el código se ramifica sobre estos
+  // nombres (un préstamo se salta los formularios propios de donación), así
+  // que agregar una modalidad exige migración, no una pantalla.
+  "modalidades-solicitud",
   "estados-contrato-prestamo",
   "roles",
 ] as const;

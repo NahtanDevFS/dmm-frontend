@@ -19,6 +19,7 @@ import {
   type EncargadoDePersona,
 } from "../../api/personas";
 import type { ElementoCatalogo } from "../../types/api";
+import { normalizarTelefono, telefonoValido } from "../../lib/telefono";
 import estilos from "./Ficha.module.css";
 
 /**
@@ -64,12 +65,15 @@ export function SeccionDiscapacidades({
   const catalogo = useCatalogo<ElementoCatalogo>("discapacidades");
   const { ejecutar, confirmar } = useAccionFicha(personaId);
   const [seleccion, setSeleccion] = useState("");
-  const mutacion = useMutation({ mutationFn: async (f: () => Promise<unknown>) => f() });
+  const mutacion = useMutation({
+    mutationFn: async (f: () => Promise<unknown>) => f(),
+  });
 
   // Solo se ofrecen las que la persona todavía no tiene: reagregar una
   // existente devolvería un 409 que el usuario no puede resolver.
   const disponibles = catalogo.opciones.filter(
-    (d) => !discapacidades.some((asignada) => asignada.discapacidad_id === d.id),
+    (d) =>
+      !discapacidades.some((asignada) => asignada.discapacidad_id === d.id),
   );
 
   return (
@@ -98,7 +102,9 @@ export function SeccionDiscapacidades({
                   const ok = await confirmar({
                     titulo: "Quitar discapacidad",
                     mensaje:
-                      "Se quitará «" + d.nombre + "» del registro de esta persona.",
+                      "Se quitará «" +
+                      d.nombre +
+                      "» del registro de esta persona.",
                     textoConfirmar: "Quitar",
                     destructiva: true,
                   });
@@ -168,7 +174,9 @@ export function SeccionEncargados({
   const { ejecutar, confirmar } = useAccionFicha(personaId);
   const [idEncargado, setIdEncargado] = useState("");
   const [parentesco, setParentesco] = useState("");
-  const mutacion = useMutation({ mutationFn: async (f: () => Promise<unknown>) => f() });
+  const mutacion = useMutation({
+    mutationFn: async (f: () => Promise<unknown>) => f(),
+  });
 
   return (
     <section className={estilos.tarjeta} aria-labelledby="f-encargados">
@@ -289,7 +297,9 @@ export function SeccionContactos({
   const { ejecutar, confirmar } = useAccionFicha(personaId);
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
-  const mutacion = useMutation({ mutationFn: async (f: () => Promise<unknown>) => f() });
+  const mutacion = useMutation({
+    mutationFn: async (f: () => Promise<unknown>) => f(),
+  });
 
   return (
     <section className={estilos.tarjeta} aria-labelledby="f-contactos">
@@ -316,7 +326,8 @@ export function SeccionContactos({
                 onClick={async () => {
                   const ok = await confirmar({
                     titulo: "Eliminar contacto",
-                    mensaje: "Se eliminará a " + c.nombre + " de los contactos.",
+                    mensaje:
+                      "Se eliminará a " + c.nombre + " de los contactos.",
                     textoConfirmar: "Eliminar",
                     destructiva: true,
                   });
@@ -344,13 +355,21 @@ export function SeccionContactos({
         />
         <CampoTexto
           etiqueta="Teléfono"
+          obligatorio
           type="tel"
+          placeholder="5512 3344"
+          ayuda="8 dígitos."
           value={telefono}
           onChange={(e) => setTelefono(e.target.value)}
+          error={
+            telefono.trim() !== "" && !telefonoValido(telefono)
+              ? "El teléfono debe tener 8 dígitos."
+              : undefined
+          }
         />
         <Boton
           variante="secundaria"
-          disabled={!nombre.trim()}
+          disabled={!nombre.trim() || !telefonoValido(telefono)}
           cargando={mutacion.isPending}
           onClick={async () => {
             const ok = await mutacion.mutateAsync(() =>
@@ -358,7 +377,7 @@ export function SeccionContactos({
                 () =>
                   agregarContacto(personaId, {
                     nombre: nombre.trim(),
-                    telefono: telefono.trim() || null,
+                    telefono: normalizarTelefono(telefono),
                   }),
                 "Contacto agregado.",
               ),
