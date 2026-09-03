@@ -15,6 +15,7 @@ import { DIRECCION, tieneRol, type ElementoCatalogo } from "../../types/api";
 import {
   CLAVE_ENTREGAS,
   anularEntrega,
+  anularDetalleEntrega,
   obtenerEntrega,
   type DetalleEntrega,
 } from "../../api/entregas";
@@ -33,12 +34,18 @@ function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
 }
 
 /**
- * Ficha de una entrega: la cabecera, los lotes reales de donde salió (no una
- * previsualización — esto ya ocurrió) y las evidencias.
+ * Ficha de una entrega: la cabecera, los insumos entregados con los lotes
+ * reales de donde salieron (no una previsualización — esto ya ocurrió) y las
+ * evidencias.
  *
- * La anulación es de DIRECCION porque revierte inventario: cada detalle
- * vuelve a su lote de origen, no a un total, así que un despacho posterior
- * que ya haya tomado de otro lote no queda descuadrado.
+ * La anulación es de DIRECCION porque revierte inventario: cada lote recibe
+ * de vuelta lo suyo, no un total, así que un despacho posterior que ya haya
+ * tomado de otro lote no queda descuadrado.
+ *
+ * Se puede anular un solo insumo o la entrega completa. Lo primero existe
+ * porque obligar a rehacer toda una entrega para corregir un renglón invita
+ * a no corregir nada; la base rechaza los casos que no se pueden deshacer
+ * así, como un préstamo ya devuelto cuyo stock volvió al inventario.
  */
 function ModalFichaEntrega({
   entregaId,
@@ -58,6 +65,10 @@ function ModalFichaEntrega({
   const [motivo, setMotivo] = useState("");
   const [prestandoDetalle, setPrestandoDetalle] =
     useState<DetalleEntrega | null>(null);
+  const [anulandoDetalle, setAnulandoDetalle] = useState<DetalleEntrega | null>(
+    null,
+  );
+  const [motivoDetalle, setMotivoDetalle] = useState("");
 
   const cerrar = useCierreSeguro({
     hayCambios: borradorEvidencia,
@@ -105,6 +116,28 @@ function ModalFichaEntrega({
       );
       setAnulando(false);
       setMotivo("");
+    },
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
+
+  const anulacionDetalle = useMutation({
+    mutationFn: () =>
+      anularDetalleEntrega(
+        entregaId,
+        anulandoDetalle!.id,
+        motivoDetalle.trim(),
+      ),
+    onSuccess: async () => {
+      await clienteQuery.invalidateQueries({
+        queryKey: [CLAVE_ENTREGAS, entregaId],
+      });
+      await clienteQuery.invalidateQueries({ queryKey: [CLAVE_ENTREGAS] });
+      avisar(
+        "Insumo anulado. Su inventario volvió a los lotes de origen; el resto de la entrega sigue vigente.",
+        "exito",
+      );
+      setAnulandoDetalle(null);
+      setMotivoDetalle("");
     },
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
@@ -202,53 +235,125 @@ function ModalFichaEntrega({
               </dl>
             </section>
 
-            <section className={estilos.tarjeta} aria-labelledby="ent-lotes">
+            <section className={estilos.tarjeta} aria-labelledby="ent-insumos">
               <div className={estilos.tituloTarjeta}>
-                <h2 id="ent-lotes">Lotes de origen</h2>
+                <h2 id="ent-insumos">Insumos entregados</h2>
               </div>
               <p className={estilos.nota}>
-                De dónde salió cada unidad, en el orden FEFO/FIFO que decidió la
-                base al registrar la entrega.
+                Cada insumo con los lotes de donde salió, en el orden FEFO/FIFO
+                que decidió la base al registrar la entrega.
               </p>
 
               {entrega.detalles.length === 0 ? (
                 <EstadoVacio
-                  titulo="Sin lotes"
+                  titulo="Sin insumos"
                   texto="Esta entrega no tiene renglones registrados."
                 />
               ) : (
                 <div className={estilos.listaLotes}>
                   {entrega.detalles.map((detalle) => (
-                    <div key={detalle.id} className={estilos.lote}>
-                      <div>
-                        <p className={estilos.loteCodigo}>
-                          {detalle.insumo_nombre}
-                          {detalle.codigo_lote &&
-                            " — Lote " + detalle.codigo_lote}
-                        </p>
-                        {detalle.fecha_caducidad && (
-                          <p className={estilos.auxiliar}>
-                            Caduca el {formatearFecha(detalle.fecha_caducidad)}
+                    <div key={detalle.id} className={estilos.renglon}>
+                      <div className={estilos.renglonCabecera}>
+                        <div>
+                          <p className={estilos.loteCodigo}>
+                            {detalle.insumo_nombre}
                           </p>
-                        )}
+                          <p className={estilos.auxiliar}>
+                            {detalle.cantidad_entregada.toLocaleString("es-GT")}{" "}
+                            unidades
+                            {detalle.solicitud_id !== null &&
+                              " · de la solicitud #" + detalle.solicitud_id}
+                          </p>
+                        </div>
+
+                        <div className={estilos.acciones}>
+                          {!detalle.activo && (
+                            <Insignia tono="rechazada">Anulado</Insignia>
+                          )}
+                          {detalle.tiene_prestamo && (
+                            <Insignia tono="neutra">Con préstamo</Insignia>
+                          )}
+                          {detalle.activo &&
+                            entrega.activo &&
+                            !detalle.tiene_prestamo && (
+                              <Boton
+                                pequeno
+                                variante="secundaria"
+                                onClick={() => setPrestandoDetalle(detalle)}
+                              >
+                                Registrar préstamo
+                              </Boton>
+                            )}
+                          {detalle.activo && entrega.activo && puedeAnular && (
+                            <Boton
+                              pequeno
+                              variante="terciaria"
+                              onClick={() => {
+                                setAnulandoDetalle(detalle);
+                                setMotivoDetalle("");
+                              }}
+                            >
+                              Anular este insumo
+                            </Boton>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        {!detalle.activo && (
-                          <Insignia tono="neutra">Restituido</Insignia>
-                        )}
-                        <span className={estilos.auxiliar}>
-                          {detalle.cantidad_entregada.toLocaleString("es-GT")}{" "}
+
+                      {/* El reparto por lotes: informativo, nadie lo eligió. */}
+                      {detalle.lotes.map((lote) => (
+                        <p key={lote.id} className={estilos.auxiliar}>
+                          {lote.codigo_lote
+                            ? "Lote " + lote.codigo_lote
+                            : "Sin código de lote"}
+                          {" · "}
+                          {lote.cantidad_entregada.toLocaleString("es-GT")}{" "}
                           unidades
-                        </span>
-                      </div>
-                      {detalle.activo && (
-                        <Boton
-                          pequeno
-                          variante="secundaria"
-                          onClick={() => setPrestandoDetalle(detalle)}
-                        >
-                          Registrar préstamo
-                        </Boton>
+                          {lote.fecha_caducidad &&
+                            " · caduca el " +
+                              formatearFecha(lote.fecha_caducidad)}
+                        </p>
+                      ))}
+
+                      {!detalle.activo && detalle.motivo_anulacion && (
+                        <p className={estilos.auxiliar}>
+                          {detalle.motivo_anulacion}
+                          {detalle.fecha_anulacion &&
+                            " (" +
+                              formatearFecha(detalle.fecha_anulacion) +
+                              ")"}
+                        </p>
+                      )}
+
+                      {anulandoDetalle?.id === detalle.id && (
+                        <div className={estilos.anulacion}>
+                          <CampoAreaTexto
+                            etiqueta="Motivo de la anulación"
+                            obligatorio
+                            rows={2}
+                            maxLength={500}
+                            value={motivoDetalle}
+                            onChange={(e) => setMotivoDetalle(e.target.value)}
+                            ayuda="Queda guardado junto al renglón. La foto del formulario firmado seguirá mostrando este insumo, así que conviene explicar la diferencia."
+                          />
+                          <GrupoBotones>
+                            <Boton
+                              variante="terciaria"
+                              onClick={() => setAnulandoDetalle(null)}
+                              disabled={anulacionDetalle.isPending}
+                            >
+                              Cancelar
+                            </Boton>
+                            <Boton
+                              variante="rechazar"
+                              disabled={motivoDetalle.trim() === ""}
+                              cargando={anulacionDetalle.isPending}
+                              textoCargando="Anulando…"
+                              onClick={() => anulacionDetalle.mutate()}
+                            >
+                              Anular insumo
+                            </Boton>
+                          </GrupoBotones>
+                        </div>
                       )}
                     </div>
                   ))}

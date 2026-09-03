@@ -232,3 +232,24 @@
   justify-content: flex-end;
   margin-top: var(--space-2);
 }
+
+/* Un insumo entregado dentro de la ficha: la cabecera con sus acciones y,
+   debajo, las líneas de los lotes que lo cubrieron. Es un bloque, no una
+   fila, porque un renglón puede traer varios lotes y su propia anulación. */
+.renglon {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.renglonCabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}

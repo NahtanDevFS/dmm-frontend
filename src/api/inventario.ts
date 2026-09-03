@@ -91,6 +91,25 @@ export interface StockInsumo {
 }
 
 /**
+ * Fila del listado de stock (GET /insumos/stock). A diferencia de
+ * StockInsumo, no trae presentaciones: está pensada para poblar listas y
+ * desplegables, no para la ficha de un insumo.
+ */
+export interface StockInsumoListado {
+  insumo_id: number;
+  insumo_nombre: string;
+  categoria_id: number;
+  categoria_nombre: string;
+  unidad_base_nombre: string;
+  requiere_fecha_caducidad: boolean;
+  requiere_codigo_fabricante: boolean;
+  bloquea_solicitud_sin_stock: boolean;
+  stock_total: number;
+  proxima_caducidad: string | null;
+  semaforo: Semaforo | null;
+}
+
+/**
  * Un renglón del semáforo: un lote concreto de un insumo, no el insumo. El
  * mismo insumo aparece tantas veces como lotes activos tenga, que es
  * justamente lo que hace útil la vista: lo que vence es el lote.
@@ -154,6 +173,27 @@ export async function desactivarInsumo(id: number): Promise<void> {
 
 export async function reactivarInsumo(id: number): Promise<void> {
   await axiosClient.patch("insumos/" + id + "/reactivar");
+}
+
+/**
+ * Stock de todos los insumos en una sola llamada, agrupable por categoría.
+ *
+ * Existe para poder mostrar las existencias *dentro* de cada opción de un
+ * desplegable: quien atiende necesita contestar "sí hay" sin abrir nada, y
+ * pedir el stock insumo por insumo obligaría a una llamada por opción.
+ *
+ * Solo devuelve insumos activos, que es lo correcto: no se entrega lo que
+ * está dado de baja.
+ */
+export async function listarStockInsumos(filtros?: {
+  categoriaId?: number;
+  busqueda?: string;
+}): Promise<StockInsumoListado[]> {
+  const { data } = await axiosClient.get<StockInsumoListado[]>(
+    "insumos/stock",
+    { params: filtros },
+  );
+  return data;
 }
 
 export async function obtenerStockInsumo(id: number): Promise<StockInsumo> {
