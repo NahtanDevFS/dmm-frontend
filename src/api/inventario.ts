@@ -58,6 +58,13 @@ export interface PresentacionInsumo {
   insumo_id: number;
   unidad_medida_id: number;
   es_default: boolean;
+  /**
+   * Unidades base que contiene, de forma NOMINAL: "una caja son 100
+   * tabletas". Sirve para convertir al pedir en una solicitud. El dato real
+   * de cada envío se registra por lote y puede diferir; llega como texto
+   * porque en la base es NUMERIC.
+   */
+  unidades_por_presentacion: string;
   activo: boolean;
 }
 
@@ -218,7 +225,11 @@ export async function listarPresentaciones(
 
 export async function crearPresentacion(
   insumoId: number,
-  datos: { unidad_medida_id: number; es_default?: boolean },
+  datos: {
+    unidad_medida_id: number;
+    es_default?: boolean;
+    unidades_por_presentacion?: number;
+  },
 ): Promise<PresentacionInsumo> {
   const { data } = await axiosClient.post<PresentacionInsumo>(
     "insumos/" + insumoId + "/presentaciones",
@@ -230,7 +241,11 @@ export async function crearPresentacion(
 export async function editarPresentacion(
   insumoId: number,
   presentacionId: number,
-  datos: { unidad_medida_id?: number; es_default?: boolean },
+  datos: {
+    unidad_medida_id?: number;
+    es_default?: boolean;
+    unidades_por_presentacion?: number;
+  },
 ): Promise<PresentacionInsumo> {
   const { data } = await axiosClient.patch<PresentacionInsumo>(
     "insumos/" + insumoId + "/presentaciones/" + presentacionId,

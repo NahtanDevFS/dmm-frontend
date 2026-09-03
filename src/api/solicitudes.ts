@@ -54,6 +54,9 @@ export interface LineaSolicitud {
   receta_medica_id: number | null;
   /** Donación o préstamo. Inmutable: la base rechaza cambiarla. */
   modalidad_solicitud_id: number;
+  /** Cómo se expresó el pedido, si fue por presentación. */
+  presentacion_solicitud_id: number | null;
+  cantidad_presentacion: string | null;
   activo: boolean;
 }
 
@@ -98,7 +101,15 @@ export interface LineaSolicitudActiva {
 
 export interface DatosLineaNueva {
   insumo_id: number;
-  cantidad_requerida: number;
+  /**
+   * En unidad base. Se omite cuando se pide por presentación: en ese caso el
+   * backend hace la conversión, para que el número que gobierna stock y
+   * despacho no dependa de que el navegador multiplicara bien.
+   */
+  cantidad_requerida?: number;
+  /** "2 cajas": van juntas o no van. */
+  presentacion_solicitud_id?: number;
+  cantidad_presentacion?: number;
   /**
    * Bajo qué figura se entrega: donación definitiva o préstamo. Decide qué
    * formularios se van a exigir y no se puede cambiar después — si la figura

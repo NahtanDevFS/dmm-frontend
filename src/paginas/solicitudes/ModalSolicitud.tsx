@@ -17,7 +17,11 @@ import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { fechaDeHoy } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
-import { CLAVE_INSUMOS, listarStockInsumos } from "../../api/inventario";
+import {
+  CLAVE_INSUMOS,
+  listarStockInsumos,
+  listarPresentaciones,
+} from "../../api/inventario";
 import {
   CLAVE_FORMULARIOS,
   listarFormulariosDeInsumo,
@@ -36,6 +40,8 @@ interface LineaBorrador extends DatosLineaNueva {
   clave: number;
   insumoNombre: string;
   modalidadNombre: string;
+  /** Lo pedido tal como se dijo: "2 cajas (200 Tableta)". */
+  descripcionCantidad: string;
 }
 
 /**
@@ -72,10 +78,17 @@ function ModalSolicitud({
   const [insumoId, setInsumoId] = useState("");
   const [modalidadId, setModalidadId] = useState("");
   const [cantidad, setCantidad] = useState("");
+  const [presentacionId, setPresentacionId] = useState("");
   const [errorLinea, setErrorLinea] = useState<string | undefined>();
 
   const programas = useCatalogo<Programa>("programas");
   const modalidades = useCatalogo<ElementoCatalogo>("modalidades-solicitud");
+  const unidades = useCatalogo<ElementoCatalogo>("unidades-medida", {
+    incluirInactivos: true,
+  });
+
+  const nombreUnidad = (id: number) =>
+    unidades.opciones.find((u) => u.id === id)?.nombre ?? "Unidad";
 
   // Con existencias, no solo nombres: quien atiende necesita saber si hay y
   // cuánto antes de comprometer una cantidad, sin abrir otra pantalla.
@@ -99,6 +112,33 @@ function ModalSolicitud({
     }
     return [...grupos.entries()].sort((a, b) => a[0].localeCompare(b[0], "es"));
   }, [filasStock]);
+
+  /**
+   * Las presentaciones del insumo elegido, para poder pedir "2 cajas" en vez
+   * de obligar a que quien atiende multiplique de cabeza.
+   */
+  const presentaciones = useQuery({
+    queryKey: [CLAVE_INSUMOS, insumoId, "presentaciones"],
+    queryFn: () => listarPresentaciones(Number(insumoId), false),
+    enabled: insumoId !== "",
+  });
+
+  const presentacionElegida = presentaciones.data?.find(
+    (p) => p.id === Number(presentacionId),
+  );
+
+  /**
+   * Lo pedido convertido a unidad base. El backend vuelve a hacer esta cuenta
+   * al guardar —es él quien manda— pero mostrarla aquí evita que alguien
+   * descubra recién al enviar que pidió diez veces más de lo que quería.
+   */
+  const equivalenteBase =
+    presentacionElegida && Number(cantidad) > 0
+      ? Math.round(
+          Number(presentacionElegida.unidades_por_presentacion) *
+            Number(cantidad),
+        )
+      : null;
 
   /**
    * Los formularios que este insumo va a exigir bajo esta modalidad. Se
@@ -159,9 +199,25 @@ function ModalSolicitud({
       {
         clave: siguienteClave,
         insumo_id: insumoElegido.insumo_id,
-        cantidad_requerida: cantidadNum,
+        // Con presentación se manda lo pedido tal cual y el backend convierte;
+        // sin ella, la cantidad ya está en unidad base.
+        cantidad_requerida: presentacionElegida ? undefined : cantidadNum,
+        presentacion_solicitud_id: presentacionElegida?.id,
+        cantidad_presentacion: presentacionElegida ? cantidadNum : undefined,
         modalidad_solicitud_id: Number(modalidadId),
         insumoNombre: insumoElegido.insumo_nombre,
+        descripcionCantidad: presentacionElegida
+          ? cantidadNum.toLocaleString("es-GT") +
+            " " +
+            nombreUnidad(presentacionElegida.unidad_medida_id) +
+            " (" +
+            (equivalenteBase ?? 0).toLocaleString("es-GT") +
+            " " +
+            insumoElegido.unidad_base_nombre +
+            ")"
+          : cantidadNum.toLocaleString("es-GT") +
+            " " +
+            insumoElegido.unidad_base_nombre,
         modalidadNombre:
           modalidades.opciones.find((m) => m.id === Number(modalidadId))
             ?.nombre ?? "",
@@ -169,6 +225,7 @@ function ModalSolicitud({
     ]);
     setInsumoId("");
     setModalidadId("");
+    setPresentacionId("");
     setCantidad("");
     setErrorLinea(undefined);
   };
@@ -186,9 +243,17 @@ function ModalSolicitud({
         requiere_aprobacion: requiereAprobacion,
         observaciones_trabajo_social: observaciones.trim() || null,
         lineas: lineas.map(
-          ({ insumo_id, cantidad_requerida, modalidad_solicitud_id }) => ({
+          ({
             insumo_id,
             cantidad_requerida,
+            presentacion_solicitud_id,
+            cantidad_presentacion,
+            modalidad_solicitud_id,
+          }) => ({
+            insumo_id,
+            cantidad_requerida,
+            presentacion_solicitud_id,
+            cantidad_presentacion,
             modalidad_solicitud_id,
           }),
         ),
@@ -317,7 +382,7 @@ function ModalSolicitud({
                 <tr key={linea.clave}>
                   <td>{linea.insumoNombre}</td>
                   <td>{linea.modalidadNombre}</td>
-                  <CeldaCantidad>{linea.cantidad_requerida}</CeldaCantidad>
+                  <CeldaCantidad>{linea.descripcionCantidad}</CeldaCantidad>
                   <CeldaAcciones>
                     <Boton
                       pequeno
@@ -340,6 +405,9 @@ function ModalSolicitud({
               value={insumoId}
               onChange={(e) => {
                 setInsumoId(e.target.value);
+                // Las presentaciones son del insumo anterior: si no se limpia,
+                // quedaría elegida una que no le pertenece.
+                setPresentacionId("");
                 setErrorLinea(undefined);
               }}
             >
@@ -354,6 +422,34 @@ function ModalSolicitud({
                     </option>
                   ))}
                 </optgroup>
+              ))}
+            </CampoSelect>
+
+            <CampoSelect
+              etiqueta="Se pide en"
+              value={presentacionId}
+              onChange={(e) => setPresentacionId(e.target.value)}
+              disabled={insumoId === "" || presentaciones.isPending}
+              ayuda={
+                equivalenteBase !== null
+                  ? "Equivale a " +
+                    equivalenteBase.toLocaleString("es-GT") +
+                    " " +
+                    (insumoElegido?.unidad_base_nombre ?? "unidades") +
+                    "."
+                  : "Deje en blanco para pedir en la unidad base."
+              }
+            >
+              {presentaciones.data?.map((presentacion) => (
+                <option key={presentacion.id} value={presentacion.id}>
+                  {nombreUnidad(presentacion.unidad_medida_id)}
+                  {!presentacion.es_default &&
+                    " (× " +
+                      Number(
+                        presentacion.unidades_por_presentacion,
+                      ).toLocaleString("es-GT") +
+                      ")"}
+                </option>
               ))}
             </CampoSelect>
 
