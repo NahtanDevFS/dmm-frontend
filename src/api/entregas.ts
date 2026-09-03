@@ -1,18 +1,39 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Entregas: el despacho real de un insumo contra una línea de solicitud.
+ * Entregas: el despacho real de insumos a una persona.
  *
- * Desde la migración 14 de la base, toda entrega exige una línea de
- * solicitud existente (detalle_solicitud_id obligatorio): no existe la
- * "entrega libre". El formulario de alta por tanto no pregunta el insumo
- * directamente, sino que parte de elegir una línea pendiente — el insumo, la
- * persona y el máximo que se puede entregar ya vienen fijados por esa línea.
+ * Una entrega tiene tres niveles, y conviene no confundirlos:
  *
- * El backend NO elige lotes ni presentación: sp_registrar_entrega recorre
- * v_inventario_lote_fifo (FEFO con fallback a FIFO) y hace el reparto. La
- * interfaz solo previsualiza ese orden con GET /entregas/lotes-fifo — nunca
- * deja elegir un lote a mano.
+ *   Entrega          el acto: persona, receptor, fecha, quién entregó.
+ *   DetalleEntrega   un renglón por insumo entregado.
+ *   LoteDeRenglon    de qué lotes salió cada renglón y cuánto de cada uno.
+ *
+ * Una entrega puede llevar VARIOS insumos, porque así ocurre en la
+ * ventanilla: si la receta indica acetaminofén y jarabe, la persona firma un
+ * solo renglón del formulario y se toma una sola foto. Partirlo en dos
+ * entregas registraría dos actos donde hubo uno.
+ *
+ * Hay dos caminos hacia una entrega, y no se mezclan nunca dentro de la
+ * misma:
+ *
+ * - **Entrega directa** (`detalle_solicitud_id` en null en cada renglón):
+ *   medicina y comida por donación directa. La persona llega, hay
+ *   existencias, se le entrega. No hay solicitud porque no hay nada que
+ *   aprobar; la constancia son la receta y el formulario firmado, que se
+ *   adjuntan como evidencias de la entrega.
+ * - **Despacho de una solicitud** (`detalle_solicitud_id` con valor): equipo
+ *   que pasó por solicitud, formularios y aprobación.
+ *
+ * El motivo de no mezclarlos es la evidencia: la medicina se respalda con
+ * receta y el equipo con contrato firmado, y una entrega mezclada tendría
+ * documentos que cubren solo una parte sin que se sepa cuál. La base lo
+ * rechaza además de esta capa.
+ *
+ * El backend NO elige lotes ni presentación: sp_agregar_insumo_entrega
+ * recorre v_inventario_lote_fifo (FEFO con respaldo FIFO) y hace el reparto.
+ * La interfaz solo previsualiza ese orden con GET /entregas/lotes-fifo —
+ * nunca deja elegir un lote a mano.
  */
 
 /* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
@@ -20,7 +41,6 @@ import axiosClient from "./axiosClient";
 /** Cabecera de una entrega ya registrada. */
 export interface Entrega {
   id: number;
-  detalle_solicitud_id: number | null;
   persona_id: number;
   persona_receptor_id: number | null;
   tipo_parentesco_receptor_id: number | null;
@@ -30,17 +50,37 @@ export interface Entrega {
   activo: boolean;
 }
 
-/** Renglón de la entrega: de qué lote salió cada cantidad. */
-export interface DetalleEntrega {
+/** De qué lote salió una parte del renglón, y cuánto. */
+export interface LoteDeRenglon {
   id: number;
   detalle_inventario_lote_id: number;
   presentacion_despacho_id: number;
   cantidad_despacho_original: string;
   cantidad_entregada: number;
   activo: boolean;
-  insumo_nombre: string;
   codigo_lote: string | null;
   fecha_caducidad: string | null;
+}
+
+/**
+ * Un insumo entregado. `detalle_solicitud_id` distingue el origen: con valor
+ * despacha una línea de solicitud, en null es entrega directa.
+ *
+ * `tiene_prestamo` sirve para decidir si ofrecer «Registrar préstamo» sobre
+ * este renglón, y también explica por qué a veces no se puede anular.
+ */
+export interface DetalleEntrega {
+  id: number;
+  insumo_id: number;
+  insumo_nombre: string;
+  detalle_solicitud_id: number | null;
+  solicitud_id: number | null;
+  cantidad_entregada: number;
+  activo: boolean;
+  motivo_anulacion: string | null;
+  fecha_anulacion: string | null;
+  tiene_prestamo: boolean;
+  lotes: LoteDeRenglon[];
 }
 
 export interface EvidenciaEntrega {
@@ -67,13 +107,16 @@ export interface EntregaListado {
   persona_receptor_id: number | null;
   receptor_nombre_completo: string | null;
   parentesco_receptor: string | null;
-  detalle_solicitud_id: number | null;
   entregado_por: string;
   observaciones: string | null;
   activo: boolean;
   total_entregado: number;
-  /** Insumos separados por coma, ya que una entrega puede repartirse en varios lotes. */
+  /** Nombres de los insumos entregados, separados por coma. */
   insumos: string;
+  /** Solicitud de la que salió, o null si fue una entrega directa. */
+  solicitud_id: number | null;
+  /** Cuántos renglones se anularon sin anular la entrega entera. */
+  renglones_anulados: number;
 }
 
 /** Un lote en el orden en que sp_registrar_entrega lo va a consumir. */
@@ -86,12 +129,21 @@ export interface LoteFifo {
   orden_fifo: string;
 }
 
-export interface DatosEntrega {
-  persona_id: number;
+/** Un insumo a entregar dentro de la misma entrega. */
+export interface RenglonEntrega {
   insumo_id: number;
   cantidad: number;
-  /** Obligatorio: toda entrega parte de una línea de solicitud existente. */
-  detalle_solicitud_id: number;
+  /**
+   * La línea de solicitud que despacha, o null/ausente en entrega directa.
+   * Dentro de una entrega, o todos los renglones la traen, o ninguno.
+   */
+  detalle_solicitud_id?: number | null;
+}
+
+export interface DatosEntrega {
+  persona_id: number;
+  /** Al menos uno. El backend registra una sola entrega con todos ellos. */
+  insumos: RenglonEntrega[];
   persona_receptor_id?: number | null;
   tipo_parentesco_receptor_id?: number | null;
   observaciones?: string | null;
@@ -133,12 +185,30 @@ export async function registrarEntrega(
   return data;
 }
 
+/** Anula la entrega completa: todos sus renglones y todo su inventario. */
 export async function anularEntrega(
   id: number,
   motivo: string,
 ): Promise<EntregaDetalle> {
   const { data } = await axiosClient.post<EntregaDetalle>(
     "entregas/" + id + "/anular",
+    { motivo },
+  );
+  return data;
+}
+
+/**
+ * Anula un solo insumo y deja el resto de la entrega en pie. El backend la
+ * rechaza si el renglón tiene un préstamo vigente, o si el préstamo ya se
+ * devolvió y su stock por tanto ya volvió al inventario.
+ */
+export async function anularDetalleEntrega(
+  entregaId: number,
+  detalleId: number,
+  motivo: string,
+): Promise<EntregaDetalle> {
+  const { data } = await axiosClient.post<EntregaDetalle>(
+    "entregas/" + entregaId + "/detalles/" + detalleId + "/anular",
     { motivo },
   );
   return data;

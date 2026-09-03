@@ -1,38 +1,36 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
 import {
   CampoTexto,
   CampoSelect,
   CampoAreaTexto,
 } from "../../componentes/ui/Campo";
-import Insignia from "../../componentes/ui/Insignia";
 import Modal from "../../componentes/ui/Modal";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
-import { formatearFecha } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
-import {
-  CLAVE_ENTREGAS,
-  listarLotesFifo,
-  registrarEntrega,
-} from "../../api/entregas";
+import { CLAVE_ENTREGAS, registrarEntrega } from "../../api/entregas";
 import { CLAVE_SOLICITUDES } from "../../api/solicitudes";
 import type { Persona, ElementoCatalogo } from "../../types/api";
 import BuscadorPersona from "../solicitudes/BuscadorPersona";
-import estilos from "./Entregas.module.css";
+import PreviaLotes from "./PreviaLotes";
 
 /**
- * Despacho de una línea de solicitud: la única forma de crear una entrega.
+ * Despacho de una línea de solicitud.
  *
  * Se abre desde la ficha de la solicitud, sobre una línea concreta que ya
  * fija la persona y el insumo — lo único que este modal pregunta es cuánto
  * se entrega ahora (puede ser parcial) y quién lo recibe.
  *
- * La previsualización FEFO/FIFO es solo lectura y orientativa: la base
- * decide de verdad al registrar, con el stock real de ese momento. Si algo
- * cambió entre la previsualización y el envío, la base manda.
+ * Es uno de los dos caminos hacia una entrega. El otro es la entrega directa
+ * de medicina o comida (ModalEntregaDirecta), que no nace de ninguna
+ * solicitud porque no hay nada que aprobar.
+ *
+ * Registra un solo insumo aunque la API acepte varios: el despacho parte de
+ * UNA línea, y cada línea es de un insumo. Despachar dos líneas a la vez
+ * sería otra pantalla, con la lista de líneas pendientes de la solicitud.
  */
 function ModalDespacho({
   solicitudId,
@@ -64,11 +62,6 @@ function ModalDespacho({
 
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
 
-  const fifo = useQuery({
-    queryKey: [CLAVE_ENTREGAS, "lotes-fifo", insumoId],
-    queryFn: () => listarLotesFifo(insumoId),
-  });
-
   const hayCambios =
     cantidad !== String(pendiente) ||
     receptor !== null ||
@@ -81,9 +74,13 @@ function ModalDespacho({
     mutationFn: () =>
       registrarEntrega({
         persona_id: personaId,
-        insumo_id: insumoId,
-        cantidad: Number(cantidad),
-        detalle_solicitud_id: lineaId,
+        insumos: [
+          {
+            insumo_id: insumoId,
+            cantidad: Number(cantidad),
+            detalle_solicitud_id: lineaId,
+          },
+        ],
         persona_receptor_id: receptor?.id ?? null,
         tipo_parentesco_receptor_id: receptor
           ? Number(parentescoId) || null
@@ -191,42 +188,7 @@ function ModalDespacho({
         onChange={(e) => setObservaciones(e.target.value)}
       />
 
-      <div className={estilos.previaFifo}>
-        <p className={estilos.nota}>
-          <strong>Vista previa del orden de despacho.</strong> La base decide
-          con el stock real al momento de registrar; esto es orientativo.
-        </p>
-        {fifo.isPending ? (
-          <p className={estilos.auxiliar}>Consultando lotes disponibles…</p>
-        ) : fifo.isError ? (
-          <p className={estilos.auxiliar}>
-            No se pudo consultar la vista previa. Puede continuar de todos
-            modos: la base valida el stock al registrar.
-          </p>
-        ) : fifo.data.length === 0 ? (
-          <Insignia tono="rechazada">Sin lotes disponibles</Insignia>
-        ) : (
-          <div className={estilos.listaLotes}>
-            {fifo.data.map((lote) => (
-              <div
-                key={lote.detalle_inventario_lote_id}
-                className={estilos.lote}
-              >
-                <span className={estilos.loteCodigo}>
-                  {lote.codigo_lote ?? "Sin código"}
-                </span>
-                <span className={estilos.auxiliar}>
-                  {lote.fecha_caducidad
-                    ? "Caduca " + formatearFecha(lote.fecha_caducidad)
-                    : "Sin caducidad"}
-                  {" · "}
-                  {lote.cantidad_disponible.toLocaleString("es-GT")} disponibles
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <PreviaLotes insumoId={insumoId} />
     </Modal>
   );
 }

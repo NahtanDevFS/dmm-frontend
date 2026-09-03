@@ -13,17 +13,22 @@ import { useListadoPaginado } from "../../hooks/useListadoPaginado";
 import { formatearFecha, fechaDeHoy } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
 import { CLAVE_ENTREGAS, type EntregaListado } from "../../api/entregas";
+import ModalEntregaDirecta from "./ModalEntregaDirecta";
 import ModalFichaEntrega from "./ModalFichaEntrega";
 import estilos from "./Entregas.module.css";
 
 /**
- * Entregas: el despacho real de insumos, siempre contra una línea de
- * solicitud existente (desde la migración 14, no hay entrega libre).
+ * Entregas: el despacho real de insumos, por cualquiera de los dos caminos.
  *
- * El alta no vive aquí: se registra desde la propia solicitud (Ver
- * solicitud → Insumos solicitados → Despachar), porque una entrega necesita
- * primero elegir QUÉ línea pendiente se está despachando, y ese contexto ya
- * vive en la ficha de la solicitud. Este listado es de consulta y anulación.
+ * El despacho de equipo NO se da de alta aquí: vive en la ficha de la
+ * solicitud (Ver solicitud → Insumos solicitados → Despachar), porque
+ * necesita elegir primero QUÉ línea pendiente se está despachando y ese
+ * contexto solo existe allá.
+ *
+ * La entrega directa de medicina y comida sí nace aquí, porque no tiene
+ * solicitud de la cual colgarse: la persona llega, hay existencias y se le
+ * entrega. El modal no se cierra al registrar — encadena con la carga de la
+ * receta y el formulario firmado, que es el mismo acto.
  */
 function PaginaEntregas() {
   const navegar = useNavigate();
@@ -31,6 +36,7 @@ function PaginaEntregas() {
   const rutaId = id && /^\d+$/.test(id) ? Number(id) : null;
 
   const [fichaId, setFichaId] = useState<number | null>(rutaId);
+  const [entregaDirecta, setEntregaDirecta] = useState(false);
   const [textoPersona, setTextoPersona] = useState("");
   const [textoInsumo, setTextoInsumo] = useState("");
   const [desde, setDesde] = useState("");
@@ -95,11 +101,14 @@ function PaginaEntregas() {
         <div>
           <h1>Entregas</h1>
           <p className={estilos.nota}>
-            Toda entrega despacha contra una línea de solicitud. Para registrar
-            una nueva, ábrala desde la solicitud correspondiente y use
-            «Despachar».
+            La medicina y la comida se entregan directo, sin solicitud. El
+            equipo se despacha desde su solicitud aprobada, con «Despachar».
           </p>
         </div>
+
+        <Boton variante="primaria" onClick={() => setEntregaDirecta(true)}>
+          Registrar entrega directa
+        </Boton>
       </header>
 
       <section className={estilos.tarjeta} aria-labelledby="ent-listado">
@@ -256,6 +265,13 @@ function PaginaEntregas() {
           </>
         )}
       </section>
+
+      {entregaDirecta && (
+        <ModalEntregaDirecta
+          abierto
+          onCerrar={() => setEntregaDirecta(false)}
+        />
+      )}
 
       {fichaId !== null && (
         <ModalFichaEntrega
