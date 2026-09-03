@@ -227,20 +227,65 @@ export async function editarCampoFormulario(
   await axiosClient.patch("formularios/campos/" + campoId, datos);
 }
 
+/**
+ * Una asignación categoría → formulario, tal como se administra.
+ *
+ * `modalidad_solicitud_id` en null significa que el formulario aplica a
+ * cualquier modalidad. Con valor, solo a esa: es lo que permite exigir el
+ * estudio socioeconómico en donación y no en préstamo.
+ */
+export interface AsignacionFormulario {
+  id: number;
+  categoria_insumo_id: number;
+  categoria_nombre: string;
+  formulario_id: number;
+  formulario_nombre: string;
+  orden: number;
+  modalidad_solicitud_id: number | null;
+  modalidad_nombre: string | null;
+  activo: boolean;
+}
+
+export async function listarAsignacionesFormulario(
+  categoriaId?: number,
+): Promise<AsignacionFormulario[]> {
+  const { data } = await axiosClient.get<AsignacionFormulario[]>(
+    "formularios/categorias-formulario",
+    { params: categoriaId ? { categoriaId } : undefined },
+  );
+  return data;
+}
+
+/**
+ * Qué formularios va a exigir un insumo bajo cierta modalidad, ANTES de que
+ * exista la línea de solicitud.
+ *
+ * Es lo que permite avisarlo mientras la persona sigue en la ventanilla. El
+ * estudio socioeconómico hay que llenarlo con ella presente; descubrirlo al
+ * intentar aprobar, cuando ya se fue, vuelve el dato irrecuperable.
+ */
+export async function listarFormulariosDeInsumo(
+  insumoId: number,
+  modalidadId?: number,
+): Promise<Formulario[]> {
+  const { data } = await axiosClient.get<Formulario[]>(
+    "formularios/insumos/" + insumoId + "/formularios",
+    { params: modalidadId ? { modalidadId } : undefined },
+  );
+  return data;
+}
+
 export async function asignarFormularioACategoria(datos: {
   categoria_insumo_id: number;
   formulario_id: number;
   orden?: number;
-}): Promise<{
-  id: number;
-  categoria_insumo_id: number;
-  formulario_id: number;
-}> {
-  const { data } = await axiosClient.post<{
-    id: number;
-    categoria_insumo_id: number;
-    formulario_id: number;
-  }>("formularios/categorias-formulario", datos);
+  /** null o ausente = aplica a todas las modalidades. */
+  modalidad_solicitud_id?: number | null;
+}): Promise<AsignacionFormulario> {
+  const { data } = await axiosClient.post<AsignacionFormulario>(
+    "formularios/categorias-formulario",
+    datos,
+  );
   return data;
 }
 

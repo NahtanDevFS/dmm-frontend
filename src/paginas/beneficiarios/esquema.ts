@@ -6,6 +6,37 @@ import { MAYORIA_DE_EDAD, calcularEdad } from "../../lib/fechas";
  * no vive en Zod sino en un constraint diferido de la base.
  */
 
+/**
+ * Teléfono guatemalteco: ocho dígitos. Espejo de lib/telefono.ts en el
+ * backend. Se aceptan espacios, guiones y el prefijo +502 al escribir —así se
+ * dictan y así los copian de una libreta— y se normaliza a los ocho dígitos
+ * solos, para que buscar un número no dependa de cómo lo escribieron.
+ */
+const normalizarTelefono = (v: string) =>
+  v.replace(/[\s()-]/g, "").replace(/^\+?502/, "");
+
+const telefonoOpcional = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => {
+    const limpio = normalizarTelefono(v ?? "");
+    return limpio === "" ? undefined : limpio;
+  })
+  .refine(
+    (v) => v === undefined || /^\d{8}$/.test(v),
+    "El teléfono debe tener 8 dígitos (por ejemplo, 5512 3344)",
+  );
+
+const telefonoRequerido = z
+  .string()
+  .trim()
+  .transform(normalizarTelefono)
+  .refine(
+    (v) => /^\d{8}$/.test(v),
+    "El teléfono debe tener 8 dígitos (por ejemplo, 5512 3344)",
+  );
+
 const opcionalVacio = (max: number) =>
   z
     .string()
@@ -39,7 +70,7 @@ export const datosBasePersona = z.object({
     }, "La fecha no es válida (más de 120 años)"),
   genero_id: opcionalVacio(10),
   comunidad_id: opcionalVacio(10),
-  telefono: opcionalVacio(20),
+  telefono: telefonoOpcional,
 });
 
 /**
@@ -53,12 +84,14 @@ export const esquemaEncargado = z.object({
   apellidos: opcionalVacio(100),
   fecha_nacimiento: opcionalVacio(20),
   cui_dpi: opcionalVacio(13),
-  telefono: opcionalVacio(20),
+  telefono: telefonoOpcional,
   tipoParentescoId: opcionalVacio(10),
 });
 
 /** Verdadero si nadie tocó el bloque de encargado. */
-function encargadoVacio(encargado: Record<string, unknown> | undefined): boolean {
+function encargadoVacio(
+  encargado: Record<string, unknown> | undefined,
+): boolean {
   if (!encargado) return true;
   return Object.values(encargado).every(
     (v) => v === undefined || v === null || String(v).trim() === "",
@@ -67,7 +100,12 @@ function encargadoVacio(encargado: Record<string, unknown> | undefined): boolean
 
 export const esquemaContacto = z.object({
   nombre: z.string().trim().min(1, "Ingrese el nombre del contacto").max(150),
-  telefono: opcionalVacio(20),
+  /**
+   * Obligatorio, a diferencia del teléfono de la persona. Un contacto de
+   * referencia sin número no sirve para nada: existe justamente para poder
+   * llamar a alguien cuando no se ubica a la persona.
+   */
+  telefono: telefonoRequerido,
   observaciones: opcionalVacio(2000),
 });
 
@@ -131,7 +169,11 @@ export const esquemaBeneficiario = datosBasePersona
 
     for (const [campo, mensaje] of obligatorios) {
       if (!datos.encargado?.[campo]) {
-        ctx.addIssue({ code: "custom", path: ["encargado", campo], message: mensaje });
+        ctx.addIssue({
+          code: "custom",
+          path: ["encargado", campo],
+          message: mensaje,
+        });
       }
     }
   });

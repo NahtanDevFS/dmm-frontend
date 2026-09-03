@@ -52,6 +52,8 @@ export interface LineaSolicitud {
   estado_id: number;
   fecha_asignacion: string | null;
   receta_medica_id: number | null;
+  /** Donación o préstamo. Inmutable: la base rechaza cambiarla. */
+  modalidad_solicitud_id: number;
   activo: boolean;
 }
 
@@ -97,6 +99,12 @@ export interface LineaSolicitudActiva {
 export interface DatosLineaNueva {
   insumo_id: number;
   cantidad_requerida: number;
+  /**
+   * Bajo qué figura se entrega: donación definitiva o préstamo. Decide qué
+   * formularios se van a exigir y no se puede cambiar después — si la figura
+   * cambia, es una solicitud nueva.
+   */
+  modalidad_solicitud_id: number;
 }
 
 export interface DatosSolicitud {

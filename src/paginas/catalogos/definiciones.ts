@@ -70,7 +70,12 @@ export const CATALOGOS: DefinicionCatalogo[] = [
     articulo: "la",
     nota: "Quiénes donan los insumos que entran por recepción.",
     extra: [
-      { clave: "telefono", etiqueta: "Teléfono", tipo: "tel" },
+      {
+        clave: "telefono",
+        etiqueta: "Teléfono",
+        tipo: "tel",
+        ayuda: "8 dígitos, por ejemplo 5512 3344.",
+      },
       { clave: "correo", etiqueta: "Correo", tipo: "email" },
     ],
   },

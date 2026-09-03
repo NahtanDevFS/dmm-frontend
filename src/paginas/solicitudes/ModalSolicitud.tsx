@@ -17,23 +17,25 @@ import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { fechaDeHoy } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
+import { CLAVE_INSUMOS, listarStockInsumos } from "../../api/inventario";
 import {
-  CLAVE_INSUMOS,
-  listarInsumosParaSeleccion,
-} from "../../api/inventario";
+  CLAVE_FORMULARIOS,
+  listarFormulariosDeInsumo,
+} from "../../api/formularios";
 import {
   CLAVE_SOLICITUDES,
   crearSolicitud,
   type DatosLineaNueva,
 } from "../../api/solicitudes";
-import type { Persona, Programa } from "../../types/api";
+import type { Persona, Programa, ElementoCatalogo } from "../../types/api";
 import BuscadorPersona from "./BuscadorPersona";
 import estilos from "./Solicitudes.module.css";
 
-/** Una línea todavía sin enviar, con el nombre del insumo ya resuelto para mostrarla. */
+/** Una línea todavía sin enviar, con los nombres ya resueltos para mostrarla. */
 interface LineaBorrador extends DatosLineaNueva {
   clave: number;
   insumoNombre: string;
+  modalidadNombre: string;
 }
 
 /**
@@ -68,16 +70,48 @@ function ModalSolicitud({
   // Formulario de la línea en curso, separado del resto: se limpia solo él
   // al agregar, sin tocar lo que ya se llenó de la cabecera.
   const [insumoId, setInsumoId] = useState("");
+  const [modalidadId, setModalidadId] = useState("");
   const [cantidad, setCantidad] = useState("");
   const [errorLinea, setErrorLinea] = useState<string | undefined>();
 
   const programas = useCatalogo<Programa>("programas");
+  const modalidades = useCatalogo<ElementoCatalogo>("modalidades-solicitud");
+
+  // Con existencias, no solo nombres: quien atiende necesita saber si hay y
+  // cuánto antes de comprometer una cantidad, sin abrir otra pantalla.
   const insumos = useQuery({
-    queryKey: [CLAVE_INSUMOS, "seleccion"],
-    queryFn: listarInsumosParaSeleccion,
+    queryKey: [CLAVE_INSUMOS, "stock"],
+    queryFn: () => listarStockInsumos(),
   });
 
-  const insumoElegido = insumos.data?.find((i) => i.id === Number(insumoId));
+  const insumoElegido = insumos.data?.find(
+    (i) => i.insumo_id === Number(insumoId),
+  );
+
+  const filasStock = insumos.data;
+
+  const porCategoria = useMemo(() => {
+    const grupos = new Map<string, NonNullable<typeof filasStock>>();
+    for (const fila of filasStock ?? []) {
+      const lista = grupos.get(fila.categoria_nombre);
+      if (lista) lista.push(fila);
+      else grupos.set(fila.categoria_nombre, [fila]);
+    }
+    return [...grupos.entries()].sort((a, b) => a[0].localeCompare(b[0], "es"));
+  }, [filasStock]);
+
+  /**
+   * Los formularios que este insumo va a exigir bajo esta modalidad. Se
+   * consultan al elegir, no al aprobar: el estudio socioeconómico hay que
+   * llenarlo con la persona presente, y descubrirlo cuando ya se fue vuelve
+   * el dato irrecuperable.
+   */
+  const formulariosExigidos = useQuery({
+    queryKey: [CLAVE_FORMULARIOS, "insumo", insumoId, modalidadId],
+    queryFn: () =>
+      listarFormulariosDeInsumo(Number(insumoId), Number(modalidadId)),
+    enabled: insumoId !== "" && modalidadId !== "",
+  });
 
   const hayCambios =
     persona !== null ||
@@ -109,7 +143,11 @@ function ModalSolicitud({
       setErrorLinea("La cantidad debe ser un número entero mayor que cero.");
       return;
     }
-    if (lineas.some((l) => l.insumo_id === insumoElegido.id)) {
+    if (modalidadId === "") {
+      setErrorLinea("Elija la modalidad: donación o préstamo.");
+      return;
+    }
+    if (lineas.some((l) => l.insumo_id === insumoElegido.insumo_id)) {
       setErrorLinea(
         "Ese insumo ya está en la lista. Quítelo si quiere cambiar la cantidad.",
       );
@@ -120,12 +158,17 @@ function ModalSolicitud({
       ...previas,
       {
         clave: siguienteClave,
-        insumo_id: insumoElegido.id,
+        insumo_id: insumoElegido.insumo_id,
         cantidad_requerida: cantidadNum,
-        insumoNombre: insumoElegido.nombre,
+        modalidad_solicitud_id: Number(modalidadId),
+        insumoNombre: insumoElegido.insumo_nombre,
+        modalidadNombre:
+          modalidades.opciones.find((m) => m.id === Number(modalidadId))
+            ?.nombre ?? "",
       },
     ]);
     setInsumoId("");
+    setModalidadId("");
     setCantidad("");
     setErrorLinea(undefined);
   };
@@ -142,10 +185,13 @@ function ModalSolicitud({
         fecha_solicitud: fechaSolicitud,
         requiere_aprobacion: requiereAprobacion,
         observaciones_trabajo_social: observaciones.trim() || null,
-        lineas: lineas.map(({ insumo_id, cantidad_requerida }) => ({
-          insumo_id,
-          cantidad_requerida,
-        })),
+        lineas: lineas.map(
+          ({ insumo_id, cantidad_requerida, modalidad_solicitud_id }) => ({
+            insumo_id,
+            cantidad_requerida,
+            modalidad_solicitud_id,
+          }),
+        ),
       }),
     onSuccess: async (resultado) => {
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_SOLICITUDES] });
@@ -261,6 +307,7 @@ function ModalSolicitud({
             <thead>
               <tr>
                 <th>Insumo</th>
+                <th>Modalidad</th>
                 <th>Cantidad</th>
                 <th>Acciones</th>
               </tr>
@@ -269,6 +316,7 @@ function ModalSolicitud({
               {lineas.map((linea) => (
                 <tr key={linea.clave}>
                   <td>{linea.insumoNombre}</td>
+                  <td>{linea.modalidadNombre}</td>
                   <CeldaCantidad>{linea.cantidad_requerida}</CeldaCantidad>
                   <CeldaAcciones>
                     <Boton
@@ -295,9 +343,32 @@ function ModalSolicitud({
                 setErrorLinea(undefined);
               }}
             >
-              {insumos.data?.map((insumo) => (
-                <option key={insumo.id} value={insumo.id}>
-                  {insumo.nombre}
+              {porCategoria.map(([categoria, lista]) => (
+                <optgroup key={categoria} label={categoria}>
+                  {lista.map((insumo) => (
+                    <option key={insumo.insumo_id} value={insumo.insumo_id}>
+                      {insumo.insumo_nombre}
+                      {" — "}
+                      {insumo.stock_total.toLocaleString("es-GT")}{" "}
+                      {insumo.unidad_base_nombre}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </CampoSelect>
+
+            <CampoSelect
+              etiqueta="Modalidad"
+              value={modalidadId}
+              onChange={(e) => {
+                setModalidadId(e.target.value);
+                setErrorLinea(undefined);
+              }}
+              ayuda="No se puede cambiar después de registrar la solicitud."
+            >
+              {modalidades.opciones.map((modalidad) => (
+                <option key={modalidad.id} value={modalidad.id}>
+                  {modalidad.nombre}
                 </option>
               ))}
             </CampoSelect>
@@ -315,11 +386,29 @@ function ModalSolicitud({
             />
           </div>
 
-          {insumoElegido?.bloquea_solicitud_sin_stock && (
+          {insumoElegido?.bloquea_solicitud_sin_stock &&
+            (insumoElegido.stock_total > 0 ? (
+              <Insignia tono="informativa">
+                Este insumo exige stock disponible. Hay{" "}
+                {insumoElegido.stock_total.toLocaleString("es-GT")}{" "}
+                {insumoElegido.unidad_base_nombre} en existencia.
+              </Insignia>
+            ) : (
+              <Insignia tono="rechazada">
+                Sin existencias y este insumo exige stock: el sistema no dejará
+                agregarlo. Anótelo en la lista de espera.
+              </Insignia>
+            ))}
+
+          {formulariosExigidos.data && formulariosExigidos.data.length > 0 && (
             <Insignia tono="informativa">
-              Este insumo exige stock disponible: si no hay existencias, el
-              sistema no dejará agregarlo y sugerirá anotarlo en la lista de
-              espera.
+              Con esta modalidad habrá que llenar{" "}
+              {formulariosExigidos.data.length === 1
+                ? "un formulario"
+                : formulariosExigidos.data.length + " formularios"}{" "}
+              antes de poder aprobar:{" "}
+              {formulariosExigidos.data.map((f) => f.nombre).join(", ")}.
+              Convendría llenarlos ahora, con la persona presente.
             </Insignia>
           )}
 

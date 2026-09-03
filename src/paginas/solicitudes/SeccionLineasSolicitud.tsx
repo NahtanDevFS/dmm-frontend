@@ -59,6 +59,7 @@ function SeccionLineasSolicitud({
 
   const [insumoId, setInsumoId] = useState("");
   const [cantidad, setCantidad] = useState("");
+  const [modalidadId, setModalidadId] = useState("");
   const [despachando, setDespachando] = useState<LineaSolicitud | null>(null);
   const [verFormularios, setVerFormularios] = useState<LineaSolicitud | null>(
     null,
@@ -68,6 +69,9 @@ function SeccionLineasSolicitud({
   // para reutilizar el mismo tono e insignia que ya usa el listado.
   const estados = useCatalogo<{ id: number; nombre: string }>(
     "estados-solicitud",
+  );
+  const modalidades = useCatalogo<{ id: number; nombre: string }>(
+    "modalidades-solicitud",
   );
   const insumos = useQuery({
     queryKey: [CLAVE_INSUMOS, "seleccion"],
@@ -82,10 +86,19 @@ function SeccionLineasSolicitud({
       queryKey: [CLAVE_SOLICITUDES, solicitudId],
     });
 
-  const cambiar = (siguienteInsumo: string, siguienteCantidad: string) => {
+  const cambiar = (
+    siguienteInsumo: string,
+    siguienteCantidad: string,
+    siguienteModalidad = modalidadId,
+  ) => {
     setInsumoId(siguienteInsumo);
     setCantidad(siguienteCantidad);
-    onBorrador?.(siguienteInsumo !== "" || siguienteCantidad !== "");
+    setModalidadId(siguienteModalidad);
+    onBorrador?.(
+      siguienteInsumo !== "" ||
+        siguienteCantidad !== "" ||
+        siguienteModalidad !== "",
+    );
   };
 
   const alta = useMutation({
@@ -93,11 +106,12 @@ function SeccionLineasSolicitud({
       agregarLinea(solicitudId, {
         insumo_id: Number(insumoId),
         cantidad_requerida: Number(cantidad),
+        modalidad_solicitud_id: Number(modalidadId),
       }),
     onSuccess: async () => {
       await refrescar();
       avisar("Insumo agregado a la solicitud.", "exito");
-      cambiar("", "");
+      cambiar("", "", "");
     },
     // Incluye el rechazo por falta de stock del insumo (fn_validar_stock):
     // el backend ya redacta el mensaje en español con qué hacer.
@@ -113,8 +127,12 @@ function SeccionLineasSolicitud({
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
+  const nombreModalidad = (modalidadId: number) =>
+    modalidades.opciones.find((m) => m.id === modalidadId)?.nombre ?? "—";
+
   const listaParaAgregar =
     insumoId !== "" &&
+    modalidadId !== "" &&
     Number.isInteger(Number(cantidad)) &&
     Number(cantidad) > 0;
 
@@ -134,6 +152,7 @@ function SeccionLineasSolicitud({
           <thead>
             <tr>
               <th>Insumo</th>
+              <th>Modalidad</th>
               <th>Cantidad</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -152,6 +171,7 @@ function SeccionLineasSolicitud({
                     {insumos.data?.find((i) => i.id === linea.insumo_id)
                       ?.nombre ?? "Insumo #" + linea.insumo_id}
                   </td>
+                  <td>{nombreModalidad(linea.modalidad_solicitud_id)}</td>
                   <CeldaCantidad>
                     {linea.cantidad_entregada} / {linea.cantidad_requerida}
                   </CeldaCantidad>
@@ -221,6 +241,19 @@ function SeccionLineasSolicitud({
               {insumos.data?.map((insumo) => (
                 <option key={insumo.id} value={insumo.id}>
                   {insumo.nombre}
+                </option>
+              ))}
+            </CampoSelect>
+
+            <CampoSelect
+              etiqueta="Modalidad"
+              value={modalidadId}
+              onChange={(e) => cambiar(insumoId, cantidad, e.target.value)}
+              ayuda="Decide qué formularios se exigen. No cambia después."
+            >
+              {modalidades.opciones.map((modalidad) => (
+                <option key={modalidad.id} value={modalidad.id}>
+                  {modalidad.nombre}
                 </option>
               ))}
             </CampoSelect>
