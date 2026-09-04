@@ -12,6 +12,7 @@ import { CLAVE_PERSONAS, editarPersona } from "../../api/personas";
 import type { PersonaDetalle } from "../../api/personas";
 import type { Comunidad, ElementoCatalogo } from "../../types/api";
 import { telefonoValido } from "../../lib/telefono";
+import SelectorMunicipio from "./SelectorMunicipio";
 import estilos from "./Ficha.module.css";
 
 /**
@@ -35,6 +36,9 @@ function ModalEditar({
   const { avisar } = useAvisos();
   const comunidades = useCatalogo<Comunidad>("comunidades");
   const generos = useCatalogo<ElementoCatalogo>("tipos-genero");
+  const estadosCiviles = useCatalogo<ElementoCatalogo>("estados-civiles");
+  const gradosAcademicos = useCatalogo<ElementoCatalogo>("grados-academicos");
+  const ocupaciones = useCatalogo<ElementoCatalogo>("ocupaciones");
 
   const valoresIniciales = {
     cui_dpi: persona.cui_dpi ?? "",
@@ -44,6 +48,17 @@ function ModalEditar({
     genero_id: persona.genero_id ? String(persona.genero_id) : "",
     comunidad_id: persona.comunidad_id ? String(persona.comunidad_id) : "",
     telefono: persona.telefono ?? "",
+    estado_civil_id: persona.estado_civil_id
+      ? String(persona.estado_civil_id)
+      : "",
+    grado_academico_id: persona.grado_academico_id
+      ? String(persona.grado_academico_id)
+      : "",
+    ocupacion_id: persona.ocupacion_id ? String(persona.ocupacion_id) : "",
+    municipio_nacimiento_id: persona.municipio_nacimiento_id
+      ? String(persona.municipio_nacimiento_id)
+      : "",
+    direccion: persona.direccion ?? "",
   };
   const [datos, setDatos] = useState(valoresIniciales);
   const [errorCui, setErrorCui] = useState<string | undefined>();
@@ -68,6 +83,17 @@ function ModalEditar({
         genero_id: datos.genero_id ? Number(datos.genero_id) : null,
         comunidad_id: datos.comunidad_id ? Number(datos.comunidad_id) : null,
         telefono: datos.telefono.trim() || null,
+        estado_civil_id: datos.estado_civil_id
+          ? Number(datos.estado_civil_id)
+          : null,
+        grado_academico_id: datos.grado_academico_id
+          ? Number(datos.grado_academico_id)
+          : null,
+        ocupacion_id: datos.ocupacion_id ? Number(datos.ocupacion_id) : null,
+        municipio_nacimiento_id: datos.municipio_nacimiento_id
+          ? Number(datos.municipio_nacimiento_id)
+          : null,
+        direccion: datos.direccion.trim() || null,
       }),
     onSuccess: async () => {
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_PERSONAS] });
@@ -172,6 +198,53 @@ function ModalEditar({
             </option>
           ))}
         </CampoSelect>
+
+        <CampoSelect
+          etiqueta="Estado civil"
+          value={datos.estado_civil_id}
+          onChange={cambiar("estado_civil_id")}
+        >
+          {estadosCiviles.opciones.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.nombre}
+            </option>
+          ))}
+        </CampoSelect>
+        <CampoSelect
+          etiqueta="Grado académico"
+          value={datos.grado_academico_id}
+          onChange={cambiar("grado_academico_id")}
+          ayuda="«Ninguno» es distinto de dejarlo vacío."
+        >
+          {gradosAcademicos.opciones.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.nombre}
+            </option>
+          ))}
+        </CampoSelect>
+        <CampoSelect
+          etiqueta="Ocupación"
+          value={datos.ocupacion_id}
+          onChange={cambiar("ocupacion_id")}
+        >
+          {ocupaciones.opciones.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.nombre}
+            </option>
+          ))}
+        </CampoSelect>
+        <CampoTexto
+          etiqueta="Dirección de vivienda"
+          maxLength={255}
+          value={datos.direccion}
+          onChange={cambiar("direccion")}
+        />
+        <SelectorMunicipio
+          value={datos.municipio_nacimiento_id}
+          onChange={(id) =>
+            setDatos((previos) => ({ ...previos, municipio_nacimiento_id: id }))
+          }
+        />
       </div>
     </Modal>
   );

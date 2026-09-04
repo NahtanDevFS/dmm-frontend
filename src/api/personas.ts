@@ -50,6 +50,16 @@ export interface DatosBasePersona {
   genero_id?: number | null;
   comunidad_id?: number | null;
   telefono?: string | null;
+  /**
+   * Lo que pide la sección I del estudio socioeconómico. Vive en la ficha y
+   * no dentro del formulario: dos copias del mismo dato pueden discrepar, y
+   * la del formulario no sirve para buscar ni para reportes.
+   */
+  estado_civil_id?: number | null;
+  grado_academico_id?: number | null;
+  ocupacion_id?: number | null;
+  municipio_nacimiento_id?: number | null;
+  direccion?: string | null;
 }
 
 export type EncargadoNuevo =

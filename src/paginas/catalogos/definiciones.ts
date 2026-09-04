@@ -19,7 +19,7 @@ export interface DefinicionCatalogo {
 }
 
 /**
- * Los seis catálogos con CRUD genérico.
+ * Los catálogos con CRUD genérico.
  *
  * Comparten contrato exacto, así que se describen como datos y los atiende una
  * sola pantalla. Escribir seis pantallas idénticas habría multiplicado por seis
@@ -35,6 +35,20 @@ export const CATALOGOS: DefinicionCatalogo[] = [
     singular: "discapacidad",
     articulo: "la",
     nota: "Alimenta la ficha del beneficiario. Es información de salud: los nombres deben ser los de la evaluación, no diagnósticos improvisados.",
+  },
+  {
+    ruta: "grados-academicos",
+    titulo: "Grados académicos",
+    singular: "grado académico",
+    articulo: "el",
+    nota: "Nivel educativo alcanzado, para la ficha del beneficiario. «Ninguno» es un valor con significado propio: dejar el campo vacío significa que nadie preguntó, no que la persona no estudió.",
+  },
+  {
+    ruta: "ocupaciones",
+    titulo: "Ocupaciones",
+    singular: "ocupación",
+    articulo: "la",
+    nota: "A qué se dedican las personas. Si «Otra» empieza a acumular gente, es señal de que falta agregar aquí la ocupación real.",
   },
   {
     ruta: "programas",

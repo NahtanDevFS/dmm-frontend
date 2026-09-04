@@ -100,6 +100,42 @@ function ModalFicha({
   const persona = consulta.data;
   const edad = persona ? calcularEdad(persona.fecha_nacimiento) : Number.NaN;
   const menor = persona ? esMenorDeEdad(persona.fecha_nacimiento) : false;
+
+  const estadosCiviles = useCatalogo<ElementoCatalogo>("estados-civiles");
+  const estadoCivil = estadosCiviles.opciones.find(
+    (e) => e.id === persona?.estado_civil_id,
+  );
+
+  const gradosAcademicos = useCatalogo<ElementoCatalogo>("grados-academicos");
+  const gradoAcademico = gradosAcademicos.opciones.find(
+    (g) => g.id === persona?.grado_academico_id,
+  );
+
+  const ocupaciones = useCatalogo<ElementoCatalogo>("ocupaciones");
+  const ocupacion = ocupaciones.opciones.find(
+    (o) => o.id === persona?.ocupacion_id,
+  );
+
+  const municipios = useCatalogo<ElementoCatalogo>("municipios");
+  const municipioNacimiento = municipios.opciones.find(
+    (m) => m.id === persona?.municipio_nacimiento_id,
+  );
+
+  /** Los datos de la sección I del estudio que esta ficha todavía no tiene. */
+  const faltantes = persona
+    ? (
+        [
+          [persona.estado_civil_id, "estado civil"],
+          [persona.municipio_nacimiento_id, "lugar de nacimiento"],
+          [persona.direccion, "dirección"],
+          [persona.grado_academico_id, "grado académico"],
+          [persona.ocupacion_id, "ocupación"],
+          [persona.telefono, "teléfono"],
+        ] as const
+      )
+        .filter(([valor]) => valor === null || valor === undefined)
+        .map(([, etiqueta]) => etiqueta)
+    : [];
   const comunidad = comunidades.opciones.find(
     (c) => c.id === persona?.comunidad_id,
   );
@@ -225,7 +261,31 @@ function ModalFicha({
               <Dato titulo="Género">{genero?.nombre ?? "—"}</Dato>
               <Dato titulo="Comunidad">{comunidad?.nombre ?? "—"}</Dato>
               <Dato titulo="Teléfono">{persona.telefono ?? "—"}</Dato>
+              <Dato titulo="Estado civil">{estadoCivil?.nombre ?? "—"}</Dato>
+              <Dato titulo="Lugar de nacimiento">
+                {municipioNacimiento?.nombre ?? "—"}
+              </Dato>
+              <Dato titulo="Dirección de vivienda">
+                {persona.direccion ?? "—"}
+              </Dato>
+              <Dato titulo="Grado académico">
+                {gradoAcademico?.nombre ?? "—"}
+              </Dato>
+              <Dato titulo="Ocupación">{ocupacion?.nombre ?? "—"}</Dato>
             </dl>
+
+            {/*
+              Cuáles de estos datos faltan importa: son los que el estudio
+              socioeconómico va a pedir, y descubrir que faltan cuando la
+              persona ya se fue obliga a llamarla de vuelta. Se avisa aquí, en
+              la ficha, y no al llenar el formulario.
+            */}
+            {faltantes.length > 0 && (
+              <p className={estilos.nota}>
+                Falta registrar: {faltantes.join(", ")}. El estudio
+                socioeconómico los pide.
+              </p>
+            )}
           </section>
 
           <SeccionDiscapacidades

@@ -20,6 +20,7 @@ import type { CrearPersona, EncargadoNuevo } from "../../api/personas";
 import type { ElementoCatalogo } from "../../types/api";
 import { esquemaBeneficiario, type DatosBeneficiario } from "./esquema";
 import SelectorComunidad from "./SelectorComunidad";
+import SelectorMunicipio from "./SelectorMunicipio";
 import estilos from "./Formulario.module.css";
 
 const numeroOpcional = (valor: string | undefined) =>
@@ -86,6 +87,9 @@ function ModalNuevoBeneficiario({
   const { avisar } = useAvisos();
 
   const generos = useCatalogo<ElementoCatalogo>("tipos-genero");
+  const estadosCiviles = useCatalogo<ElementoCatalogo>("estados-civiles");
+  const gradosAcademicos = useCatalogo<ElementoCatalogo>("grados-academicos");
+  const ocupaciones = useCatalogo<ElementoCatalogo>("ocupaciones");
   const discapacidades = useCatalogo<ElementoCatalogo>("discapacidades");
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
 
@@ -187,6 +191,11 @@ function ModalNuevoBeneficiario({
       genero_id: numeroOpcional(datos.genero_id),
       comunidad_id: numeroOpcional(datos.comunidad_id),
       telefono: datos.telefono || null,
+      estado_civil_id: numeroOpcional(datos.estado_civil_id),
+      grado_academico_id: numeroOpcional(datos.grado_academico_id),
+      ocupacion_id: numeroOpcional(datos.ocupacion_id),
+      municipio_nacimiento_id: numeroOpcional(datos.municipio_nacimiento_id),
+      direccion: datos.direccion || null,
       discapacidadIds: datos.discapacidadIds ?? [],
       contactos: (datos.contactos ?? []).map((contacto) => ({
         nombre: contacto.nombre,
@@ -325,6 +334,68 @@ function ModalNuevoBeneficiario({
                   value={field.value ?? ""}
                   onChange={field.onChange}
                   error={errors.comunidad_id?.message}
+                />
+              )}
+            />
+
+            {/*
+              Lo que pide la sección I del estudio socioeconómico y que antes
+              no se guardaba: así el formulario no tiene que volver a
+              preguntarlo y queda una sola versión del dato.
+            */}
+            <CampoSelect
+              etiqueta="Estado civil"
+              error={errors.estado_civil_id?.message}
+              {...register("estado_civil_id")}
+            >
+              {estadosCiviles.opciones.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.nombre}
+                </option>
+              ))}
+            </CampoSelect>
+
+            <CampoSelect
+              etiqueta="Grado académico"
+              error={errors.grado_academico_id?.message}
+              {...register("grado_academico_id")}
+              ayuda="«Ninguno» es distinto de dejarlo vacío: uno dice que no estudió, el otro que no se preguntó."
+            >
+              {gradosAcademicos.opciones.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.nombre}
+                </option>
+              ))}
+            </CampoSelect>
+
+            <CampoSelect
+              etiqueta="Ocupación"
+              error={errors.ocupacion_id?.message}
+              {...register("ocupacion_id")}
+            >
+              {ocupaciones.opciones.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.nombre}
+                </option>
+              ))}
+            </CampoSelect>
+
+            <CampoTexto
+              etiqueta="Dirección de vivienda"
+              maxLength={255}
+              error={errors.direccion?.message}
+              {...register("direccion")}
+            />
+
+            {/* Dónde nació, que puede no ser donde vive. Solo se guarda el
+                municipio: el departamento ya cuelga de él. */}
+            <Controller
+              control={control}
+              name="municipio_nacimiento_id"
+              render={({ field }) => (
+                <SelectorMunicipio
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
                 />
               )}
             />

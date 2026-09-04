@@ -106,7 +106,10 @@ export const REPORTES: readonly Rol[] = [
  * En la práctica deja los dos roles equivalentes en poder, porque quien
  * gestiona usuarios puede crear otra cuenta de administrador.
  */
-export const ADMINISTRACION: readonly Rol[] = [ROL.DIRECTORA, ROL.ADMINISTRADOR];
+export const ADMINISTRACION: readonly Rol[] = [
+  ROL.DIRECTORA,
+  ROL.ADMINISTRADOR,
+];
 
 /**
  * Resolución de solicitudes de apoyo: aprobar y rechazar.
@@ -194,6 +197,22 @@ export interface Persona {
   genero_id: number | null;
   comunidad_id: number | null;
   telefono: string | null;
+  /**
+   * Los datos que pide la sección I del estudio socioeconómico. Se guardan
+   * en la ficha y NO se vuelven a preguntar dentro de cada formulario: dos
+   * copias del mismo dato pueden discrepar, y la del formulario no sirve
+   * para buscar ni para reportes.
+   */
+  direccion: string | null;
+  estado_civil_id: number | null;
+  grado_academico_id: number | null;
+  ocupacion_id: number | null;
+  /**
+   * Municipio donde nació, que cuelga de su departamento. Distinto de la
+   * comunidad, que es dónde vive hoy: se puede nacer en un sitio y residir en
+   * otro, y el estudio socioeconómico distingue las dos cosas.
+   */
+  municipio_nacimiento_id: number | null;
   activo: boolean;
 }
 

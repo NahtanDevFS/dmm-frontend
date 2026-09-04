@@ -69,10 +69,33 @@ export interface RecetaMedica {
   activo: boolean;
 }
 
+/**
+ * Un documento del legajo: el respaldo en papel del trámite. Formularios
+ * firmados, hojas de firma, recetas, constancias.
+ *
+ * `formulario_id` dice a cuál de los formularios corresponde el escaneo, y es
+ * opcional: no todo lo que se adjunta es uno de ellos.
+ */
+export interface DocumentoSolicitud {
+  id: number;
+  solicitud_id: number;
+  formulario_id: number | null;
+  ruta_archivo: string;
+  descripcion: string | null;
+  observaciones: string | null;
+  activo: boolean;
+}
+
 /** Lo que devuelve GET /solicitudes/:id: la cabecera con sus sub-recursos. */
 export interface SolicitudDetalle extends Solicitud {
   lineas: LineaSolicitud[];
+  /**
+   * Residuo del diseño anterior, cuando la medicina pasaba por solicitud. Con
+   * el flujo actual la receta se adjunta como evidencia de la entrega
+   * directa, o aquí mismo como un documento más del legajo.
+   */
   recetas: RecetaMedica[];
+  documentos: DocumentoSolicitud[];
 }
 
 /**
@@ -280,6 +303,34 @@ export async function subirReceta(
   const { data } = await axiosClient.post<RecetaMedica>(
     "solicitudes/" + solicitudId + "/recetas",
     cuerpo,
+  );
+  return data;
+}
+
+export async function subirDocumentoSolicitud(
+  solicitudId: number,
+  datos: { archivo: File; formularioId?: number; descripcion?: string },
+): Promise<DocumentoSolicitud> {
+  const cuerpo = new FormData();
+  cuerpo.append("archivo", datos.archivo);
+  if (datos.formularioId)
+    cuerpo.append("formulario_id", String(datos.formularioId));
+  if (datos.descripcion) cuerpo.append("descripcion", datos.descripcion);
+
+  const { data } = await axiosClient.post<DocumentoSolicitud>(
+    "solicitudes/" + solicitudId + "/documentos",
+    cuerpo,
+  );
+  return data;
+}
+
+/** Baja lógica: devuelve el legajo ya actualizado. */
+export async function eliminarDocumentoSolicitud(
+  solicitudId: number,
+  documentoId: number,
+): Promise<DocumentoSolicitud[]> {
+  const { data } = await axiosClient.delete<DocumentoSolicitud[]>(
+    "solicitudes/" + solicitudId + "/documentos/" + documentoId,
   );
   return data;
 }

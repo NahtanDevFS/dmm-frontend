@@ -39,6 +39,7 @@ const NOMBRE_TIPO: Record<string, string> = {
   TEXTO_LARGO: "Texto largo",
   NUMERO: "Número",
   FECHA: "Fecha",
+  FECHA_NACIMIENTO: "Fecha de nacimiento (muestra la edad)",
   SI_NO: "Sí / No",
   SELECCION_UNICA: "Selección única",
   SELECCION_MULTIPLE: "Selección múltiple",

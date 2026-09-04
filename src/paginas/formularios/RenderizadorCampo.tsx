@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { calcularEdad, fechaDeHoy } from "../../lib/fechas";
 import { useQuery } from "@tanstack/react-query";
 import {
   CampoTexto,
@@ -11,7 +13,6 @@ import {
   listarValoresCatalogo,
   type FormularioCampo,
 } from "../../api/formularios";
-import { fechaDeHoy } from "../../lib/fechas";
 import { valoresSeleccionMultiple } from "./utilFormulario";
 import estilos from "./Formularios.module.css";
 
@@ -36,6 +37,14 @@ function RenderizadorCampo({
   error,
   deshabilitado,
 }: PropsRenderizadorCampo) {
+  /**
+   * Mientras el campo numérico está enfocado se edita crudo; al salir se
+   * muestra con separadores de miles. No se puede formatear siempre porque
+   * un <input type="number"> rechaza las comas.
+   */
+  const [enfocado, setEnfocado] = useState(false);
+  const tieneDecimales = typeof valor === "string" && valor.includes(".");
+
   const esSeleccion =
     campo.tipo_dato_nombre === TIPO_DATO.SELECCION_UNICA ||
     campo.tipo_dato_nombre === TIPO_DATO.SELECCION_MULTIPLE;
@@ -72,20 +81,74 @@ function RenderizadorCampo({
         />
       );
 
-    case TIPO_DATO.NUMERO:
+    case TIPO_DATO.FECHA_NACIMIENTO: {
+      /*
+        Se captura la fecha y se muestra la edad calculada como ayuda del
+        campo. El familiar del grupo familiar no está registrado como persona
+        en el sistema, así que no hay ficha de la cual leerla; pero capturar
+        la edad directamente registraría un número que deja de ser cierto al
+        año siguiente.
+      */
+      const edad =
+        valor && !Number.isNaN(Date.parse(valor)) ? calcularEdad(valor) : null;
+
+      return (
+        <CampoTexto
+          etiqueta={campo.etiqueta}
+          obligatorio={campo.obligatorio}
+          ayuda={
+            edad !== null && edad >= 0
+              ? edad + (edad === 1 ? " año" : " años") + " a la fecha de hoy"
+              : (campo.ayuda ?? "La edad se calcula sola.")
+          }
+          error={error}
+          type="date"
+          max={fechaDeHoy()}
+          value={valor ?? ""}
+          disabled={deshabilitado}
+          onChange={(e) => onCambiar(e.target.value || null)}
+        />
+      );
+    }
+
+    case TIPO_DATO.NUMERO: {
+      /*
+        Los montos en quetzales se capturan con este tipo, así que se permiten
+        decimales y se muestra el valor con separadores de miles cuando el
+        campo pierde el foco: "1250" cuesta de leer, "1,250.00" no.
+
+        El formato solo se aplica al mostrar; lo que se guarda sigue siendo el
+        número crudo. Y no se adivina cuáles campos son dinero: la "Q" la pone
+        quien define el formulario en la etiqueta, como en "Monto (Q)".
+      */
+      const formateado =
+        !enfocado && valor !== null && valor !== "" && !isNaN(Number(valor))
+          ? Number(valor).toLocaleString("es-GT", {
+              minimumFractionDigits: tieneDecimales ? 2 : 0,
+              maximumFractionDigits: 2,
+            })
+          : (valor ?? "");
+
       return (
         <CampoTexto
           etiqueta={campo.etiqueta}
           obligatorio={campo.obligatorio}
           ayuda={campo.ayuda ?? undefined}
           error={error}
-          type="number"
+          // Mientras se edita es un campo numérico de verdad; al salir pasa a
+          // texto para poder mostrar las comas, que type="number" rechaza.
+          type={enfocado ? "number" : "text"}
+          inputMode="decimal"
+          step="any"
           numerico
-          value={valor ?? ""}
+          value={formateado}
           disabled={deshabilitado}
+          onFocus={() => setEnfocado(true)}
+          onBlur={() => setEnfocado(false)}
           onChange={(e) => onCambiar(e.target.value || null)}
         />
       );
+    }
 
     case TIPO_DATO.FECHA:
       return (
