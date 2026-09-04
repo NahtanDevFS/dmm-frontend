@@ -22,6 +22,8 @@ export const CLAVE_CATALOGO = "catalogo";
 /** Rutas de catálogo administrable (CRUD genérico de DIRECTORA/ADMINISTRADOR). */
 export const CATALOGOS_ADMINISTRABLES = [
   "discapacidades",
+  "grados-academicos",
+  "ocupaciones",
   "programas",
   "categorias-insumo",
   "marcas-insumo",
@@ -34,6 +36,7 @@ export const CATALOGOS_LECTURA = [
   "departamentos",
   "municipios",
   "tipos-genero",
+  "estados-civiles",
   "tipos-parentesco",
   "tipos-documento-persona",
   "tipos-evidencia-entrega",

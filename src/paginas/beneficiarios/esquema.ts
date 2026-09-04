@@ -70,6 +70,17 @@ export const datosBasePersona = z.object({
   genero_id: opcionalVacio(10),
   comunidad_id: opcionalVacio(10),
   telefono: telefonoOpcional,
+
+  /**
+   * Lo que pide la sección I del estudio socioeconómico. Todos opcionales:
+   * una ficha se abre con lo que la persona traiga encima y se completa
+   * después, cuando se hace el estudio.
+   */
+  estado_civil_id: opcionalVacio(10),
+  grado_academico_id: opcionalVacio(10),
+  ocupacion_id: opcionalVacio(10),
+  municipio_nacimiento_id: opcionalVacio(10),
+  direccion: opcionalVacio(255),
 });
 
 /**
@@ -186,6 +197,11 @@ export interface DatosBeneficiario {
   genero_id?: string;
   comunidad_id?: string;
   telefono?: string;
+  estado_civil_id?: string;
+  grado_academico_id?: string;
+  ocupacion_id?: string;
+  municipio_nacimiento_id?: string;
+  direccion?: string;
   discapacidadIds: number[];
   encargado?: {
     nombres?: string;
