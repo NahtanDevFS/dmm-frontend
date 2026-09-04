@@ -195,13 +195,20 @@ function SeccionLineasSolicitud({
                         Despachar
                       </Boton>
                     )}
-                    <Boton
-                      pequeno
-                      variante="secundaria"
-                      onClick={() => setVerFormularios(linea)}
-                    >
-                      Formularios
-                    </Boton>
+                    {/*
+                      En una línea cancelada no hay nada que llenar: el
+                      trámite de ese insumo terminó. Dejar el botón hacía
+                      parecer que seguía vivo.
+                    */}
+                    {linea.activo && nombre !== "CANCELADA" && (
+                      <Boton
+                        pequeno
+                        variante="secundaria"
+                        onClick={() => setVerFormularios(linea)}
+                      >
+                        Formularios
+                      </Boton>
+                    )}
                     {cancelable && (
                       <Boton
                         pequeno

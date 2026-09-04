@@ -66,6 +66,10 @@ function SeccionFormularios() {
   const { avisar, confirmar } = useAvisos();
 
   const [seleccionado, setSeleccionado] = useState<number | null>(null);
+  // Ocultos por defecto, como en el resto del sistema. Se piden igual a la
+  // API: hacen falta para calcular el siguiente orden libre, aunque no se
+  // muestren.
+  const [verInactivos, setVerInactivos] = useState(false);
   const [nombreNuevo, setNombreNuevo] = useState("");
   const [descripcionNueva, setDescripcionNueva] = useState("");
 
@@ -202,15 +206,26 @@ function SeccionFormularios() {
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
+  const todosLosCampos = detalle.data?.campos ?? [];
+
   /**
    * Mayor orden ocupado + 1, contando también los campos desactivados: siguen
-   * existiendo en la tabla y su orden sigue reservado.
+   * existiendo en la tabla y su orden sigue reservado por la unicidad de
+   * (formulario, orden).
    */
   const siguienteOrden =
-    (detalle.data?.campos ?? []).reduce(
-      (mayor, campo) => Math.max(mayor, campo.orden),
-      0,
-    ) + 1;
+    todosLosCampos.reduce((mayor, campo) => Math.max(mayor, campo.orden), 0) +
+    1;
+
+  /**
+   * Lo que se muestra. Los botones de mover se habilitan según esta lista y
+   * no según todos los campos: el intercambio ocurre solo entre activos, así
+   * que el primero y el último visibles son los que no tienen con quién
+   * intercambiarse.
+   */
+  const camposVisibles = verInactivos
+    ? todosLosCampos
+    : todosLosCampos.filter((campo) => campo.activo);
 
   const listoParaCampo =
     seleccionado !== null &&
@@ -339,6 +354,15 @@ function SeccionFormularios() {
         <section className={estilos.tarjeta}>
           <div className={estilos.tituloTarjeta}>
             <h2>Campos de '{formularioActual?.nombre}'</h2>
+            <label className={estilos.opciones}>
+              <input
+                type="checkbox"
+                className={estilos.casilla}
+                checked={verInactivos}
+                onChange={(e) => setVerInactivos(e.target.checked)}
+              />
+              Mostrar inactivos
+            </label>
           </div>
           <p className={estilos.nota}>
             Se llenan en este orden. Los campos no se borran: se desactivan,
@@ -348,7 +372,7 @@ function SeccionFormularios() {
 
           {detalle.isPending ? (
             <EsqueletoTabla />
-          ) : detalle.data && detalle.data.campos.length > 0 ? (
+          ) : camposVisibles.length > 0 ? (
             <Tabla titulo="Campos del formulario">
               <thead>
                 <tr>
@@ -362,7 +386,7 @@ function SeccionFormularios() {
                 </tr>
               </thead>
               <tbody>
-                {detalle.data.campos.map((campo, indice) => (
+                {camposVisibles.map((campo, indice) => (
                   <tr key={campo.id}>
                     <td>{campo.orden}</td>
                     <td>{campo.etiqueta}</td>
@@ -385,7 +409,9 @@ function SeccionFormularios() {
                       <Boton
                         pequeno
                         variante="terciaria"
-                        disabled={indice === 0 || mover.isPending}
+                        disabled={
+                          !campo.activo || indice === 0 || mover.isPending
+                        }
                         onClick={() =>
                           mover.mutate({ id: campo.id, direccion: "arriba" })
                         }
@@ -396,7 +422,8 @@ function SeccionFormularios() {
                         pequeno
                         variante="terciaria"
                         disabled={
-                          indice === detalle.data!.campos.length - 1 ||
+                          !campo.activo ||
+                          indice === camposVisibles.length - 1 ||
                           mover.isPending
                         }
                         onClick={() =>
@@ -425,7 +452,11 @@ function SeccionFormularios() {
           ) : (
             <EstadoVacio
               titulo="Sin campos"
-              texto="Este formulario todavía no pregunta nada. Agregue el primero abajo."
+              texto={
+                todosLosCampos.length > 0
+                  ? "Todos los campos de este formulario están desactivados. Marque 'Mostrar inactivos' para verlos."
+                  : "Este formulario todavía no pregunta nada. Agregue el primero abajo."
+              }
             />
           )}
 

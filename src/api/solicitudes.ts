@@ -307,6 +307,41 @@ export async function subirReceta(
   return data;
 }
 
+/**
+ * Descarga el expediente completo de la solicitud en PDF.
+ *
+ * Mismo tratamiento que los reportes: con responseType "blob" axios no puede
+ * distinguir un archivo real de un error JSON hasta después de recibirlo, así
+ * que si el content-type no es PDF se relee el blob como texto y se relanza
+ * como error normal para que mensajeDeError lo entienda.
+ */
+export async function descargarExpediente(solicitudId: number): Promise<void> {
+  const respuesta = await axiosClient.get(
+    "solicitudes/" + solicitudId + "/expediente.pdf",
+    { responseType: "blob" },
+  );
+
+  const tipo = respuesta.headers["content-type"] as string | undefined;
+  if (tipo?.includes("application/json")) {
+    const texto = await (respuesta.data as Blob).text();
+    const cuerpo: unknown = JSON.parse(texto);
+    const mensaje =
+      typeof cuerpo === "object" && cuerpo !== null && "message" in cuerpo
+        ? String((cuerpo as { message: unknown }).message)
+        : "No se pudo generar el expediente.";
+    throw new Error(mensaje);
+  }
+
+  const url = URL.createObjectURL(respuesta.data as Blob);
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = "expediente-solicitud-" + solicitudId + ".pdf";
+  document.body.appendChild(enlace);
+  enlace.click();
+  enlace.remove();
+  URL.revokeObjectURL(url);
+}
+
 export async function subirDocumentoSolicitud(
   solicitudId: number,
   datos: { archivo: File; formularioId?: number; descripcion?: string },

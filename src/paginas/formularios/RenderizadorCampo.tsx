@@ -17,6 +17,12 @@ import { valoresSeleccionMultiple } from "./utilFormulario";
 import estilos from "./Formularios.module.css";
 
 interface PropsRenderizadorCampo {
+  /**
+   * Texto calculado a partir de lo ya respondido, que se muestra debajo del
+   * campo junto a su ayuda. Es una sugerencia, no un valor: quien llena
+   * decide. Ver sugerencias.ts.
+   */
+  sugerencia?: string;
   campo: FormularioCampo;
   valor: string | null;
   onCambiar: (valor: string | null) => void;
@@ -36,6 +42,7 @@ function RenderizadorCampo({
   onCambiar,
   error,
   deshabilitado,
+  sugerencia,
 }: PropsRenderizadorCampo) {
   /**
    * Mientras el campo numérico está enfocado se edita crudo; al salir se
@@ -65,13 +72,36 @@ function RenderizadorCampo({
     ? (valoresCatalogo.data ?? [])
     : (opcionesPropias.data ?? []);
 
+  /**
+   * Solo cuenta la consulta que este campo realmente usa, y se mira
+   * `isLoading` y no `isPending`.
+   *
+   * Las dos consultas están siempre declaradas pero solo una se habilita
+   * según el campo tenga catálogo o no. Una consulta deshabilitada se queda
+   * en `isPending` para siempre, porque nunca llega a tener datos: mirar las
+   * dos dejaba el selector diciendo 'Cargando…' aunque ya hubiera cargado.
+   * `isLoading` es pendiente Y en vuelo, que es lo que aquí interesa.
+   */
+  /**
+   * La sugerencia se suma a la ayuda en vez de reemplazarla: la ayuda
+   * explica cómo responder y la sugerencia dice qué sale de lo respondido.
+   */
+  const ayudaCampo = [campo.ayuda ?? undefined, sugerencia]
+    .filter(Boolean)
+    .join(" ");
+
+  const cargandoOpciones =
+    campo.catalogo_id != null
+      ? valoresCatalogo.isLoading
+      : opcionesPropias.isLoading;
+
   switch (campo.tipo_dato_nombre) {
     case TIPO_DATO.TEXTO_LARGO:
       return (
         <CampoAreaTexto
           etiqueta={campo.etiqueta}
           obligatorio={campo.obligatorio}
-          ayuda={campo.ayuda ?? undefined}
+          ayuda={ayudaCampo || undefined}
           error={error}
           rows={3}
           maxLength={4000}
@@ -133,7 +163,7 @@ function RenderizadorCampo({
         <CampoTexto
           etiqueta={campo.etiqueta}
           obligatorio={campo.obligatorio}
-          ayuda={campo.ayuda ?? undefined}
+          ayuda={ayudaCampo || undefined}
           error={error}
           // Mientras se edita es un campo numérico de verdad; al salir pasa a
           // texto para poder mostrar las comas, que type="number" rechaza.
@@ -155,7 +185,7 @@ function RenderizadorCampo({
         <CampoTexto
           etiqueta={campo.etiqueta}
           obligatorio={campo.obligatorio}
-          ayuda={campo.ayuda ?? undefined}
+          ayuda={ayudaCampo || undefined}
           error={error}
           type="date"
           max={fechaDeHoy()}
@@ -170,7 +200,7 @@ function RenderizadorCampo({
         <CampoSelect
           etiqueta={campo.etiqueta}
           obligatorio={campo.obligatorio}
-          ayuda={campo.ayuda ?? undefined}
+          ayuda={ayudaCampo || undefined}
           error={error}
           marcador="Seleccione…"
           value={valor ?? ""}
@@ -187,13 +217,9 @@ function RenderizadorCampo({
         <CampoSelect
           etiqueta={campo.etiqueta}
           obligatorio={campo.obligatorio}
-          ayuda={campo.ayuda ?? undefined}
+          ayuda={ayudaCampo || undefined}
           error={error}
-          marcador={
-            valoresCatalogo.isPending || opcionesPropias.isPending
-              ? "Cargando…"
-              : "Seleccione…"
-          }
+          marcador={cargandoOpciones ? "Cargando…" : "Seleccione…"}
           value={valor ?? ""}
           disabled={deshabilitado}
           onChange={(e) => onCambiar(e.target.value || null)}
@@ -251,7 +277,7 @@ function RenderizadorCampo({
         <CampoTexto
           etiqueta={campo.etiqueta}
           obligatorio={campo.obligatorio}
-          ayuda={campo.ayuda ?? undefined}
+          ayuda={ayudaCampo || undefined}
           error={error}
           value={valor ?? ""}
           disabled={deshabilitado}

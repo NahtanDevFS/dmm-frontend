@@ -33,6 +33,7 @@ import {
 } from "../../api/solicitudes";
 import type { Persona, Programa, ElementoCatalogo } from "../../types/api";
 import BuscadorPersona from "./BuscadorPersona";
+import { datosFaltantesDelEstudio } from "../beneficiarios/datosFaltantes";
 import estilos from "./Solicitudes.module.css";
 
 /** Una línea todavía sin enviar, con los nombres ya resueltos para mostrarla. */
@@ -101,6 +102,21 @@ function ModalSolicitud({
     (i) => i.insumo_id === Number(insumoId),
   );
 
+  const idDonacion = modalidades.opciones.find(
+    (m) => m.nombre === "DONACION",
+  )?.id;
+
+  /**
+   * Modalidad que se va a enviar. Cuando la categoría no admite préstamo no
+   * se pregunta: es donación y punto. La base rechaza lo contrario, así que
+   * ofrecerlo sería ofrecer algo que va a fallar.
+   */
+  const modalidadEfectiva = insumoElegido?.permite_prestamo
+    ? modalidadId
+    : idDonacion
+      ? String(idDonacion)
+      : "";
+
   const filasStock = insumos.data;
 
   const porCategoria = useMemo(() => {
@@ -147,10 +163,10 @@ function ModalSolicitud({
    * el dato irrecuperable.
    */
   const formulariosExigidos = useQuery({
-    queryKey: [CLAVE_FORMULARIOS, "insumo", insumoId, modalidadId],
+    queryKey: [CLAVE_FORMULARIOS, "insumo", insumoId, modalidadEfectiva],
     queryFn: () =>
-      listarFormulariosDeInsumo(Number(insumoId), Number(modalidadId)),
-    enabled: insumoId !== "" && modalidadId !== "",
+      listarFormulariosDeInsumo(Number(insumoId), Number(modalidadEfectiva)),
+    enabled: insumoId !== "" && modalidadEfectiva !== "",
   });
 
   const hayCambios =
@@ -183,7 +199,7 @@ function ModalSolicitud({
       setErrorLinea("La cantidad debe ser un número entero mayor que cero.");
       return;
     }
-    if (modalidadId === "") {
+    if (modalidadEfectiva === "") {
       setErrorLinea("Elija la modalidad: donación o préstamo.");
       return;
     }
@@ -204,7 +220,7 @@ function ModalSolicitud({
         cantidad_requerida: presentacionElegida ? undefined : cantidadNum,
         presentacion_solicitud_id: presentacionElegida?.id,
         cantidad_presentacion: presentacionElegida ? cantidadNum : undefined,
-        modalidad_solicitud_id: Number(modalidadId),
+        modalidad_solicitud_id: Number(modalidadEfectiva),
         insumoNombre: insumoElegido.insumo_nombre,
         descripcionCantidad: presentacionElegida
           ? cantidadNum.toLocaleString("es-GT") +
@@ -219,7 +235,7 @@ function ModalSolicitud({
             " " +
             insumoElegido.unidad_base_nombre,
         modalidadNombre:
-          modalidades.opciones.find((m) => m.id === Number(modalidadId))
+          modalidades.opciones.find((m) => m.id === Number(modalidadEfectiva))
             ?.nombre ?? "",
       },
     ]);
@@ -453,21 +469,41 @@ function ModalSolicitud({
               ))}
             </CampoSelect>
 
-            <CampoSelect
-              etiqueta="Modalidad"
-              value={modalidadId}
-              onChange={(e) => {
-                setModalidadId(e.target.value);
-                setErrorLinea(undefined);
-              }}
-              ayuda="No se puede cambiar después de registrar la solicitud."
-            >
-              {modalidades.opciones.map((modalidad) => (
-                <option key={modalidad.id} value={modalidad.id}>
-                  {modalidad.nombre}
-                </option>
-              ))}
-            </CampoSelect>
+            {/*
+              La modalidad solo se pregunta donde el préstamo es posible.
+              Ofrecerla en medicina hacía parecer que se puede prestar
+              paracetamol; en esas categorías la entrega es siempre donación y
+              se envía sin preguntar.
+            */}
+            {insumoElegido?.permite_prestamo ? (
+              <CampoSelect
+                etiqueta="Modalidad"
+                value={modalidadId}
+                onChange={(e) => {
+                  setModalidadId(e.target.value);
+                  setErrorLinea(undefined);
+                }}
+                ayuda="No se puede cambiar después de registrar la solicitud."
+              >
+                {modalidades.opciones.map((modalidad) => (
+                  <option key={modalidad.id} value={modalidad.id}>
+                    {modalidad.nombre}
+                  </option>
+                ))}
+              </CampoSelect>
+            ) : (
+              <CampoTexto
+                etiqueta="Modalidad"
+                value={insumoId === "" ? "" : "Donación"}
+                disabled
+                ayuda={
+                  insumoId === ""
+                    ? "Se define al elegir el insumo."
+                    : "Esta categoría no se presta: solo se presta lo que se devuelve."
+                }
+                onChange={() => undefined}
+              />
+            )}
 
             <CampoTexto
               etiqueta="Cantidad requerida"
@@ -495,6 +531,23 @@ function ModalSolicitud({
                 agregarlo. Anótelo en la lista de espera.
               </Insignia>
             ))}
+
+          {/*
+            Los formularios van a pedir datos que ya deberían estar en la
+            ficha. Descubrir que faltan cuando la persona ya se fue obliga a
+            llamarla de vuelta, así que se avisa aquí, mientras sigue enfrente
+            y todavía se le pueden preguntar.
+          */}
+          {formulariosExigidos.data &&
+            formulariosExigidos.data.length > 0 &&
+            persona !== null &&
+            datosFaltantesDelEstudio(persona).length > 0 && (
+              <Insignia tono="pendiente">
+                A la ficha de {persona.nombres} le falta registrar:{" "}
+                {datosFaltantesDelEstudio(persona).join(", ")}. Los formularios
+                los van a pedir; convendría completarlos ahora.
+              </Insignia>
+            )}
 
           {formulariosExigidos.data && formulariosExigidos.data.length > 0 && (
             <Insignia tono="informativa">

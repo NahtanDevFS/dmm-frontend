@@ -26,6 +26,7 @@ import {
   SeccionEncargados,
 } from "./secciones";
 import SeccionDocumentos from "./SeccionDocumentos";
+import { datosFaltantesDelEstudio } from "./datosFaltantes";
 import ModalEditar from "./ModalEditar";
 import estilos from "./Ficha.module.css";
 
@@ -122,20 +123,7 @@ function ModalFicha({
   );
 
   /** Los datos de la sección I del estudio que esta ficha todavía no tiene. */
-  const faltantes = persona
-    ? (
-        [
-          [persona.estado_civil_id, "estado civil"],
-          [persona.municipio_nacimiento_id, "lugar de nacimiento"],
-          [persona.direccion, "dirección"],
-          [persona.grado_academico_id, "grado académico"],
-          [persona.ocupacion_id, "ocupación"],
-          [persona.telefono, "teléfono"],
-        ] as const
-      )
-        .filter(([valor]) => valor === null || valor === undefined)
-        .map(([, etiqueta]) => etiqueta)
-    : [];
+  const faltantes = persona ? datosFaltantesDelEstudio(persona) : [];
   const comunidad = comunidades.opciones.find(
     (c) => c.id === persona?.comunidad_id,
   );
