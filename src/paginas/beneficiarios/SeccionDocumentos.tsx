@@ -23,7 +23,14 @@ import estilos from "./Ficha.module.css";
  * partidas de nacimiento. Los archivos se sirven tras la sesión, así que no
  * se muestran en línea ni se previsualizan; se abren a propósito, uno a uno.
  */
-function SeccionDocumentos({ personaId }: { personaId: number }) {
+function SeccionDocumentos({
+  personaId,
+  cuiPersona,
+}: {
+  personaId: number;
+  /** CUI/DPI de la ficha, para no volver a teclearlo al subir cada cara. */
+  cuiPersona?: string | null;
+}) {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
   const tipos = useCatalogo<ElementoCatalogo>("tipos-documento-persona");
@@ -31,6 +38,22 @@ function SeccionDocumentos({ personaId }: { personaId: number }) {
   const [archivo, setArchivo] = useState<File | null>(null);
   const [tipoId, setTipoId] = useState("");
   const [numero, setNumero] = useState("");
+
+  /**
+   * Al elegir un tipo de DPI se propone el CUI de la ficha.
+   *
+   * Las dos caras llevan el mismo número y ese número ya está registrado en
+   * la persona: volver a teclearlo trece dígitos por cada foto es la clase de
+   * repetición donde se cuelan los errores. Sigue siendo editable, por si el
+   * documento que se sube es de otra persona (el encargado, por ejemplo).
+   */
+  const elegirTipo = (id: string) => {
+    setTipoId(id);
+    const nombre = tipos.opciones.find((t) => String(t.id) === id)?.nombre;
+    if (nombre?.toLowerCase().includes("dpi") && cuiPersona && numero === "") {
+      setNumero(cuiPersona);
+    }
+  };
 
   const consulta = useQuery({
     queryKey: [CLAVE_PERSONAS, personaId, "documentos"],
@@ -82,7 +105,8 @@ function SeccionDocumentos({ personaId }: { personaId: number }) {
       </div>
       <p className={estilos.nota}>
         Los archivos solo se pueden abrir con la sesión iniciada. No se
-        previsualizan aquí: se abren de uno en uno, a propósito.
+        previsualizan aquí: se abren de uno en uno, a propósito. El DPI se sube
+        en dos archivos, uno por cara.
       </p>
 
       {consulta.isPending ? (
@@ -147,7 +171,7 @@ function SeccionDocumentos({ personaId }: { personaId: number }) {
           etiqueta="Tipo de documento"
           obligatorio
           value={tipoId}
-          onChange={(e) => setTipoId(e.target.value)}
+          onChange={(e) => elegirTipo(e.target.value)}
         >
           {tipos.opciones.map((t) => (
             <option key={t.id} value={t.id}>

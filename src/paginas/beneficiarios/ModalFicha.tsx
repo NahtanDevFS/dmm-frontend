@@ -246,7 +246,10 @@ function ModalFicha({
             contactos={persona.contactos}
           />
 
-          <SeccionDocumentos personaId={persona.id} />
+          <SeccionDocumentos
+            personaId={persona.id}
+            cuiPersona={persona.cui_dpi}
+          />
 
           {editando && (
             <ModalEditar
