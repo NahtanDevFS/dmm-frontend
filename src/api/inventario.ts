@@ -107,6 +107,11 @@ export interface StockInsumoListado {
   insumo_nombre: string;
   categoria_id: number;
   categoria_nombre: string;
+  /**
+   * Si la categoría admite préstamo. Sin esto la pantalla ofrecería prestar
+   * paracetamol: prestar solo tiene sentido con lo que se devuelve.
+   */
+  permite_prestamo: boolean;
   unidad_base_nombre: string;
   requiere_fecha_caducidad: boolean;
   requiere_codigo_fabricante: boolean;

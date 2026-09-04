@@ -17,6 +17,7 @@ import {
   type DatosRespuesta,
 } from "../../api/formularios";
 import RenderizadorCampo from "./RenderizadorCampo";
+import { calcularSugerencias } from "./sugerencias";
 import estilos from "./Formularios.module.css";
 
 /** Valores de los campos sueltos: uno por campo (numero_fila siempre 1). */
@@ -230,6 +231,13 @@ function FormularioInterno({
     Record<number, string>
   >({});
 
+  /**
+   * Lo que el sistema puede deducir de lo ya escrito: la talla de silla que
+   * corresponde a la cadera medida, las posiciones de reposapiés y respaldo.
+   * Se recalculan en cada tecla, así que aparecen mientras se mide.
+   */
+  const sugerencias = calcularSugerencias(formulario.campos, sueltos);
+
   const hayCambios =
     Object.values(sueltos).some((v) => v != null && v !== "") ||
     Object.values(grupos).some((filas) => filas.length > 0);
@@ -422,6 +430,7 @@ function FormularioInterno({
                     onCambiar={(v) => marcarSuelto(campo.id, v)}
                     error={erroresPorCampo[campo.id]}
                     deshabilitado={soloLectura}
+                    sugerencia={sugerencias[campo.id]}
                   />
                 </div>
               ))}

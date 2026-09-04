@@ -17,6 +17,7 @@ import {
   aprobarSolicitud,
   cancelarSolicitud,
   obtenerSolicitud,
+  descargarExpediente,
   rechazarSolicitud,
 } from "../../api/solicitudes";
 import { CLAVE_PERSONAS, obtenerPersona } from "../../api/personas";
@@ -62,6 +63,16 @@ function ModalFichaSolicitud({
   });
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [rechazando, setRechazando] = useState(false);
+
+  /**
+   * El expediente en PDF: la ficha de la persona, cada insumo con sus
+   * formularios llenos, las entregas y los documentos adjuntos, todo en un
+   * solo archivo para poder archivarlo o imprimirlo de una vez.
+   */
+  const expediente = useMutation({
+    mutationFn: () => descargarExpediente(solicitudId),
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
 
   const cerrar = useCierreSeguro({
     hayCambios: borradores.lineas || borradores.recetas,
@@ -156,6 +167,16 @@ function ModalFichaSolicitud({
           <Boton variante="terciaria" onClick={cerrar}>
             Cerrar
           </Boton>
+          {solicitud && (
+            <Boton
+              variante="secundaria"
+              cargando={expediente.isPending}
+              textoCargando="Generando…"
+              onClick={() => expediente.mutate()}
+            >
+              Exportar expediente
+            </Boton>
+          )}
           {solicitud?.activo && (
             <Boton
               variante="terciaria"
