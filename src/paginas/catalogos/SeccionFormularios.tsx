@@ -20,6 +20,7 @@ import {
   editarFormulario,
   agregarCampoFormulario,
   editarCampoFormulario,
+  moverCampoFormulario,
   listarTiposDato,
   listarCatalogosFormulario,
   TIPO_DATO,
@@ -82,9 +83,10 @@ function SeccionFormularios() {
     queryFn: listarFormularios,
   });
 
+  // Con los inactivos: aquí se define el formulario, no se llena.
   const detalle = useQuery({
-    queryKey: [CLAVE_FORMULARIOS, seleccionado],
-    queryFn: () => obtenerFormulario(seleccionado!),
+    queryKey: [CLAVE_FORMULARIOS, seleccionado, "con-inactivos"],
+    queryFn: () => obtenerFormulario(seleccionado!, true),
     enabled: seleccionado !== null,
   });
 
@@ -154,7 +156,12 @@ function SeccionFormularios() {
         // El siguiente lugar libre. El orden importa al llenar y no tiene
         // sentido pedírselo a quien está definiendo el formulario: los campos
         // se agregan en el orden en que se quieren leer.
-        orden: (detalle.data?.campos.length ?? 0) + 1,
+        //
+        // Se calcula sobre el MAYOR orden existente, no sobre la cantidad de
+        // campos: la base exige que (formulario, orden) sea único y los
+        // campos desactivados conservan el suyo. Contar campos proponía un
+        // número ya ocupado en cuanto alguno se desactivaba.
+        orden: siguienteOrden,
         grupo_repetible: grupoRepetible.trim() || null,
         ayuda: ayuda.trim() || null,
       });
@@ -173,6 +180,18 @@ function SeccionFormularios() {
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
+  const mover = useMutation({
+    mutationFn: ({
+      id,
+      direccion,
+    }: {
+      id: number;
+      direccion: "arriba" | "abajo";
+    }) => moverCampoFormulario(id, direccion),
+    onSuccess: () => refrescar(),
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
+
   const cambioCampo = useMutation({
     mutationFn: ({ id, activo }: { id: number; activo: boolean }) =>
       editarCampoFormulario(id, { activo }),
@@ -182,6 +201,16 @@ function SeccionFormularios() {
     },
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
+
+  /**
+   * Mayor orden ocupado + 1, contando también los campos desactivados: siguen
+   * existiendo en la tabla y su orden sigue reservado.
+   */
+  const siguienteOrden =
+    (detalle.data?.campos ?? []).reduce(
+      (mayor, campo) => Math.max(mayor, campo.orden),
+      0,
+    ) + 1;
 
   const listoParaCampo =
     seleccionado !== null &&
@@ -202,8 +231,8 @@ function SeccionFormularios() {
         </div>
         <p className={estilos.nota}>
           Qué se le pregunta a una persona antes de entregarle un insumo. A qué
-          categoría se le exige cada uno se decide en «Formularios por
-          categoría».
+          categoría se le exige cada uno se decide en 'Formularios por
+          categoría'.
         </p>
 
         {formularios.isPending ? (
@@ -252,9 +281,9 @@ function SeccionFormularios() {
                           const ok = await confirmar({
                             titulo: "Desactivar formulario",
                             mensaje:
-                              "«" +
+                              "'" +
                               formulario.nombre +
-                              "» dejará de exigirse en las solicitudes nuevas. Las que ya lo tienen conservan lo llenado.",
+                              "' dejará de exigirse en las solicitudes nuevas. Las que ya lo tienen conservan lo llenado.",
                             textoConfirmar: "Desactivar",
                             destructiva: true,
                           });
@@ -309,7 +338,7 @@ function SeccionFormularios() {
       {seleccionado !== null && (
         <section className={estilos.tarjeta}>
           <div className={estilos.tituloTarjeta}>
-            <h2>Campos de «{formularioActual?.nombre}»</h2>
+            <h2>Campos de '{formularioActual?.nombre}'</h2>
           </div>
           <p className={estilos.nota}>
             Se llenan en este orden. Los campos no se borran: se desactivan,
@@ -333,7 +362,7 @@ function SeccionFormularios() {
                 </tr>
               </thead>
               <tbody>
-                {detalle.data.campos.map((campo) => (
+                {detalle.data.campos.map((campo, indice) => (
                   <tr key={campo.id}>
                     <td>{campo.orden}</td>
                     <td>{campo.etiqueta}</td>
@@ -351,6 +380,31 @@ function SeccionFormularios() {
                       )}
                     </td>
                     <CeldaAcciones>
+                      {/* Reordenar de a un lugar. El primero no sube y el
+                          último no baja: no hay con quién intercambiarlos. */}
+                      <Boton
+                        pequeno
+                        variante="terciaria"
+                        disabled={indice === 0 || mover.isPending}
+                        onClick={() =>
+                          mover.mutate({ id: campo.id, direccion: "arriba" })
+                        }
+                      >
+                        ↑
+                      </Boton>
+                      <Boton
+                        pequeno
+                        variante="terciaria"
+                        disabled={
+                          indice === detalle.data!.campos.length - 1 ||
+                          mover.isPending
+                        }
+                        onClick={() =>
+                          mover.mutate({ id: campo.id, direccion: "abajo" })
+                        }
+                      >
+                        ↓
+                      </Boton>
                       <Boton
                         pequeno
                         variante="terciaria"
@@ -382,7 +436,7 @@ function SeccionFormularios() {
               maxLength={200}
               value={etiqueta}
               onChange={(e) => setEtiqueta(e.target.value)}
-              ayuda="La pregunta tal como la va a leer quien lo llene."
+              ayuda="La pregunta tal como la va a leer quien lo llene. Es lo que aparece encima del campo."
             />
 
             <CampoSelect
@@ -438,14 +492,15 @@ function SeccionFormularios() {
               maxLength={100}
               value={grupoRepetible}
               onChange={(e) => setGrupoRepetible(e.target.value)}
-              ayuda="Deje en blanco salvo que el campo se repita en filas, como los integrantes de un hogar. Los campos con el mismo texto aquí se agrupan en la misma tabla."
+              ayuda="Un nombre interno, no visible al llenar. Deje en blanco salvo que el campo se repita en filas, como los integrantes de un hogar: los campos con el mismo texto aquí se agrupan en una misma tabla que se puede ir agregando."
             />
 
             <CampoTexto
-              etiqueta="Ayuda para quien lo llena"
+              etiqueta="Aclaración bajo el campo"
               maxLength={2000}
               value={ayuda}
               onChange={(e) => setAyuda(e.target.value)}
+              ayuda="Texto pequeño que verá quien llene el formulario, justo debajo de este campo. Sirve para aclarar cómo responder: 'Suma de lo que aporta toda la familia al mes'. Déjelo vacío si la etiqueta se explica sola."
             />
           </div>
 
