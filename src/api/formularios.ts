@@ -26,6 +26,13 @@ export const TIPO_DATO = {
   TEXTO_LARGO: "TEXTO_LARGO",
   NUMERO: "NUMERO",
   FECHA: "FECHA",
+  /**
+   * Una fecha de la que se deriva una edad. Se guarda igual que FECHA —el
+   * valor es la fecha— pero al mostrarla se calcula y se enseña la edad al
+   * lado. La edad no se guarda: es un número que envejece, y un estudio de
+   * hace dos años diría que el hijo tiene 8 cuando ya tiene 10.
+   */
+  FECHA_NACIMIENTO: "FECHA_NACIMIENTO",
   SI_NO: "SI_NO",
   SELECCION_UNICA: "SELECCION_UNICA",
   SELECCION_MULTIPLE: "SELECCION_MULTIPLE",

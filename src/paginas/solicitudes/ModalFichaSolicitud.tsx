@@ -21,7 +21,7 @@ import {
 } from "../../api/solicitudes";
 import { CLAVE_PERSONAS, obtenerPersona } from "../../api/personas";
 import SeccionLineasSolicitud from "./SeccionLineasSolicitud";
-import SeccionRecetas from "./SeccionRecetas";
+import SeccionDocumentosSolicitud from "./SeccionDocumentosSolicitud";
 import estilos from "./Solicitudes.module.css";
 
 function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
@@ -249,9 +249,16 @@ function ModalFichaSolicitud({
             }
           />
 
-          <SeccionRecetas
+          {/*
+            Reemplaza a la sección de recetas médicas. Aquella colgaba de
+            receta_medica, tabla que nació cuando la medicina pasaba por
+            solicitud; con el flujo actual la receta va como evidencia de la
+            entrega directa, y esa sección aparecía en toda solicitud —también
+            en las de silla de ruedas— sin tener sentido.
+          */}
+          <SeccionDocumentosSolicitud
             solicitudId={solicitud.id}
-            recetas={solicitud.recetas}
+            documentos={solicitud.documentos}
             onBorrador={(hay) =>
               setBorradores((previos) => ({ ...previos, recetas: hay }))
             }
