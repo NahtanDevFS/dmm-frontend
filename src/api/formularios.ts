@@ -164,9 +164,17 @@ export async function listarFormularios(): Promise<Formulario[]> {
 
 export async function obtenerFormulario(
   id: number,
+  /**
+   * Solo para la pantalla de administración. Al LLENAR un formulario los
+   * campos desactivados no deben aparecer —esa es la razón de desactivarlos—
+   * pero al DEFINIRLO hay que verlos: siguen ocupando su número de orden, que
+   * la base exige único, y sin verlos no se puede reactivar ninguno.
+   */
+  incluirInactivos = false,
 ): Promise<FormularioConCampos> {
   const { data } = await axiosClient.get<FormularioConCampos>(
     "formularios/" + id,
+    { params: incluirInactivos ? { incluirInactivos: "true" } : undefined },
   );
   return data;
 }
@@ -219,6 +227,23 @@ export async function agregarCampoFormulario(
     datos,
   );
   return data;
+}
+
+/**
+ * Mueve un campo un lugar arriba o abajo dentro de su formulario.
+ *
+ * Se mueve de a uno en vez de escribir el número de orden: al definir un
+ * formulario nadie sabe de antemano que un campo va en la posición 14, y
+ * escribirlo a mano choca contra la unicidad de (formulario, orden) en cuanto
+ * se equivoca. El intercambio lo hace la base en una transacción.
+ */
+export async function moverCampoFormulario(
+  campoId: number,
+  direccion: "arriba" | "abajo",
+): Promise<void> {
+  await axiosClient.post("formularios/campos/" + campoId + "/mover", {
+    direccion,
+  });
 }
 
 export async function editarCampoFormulario(
