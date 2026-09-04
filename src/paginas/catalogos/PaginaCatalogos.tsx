@@ -1,12 +1,14 @@
 import { useState } from "react";
 import CatalogoGenerico from "./CatalogoGenerico";
 import SeccionComunidades from "./SeccionComunidades";
+import SeccionFormularios from "./SeccionFormularios";
 import SeccionFormulariosCategoria from "./SeccionFormulariosCategoria";
 import { CATALOGOS } from "./definiciones";
 import estilos from "./Catalogos.module.css";
 
 const COMUNIDADES = "comunidades";
 const FORMULARIOS = "formularios-categoria";
+const DEFINIR_FORMULARIOS = "formularios";
 
 function PaginaCatalogos() {
   const [activo, setActivo] = useState<string>(CATALOGOS[0].ruta);
@@ -63,6 +65,17 @@ function PaginaCatalogos() {
           type="button"
           className={
             estilos.pildora +
+            (activo === DEFINIR_FORMULARIOS ? " " + estilos.pildoraActiva : "")
+          }
+          aria-pressed={activo === DEFINIR_FORMULARIOS}
+          onClick={() => setActivo(DEFINIR_FORMULARIOS)}
+        >
+          Formularios
+        </button>
+        <button
+          type="button"
+          className={
+            estilos.pildora +
             (activo === FORMULARIOS ? " " + estilos.pildoraActiva : "")
           }
           aria-pressed={activo === FORMULARIOS}
@@ -74,6 +87,8 @@ function PaginaCatalogos() {
 
       {activo === COMUNIDADES ? (
         <SeccionComunidades />
+      ) : activo === DEFINIR_FORMULARIOS ? (
+        <SeccionFormularios />
       ) : activo === FORMULARIOS ? (
         <SeccionFormulariosCategoria />
       ) : definicion ? (
