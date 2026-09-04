@@ -45,7 +45,11 @@ export function useSolicitudesPendientes() {
   return useQuery({
     queryKey: ["inicio", "solicitudes-pendientes"],
     queryFn: ({ signal }) =>
-      contarListado("solicitudes", { soloPendientesAprobacion: "true" }, signal),
+      contarListado(
+        "solicitudes",
+        { soloPendientesAprobacion: "true" },
+        signal,
+      ),
     staleTime: VIGENCIA,
   });
 }
@@ -62,6 +66,60 @@ export function useSolicitudesPendientes() {
  * por separado porque exigen cosas distintas: uno pide priorizar la entrega y
  * el otro dar de baja el lote.
  */
+/**
+ * Préstamos que ya pasaron su fecha de devolución pactada.
+ *
+ * Es de las pocas cosas del sistema que exigen actuar sin que nadie las pida:
+ * un equipo vencido nadie lo reclama solo. Por eso vive en el panel y no
+ * dentro del módulo de Préstamos.
+ */
+export function usePrestamosVencidos() {
+  return useQuery({
+    queryKey: ["inicio", "prestamos-vencidos"],
+    queryFn: ({ signal }) =>
+      contarListado("prestamos", { estado: "VENCIDO" }, signal),
+    staleTime: VIGENCIA,
+  });
+}
+
+/**
+ * Líneas de solicitud esperando existencias.
+ *
+ * El endpoint no pagina —devuelve el arreglo entero— así que se cuenta aquí.
+ * Está acotado por naturaleza: solo son líneas pendientes por falta de stock.
+ */
+export function useListaEspera() {
+  return useQuery({
+    queryKey: ["inicio", "lista-espera"],
+    queryFn: async ({ signal }) => {
+      const { data } = await axiosClient.get<unknown[]>(
+        "solicitudes/lista-espera",
+        { signal },
+      );
+      return data.length;
+    },
+    staleTime: VIGENCIA,
+  });
+}
+
+/**
+ * Entregas registradas dentro de un rango de fechas.
+ *
+ * A diferencia del resto de indicadores, este no describe un estado sino un
+ * período: sirve para contestar "¿cuánto se atendió este mes?" sin entrar al
+ * módulo de Reportes. El rango lo elige quien mira, así que la consulta se
+ * rehace al cambiarlo.
+ */
+export function useEntregasDelPeriodo(desde: string, hasta: string) {
+  return useQuery({
+    queryKey: ["inicio", "entregas", desde, hasta],
+    queryFn: ({ signal }) =>
+      contarListado("entregas", { desde, hasta }, signal),
+    enabled: desde !== "" && hasta !== "",
+    staleTime: VIGENCIA,
+  });
+}
+
 export function useCaducidades() {
   const consulta = useQuery({
     queryKey: ["inicio", "semaforo"],
