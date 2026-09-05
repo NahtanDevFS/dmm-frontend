@@ -26,6 +26,7 @@ import {
 import {
   CLAVE_RECEPCIONES,
   crearLote,
+  crearUnidades,
   listarLotes,
   type LoteRecepcion,
 } from "../../api/donaciones";
@@ -39,6 +40,7 @@ const VACIO = {
   insumo_id: "",
   presentacion_recepcion_id: "",
   cantidad_recepcion_original: "",
+  series: "",
   unidades_por_presentacion_lote: "",
   marca_id: "",
   codigo_lote_fabricante: "",
@@ -76,7 +78,9 @@ function SeccionLotes({
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
   const [datos, setDatos] = useState(VACIO);
-  const [errores, setErrores] = useState<Record<string, string | undefined>>({});
+  const [errores, setErrores] = useState<Record<string, string | undefined>>(
+    {},
+  );
   /** Efecto del último lote sobre la lista de espera, si se pudo medir. */
   const [promocion, setPromocion] = useState<{
     insumo: string;
@@ -153,8 +157,33 @@ function SeccionLotes({
   const cambiarInsumo = (valor: string) =>
     aplicar({ ...datos, insumo_id: valor, presentacion_recepcion_id: "" });
 
-  const cantidad = Number(datos.cantidad_recepcion_original);
-  const porPresentacion = Number(datos.unidades_por_presentacion_lote);
+  /**
+   * Equipo con número de serie: cada unidad es una pieza identificable y se
+   * registra por separado. En vez de cantidad y un código para todo el lote,
+   * se piden las series, una por línea.
+   *
+   * Sin esto, cinco sillas quedaban como un lote de cinco con la serie de una
+   * sola, y al prestar no había forma de saber cuál se llevó la persona.
+   */
+  const porSeries = insumo?.serie_por_unidad === true;
+
+  const seriesEscritas = datos.series
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const seriesRepetidas =
+    new Set(seriesEscritas.map((s) => s.toUpperCase())).size !==
+    seriesEscritas.length;
+
+  const cantidad = porSeries
+    ? seriesEscritas.length
+    : Number(datos.cantidad_recepcion_original);
+  // Con series, cada unidad es una: preguntar la equivalencia permitiría
+  // decir que una silla contiene tres sillas.
+  const porPresentacion = porSeries
+    ? 1
+    : Number(datos.unidades_por_presentacion_lote);
   const unidadesBase = calcularUnidadesBase(cantidad, porPresentacion);
   const hayCalculo =
     datos.cantidad_recepcion_original !== "" &&
@@ -202,16 +231,27 @@ function SeccionLotes({
       const nombre = insumo?.nombre;
       const antes = nombre ? await contarEnEsperaDe(nombre) : null;
 
-      const lote = await crearLote(recepcionId, {
-        insumo_id: Number(datos.insumo_id),
-        presentacion_recepcion_id: Number(presentacionElegida),
-        cantidad_recepcion_original: cantidad,
-        unidades_por_presentacion_lote: porPresentacion,
-        marca_id: datos.marca_id ? Number(datos.marca_id) : null,
-        codigo_lote_fabricante: datos.codigo_lote_fabricante.trim() || null,
-        fecha_caducidad: datos.fecha_caducidad || null,
-        observaciones: datos.observaciones.trim() || null,
-      });
+      const lote = porSeries
+        ? (
+            await crearUnidades(recepcionId, {
+              insumo_id: Number(datos.insumo_id),
+              presentacion_recepcion_id: Number(presentacionElegida),
+              marca_id: datos.marca_id ? Number(datos.marca_id) : null,
+              fecha_caducidad: datos.fecha_caducidad || null,
+              observaciones: datos.observaciones.trim() || null,
+              series: seriesEscritas,
+            })
+          )[0]
+        : await crearLote(recepcionId, {
+            insumo_id: Number(datos.insumo_id),
+            presentacion_recepcion_id: Number(presentacionElegida),
+            cantidad_recepcion_original: cantidad,
+            unidades_por_presentacion_lote: porPresentacion,
+            marca_id: datos.marca_id ? Number(datos.marca_id) : null,
+            codigo_lote_fabricante: datos.codigo_lote_fabricante.trim() || null,
+            fecha_caducidad: datos.fecha_caducidad || null,
+            observaciones: datos.observaciones.trim() || null,
+          });
 
       const despues = nombre ? await contarEnEsperaDe(nombre) : null;
       const promovidas =
@@ -256,8 +296,10 @@ function SeccionLotes({
     cantidad > 0 &&
     porPresentacion > 0 &&
     (!insumo?.requiere_fecha_caducidad || datos.fecha_caducidad !== "") &&
-    (!insumo?.requiere_codigo_fabricante ||
-      datos.codigo_lote_fabricante.trim() !== "");
+    (porSeries
+      ? !seriesRepetidas
+      : !insumo?.requiere_codigo_fabricante ||
+        datos.codigo_lote_fabricante.trim() !== "");
 
   const nombreInsumo = (id: number) =>
     insumos.data?.find((i) => i.id === id)?.nombre ?? "—";
@@ -528,101 +570,146 @@ function SeccionLotes({
               </p>
             )}
 
-            <CampoTexto
-              etiqueta={
-                unidadRecibida
-                  ? "Cuántas «" + unidadRecibida + "» llegaron"
-                  : "Cantidad recibida"
-              }
-              type="number"
-              min="0"
-              step="0.0001"
-              obligatorio
-              numerico
-              value={datos.cantidad_recepcion_original}
-              onChange={cambiar("cantidad_recepcion_original")}
-              error={errores.cantidad_recepcion_original}
-              ayuda={
-                unidadRecibida
-                  ? "El número de bultos que entregó la institución."
-                  : "Cuántas presentaciones llegaron: 3 cajas, 5 bolsas."
-              }
-            />
-
-            <CampoTexto
-              etiqueta={
-                equivalenciaLista
-                  ? "Cuántas «" +
-                    unidadContada +
-                    "» trae cada «" +
-                    unidadRecibida +
-                    "»"
-                  : "Unidades por presentación"
-              }
-              type="number"
-              min="0"
-              step="0.0001"
-              obligatorio
-              numerico
-              value={datos.unidades_por_presentacion_lote}
-              onChange={cambiar("unidades_por_presentacion_lote")}
-              error={errores.unidades_por_presentacion_lote}
-              ayuda="Es de este lote y no del insumo: el próximo envío puede traer bultos de otro tamaño."
-            />
-
             {/*
+              Dos formas de ingresar, según el insumo.
+
+              El equipo con número de serie se registra por unidades: no tiene
+              sentido preguntar cuántas sillas llegaron y luego un solo código
+              para todas, porque cada una trae el suyo. Se piden las series y
+              el sistema crea una unidad por cada una.
+
+              Lo demás —medicina, comida— se cuenta: llegaron 3 cajas de 100.
+            */}
+            {porSeries ? (
+              <>
+                <CampoAreaTexto
+                  etiqueta="Números de serie"
+                  obligatorio
+                  rows={5}
+                  value={datos.series}
+                  onChange={cambiar("series")}
+                  error={
+                    seriesRepetidas
+                      ? "Hay series repetidas en la lista."
+                      : undefined
+                  }
+                  ayuda="Uno por línea, tal como viene en cada equipo. Se registra una unidad por serie."
+                />
+
+                <CampoTexto
+                  etiqueta="Unidades que se van a registrar"
+                  calculado
+                  numerico
+                  value={
+                    seriesEscritas.length > 0
+                      ? String(seriesEscritas.length)
+                      : ""
+                  }
+                  readOnly
+                  ayuda="Sale de la lista de series: no se pregunta aparte para que no puedan contradecirse."
+                />
+              </>
+            ) : (
+              <>
+                <CampoTexto
+                  etiqueta={
+                    unidadRecibida
+                      ? "Cuántas «" + unidadRecibida + "» llegaron"
+                      : "Cantidad recibida"
+                  }
+                  type="number"
+                  min="0"
+                  step="0.0001"
+                  obligatorio
+                  numerico
+                  value={datos.cantidad_recepcion_original}
+                  onChange={cambiar("cantidad_recepcion_original")}
+                  error={errores.cantidad_recepcion_original}
+                  ayuda={
+                    unidadRecibida
+                      ? "El número de bultos que entregó la institución."
+                      : "Cuántas presentaciones llegaron: 3 cajas, 5 bolsas."
+                  }
+                />
+
+                <CampoTexto
+                  etiqueta={
+                    equivalenciaLista
+                      ? "Cuántas «" +
+                        unidadContada +
+                        "» trae cada «" +
+                        unidadRecibida +
+                        "»"
+                      : "Unidades por presentación"
+                  }
+                  type="number"
+                  min="0"
+                  step="0.0001"
+                  obligatorio
+                  numerico
+                  value={datos.unidades_por_presentacion_lote}
+                  onChange={cambiar("unidades_por_presentacion_lote")}
+                  error={errores.unidades_por_presentacion_lote}
+                  ayuda="Es de este lote y no del insumo: el próximo envío puede traer bultos de otro tamaño."
+                />
+
+                {/*
               Previsualización, no un campo. El valor que se guarda lo calcula
               la base con trg_calcular_recepcion_lote; esto solo enseña el
               resultado antes de confirmar, y sobre todo enseña el truncamiento:
               2.5 cajas de 3 unidades entran como 7, no como 7.5, y esa media
               unidad no reaparece en ningún informe posterior.
             */}
-            <CampoTexto
-              etiqueta={"Entrará al inventario como"}
-              calculado
-              numerico
-              value={
-                hayCalculo
-                  ? unidadesBase.toLocaleString("es-GT") +
-                    " " +
-                    nombreUnidad(insumo?.unidad_medida_base_id)
-                  : ""
-              }
-              readOnly
-              ayuda={
-                hayCalculo && unidadesBase !== cantidad * porPresentacion
-                  ? "Se trunca hacia abajo: la fracción sobrante no entra al inventario."
-                  : "Lo calcula la base al guardar. Aquí solo se previsualiza."
-              }
-            />
+                <CampoTexto
+                  etiqueta={"Entrará al inventario como"}
+                  calculado
+                  numerico
+                  value={
+                    hayCalculo
+                      ? unidadesBase.toLocaleString("es-GT") +
+                        " " +
+                        nombreUnidad(insumo?.unidad_medida_base_id)
+                      : ""
+                  }
+                  readOnly
+                  ayuda={
+                    hayCalculo && unidadesBase !== cantidad * porPresentacion
+                      ? "Se trunca hacia abajo: la fracción sobrante no entra al inventario."
+                      : "Lo calcula la base al guardar. Aquí solo se previsualiza."
+                  }
+                />
 
-            <CampoSelect
-              etiqueta="Marca"
-              value={datos.marca_id}
-              onChange={cambiar("marca_id")}
-              marcador="Sin marca"
-            >
-              {marcas.opciones.map((marca) => (
-                <option key={marca.id} value={marca.id}>
-                  {marca.nombre}
-                </option>
-              ))}
-            </CampoSelect>
+                <CampoSelect
+                  etiqueta="Marca"
+                  value={datos.marca_id}
+                  onChange={cambiar("marca_id")}
+                  marcador="Sin marca"
+                >
+                  {marcas.opciones.map((marca) => (
+                    <option key={marca.id} value={marca.id}>
+                      {marca.nombre}
+                    </option>
+                  ))}
+                </CampoSelect>
+              </>
+            )}
 
-            <CampoTexto
-              etiqueta="Código de lote del fabricante"
-              identificador
-              maxLength={100}
-              obligatorio={insumo?.requiere_codigo_fabricante}
-              value={datos.codigo_lote_fabricante}
-              onChange={cambiar("codigo_lote_fabricante")}
-              error={errores.codigo_lote_fabricante}
-              ayuda={
-                insumo?.requiere_codigo_fabricante
-                  ? "Este insumo lo exige: la base rechaza el lote sin él."
-                  : "Opcional para este insumo."
-              }
-            />
+            {!porSeries && (
+              <CampoTexto
+                etiqueta="Código de lote del fabricante"
+                identificador
+                maxLength={100}
+                obligatorio={insumo?.requiere_codigo_fabricante}
+                value={datos.codigo_lote_fabricante}
+                onChange={cambiar("codigo_lote_fabricante")}
+                error={errores.codigo_lote_fabricante}
+                ayuda={
+                  insumo?.requiere_codigo_fabricante
+                    ? "Este insumo lo exige: la base rechaza el lote sin él."
+                    : "Opcional para este insumo."
+                }
+              />
+            )}
 
             <CampoTexto
               etiqueta="Fecha de caducidad"

@@ -24,6 +24,13 @@ export const ESTADO_CONTRATO = {
   DEVUELTO: "DEVUELTO",
   VENCIDO: "VENCIDO",
   EXTENDIDO: "EXTENDIDO",
+  /**
+   * El equipo no volvió: se perdió, no lo trajeron, se dio por incobrable.
+   * El contrato se cierra pero el stock NO se restituye, porque el equipo
+   * efectivamente no está. Distinto de anular, que deshace el registro
+   * entero y sí devuelve el equipo al inventario.
+   */
+  NO_DEVUELTO: "NO_DEVUELTO",
 } as const;
 
 export type EstadoContrato =
@@ -37,6 +44,11 @@ export interface Contrato {
   fecha_devolucion_pactada: string;
   fecha_devolucion_real: string | null;
   estado_id: number;
+  /**
+   * Por qué se anuló el contrato o por qué se dio el equipo por no devuelto.
+   * Vacío mientras el préstamo sigue su curso normal.
+   */
+  motivo_cierre: string | null;
   activo: boolean;
 }
 
@@ -115,6 +127,11 @@ export interface ContratoDetalle extends Contrato {
   persona_id?: number;
   persona_nombre_completo?: string;
   insumo_nombre?: string;
+  /**
+   * Serie de la unidad prestada, cuando el equipo la lleva. Es lo que permite
+   * verificar, al devolver, que es la misma pieza que salió.
+   */
+  numero_serie?: string | null;
   cantidad_entregada?: number;
 }
 
@@ -156,12 +173,45 @@ export async function listarContratosVencidos(): Promise<ContratoVencido[]> {
 /** Solo DIRECCION: pone en VENCIDO los contratos con fecha pactada ya pasada. */
 export async function marcarVencidos(): Promise<{
   actualizados: number;
+  /** Multas por atraso aplicadas automáticamente en la misma pasada. */
+  multas: number;
   message: string;
 }> {
   const { data } = await axiosClient.post<{
     actualizados: number;
+    multas: number;
     message: string;
   }>("contratos/marcar-vencidos");
+  return data;
+}
+
+/**
+ * Registra un préstamo completo: entrega el equipo y crea su contrato.
+ *
+ * Es la puerta principal del módulo. El préstamo no pasa por solicitud —eso
+ * es para decidir donaciones, con estudio y aprobación— así que aquí se
+ * resuelve todo: quién se lleva qué y hasta cuándo. Las fotos del contrato
+ * firmado y del DPI se adjuntan después, sobre el contrato ya creado.
+ *
+ * La entrega queda registrada y aparece en Entregas, porque el equipo salió
+ * de verdad y el inventario se descontó.
+ */
+export async function crearPrestamoDirecto(datos: {
+  persona_id: number;
+  insumo_id: number;
+  fecha_devolucion_pactada: string;
+  observaciones?: string | null;
+  /**
+   * La unidad concreta que se lleva, cuando el equipo tiene número de serie.
+   * Sin esto el sistema elegiría una por FEFO y el contrato diría una serie
+   * distinta de la silla que salió.
+   */
+  detalle_inventario_lote_id?: number | null;
+}): Promise<Contrato & { entrega_id: number }> {
+  const { data } = await axiosClient.post<Contrato & { entrega_id: number }>(
+    "contratos/directo",
+    datos,
+  );
   return data;
 }
 
@@ -203,6 +253,41 @@ export async function registrarDevolucion(
 ): Promise<ContratoDetalle> {
   const { data } = await axiosClient.post<ContratoDetalle>(
     "contratos/" + id + "/devolucion",
+  );
+  return data;
+}
+
+/**
+ * Anula un préstamo registrado por error: deshace el contrato Y la entrega, y
+ * el equipo vuelve al inventario.
+ *
+ * Es para "me equivoqué al capturar". El backend lo rechaza si el préstamo ya
+ * tuvo devolución o multas pagadas, porque entonces no fue un error de
+ * registro sino algo que sí ocurrió.
+ */
+export async function anularContrato(
+  id: number,
+  motivo: string,
+): Promise<Contrato> {
+  const { data } = await axiosClient.post<Contrato>(
+    "contratos/" + id + "/anular",
+    { motivo },
+  );
+  return data;
+}
+
+/**
+ * Cierra un préstamo cuyo equipo no volvió. El stock NO se restituye: decir
+ * que la silla está disponible cuando nadie la tiene sería mentir sobre el
+ * inventario.
+ */
+export async function marcarNoDevuelto(
+  id: number,
+  motivo: string,
+): Promise<Contrato> {
+  const { data } = await axiosClient.post<Contrato>(
+    "contratos/" + id + "/no-devuelto",
+    { motivo },
   );
   return data;
 }

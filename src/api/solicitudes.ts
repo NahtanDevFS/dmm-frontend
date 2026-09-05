@@ -156,6 +156,12 @@ export interface FiltrosSolicitudes {
   programaId?: number;
   estadoLinea?: EstadoLinea;
   soloPendientesAprobacion?: boolean;
+  /**
+   * Incluye las líneas ya entregadas o canceladas. Sin esto desaparecen del
+   * listado, y con ellas el acceso a sus formularios, sus documentos y su
+   * expediente, que siguen existiendo.
+   */
+  incluirCerradas?: boolean;
 }
 
 /* ═══════════════════════════ Cliente ═══════════════════════════ */

@@ -67,6 +67,13 @@ function PaginaSolicitudes() {
   const [textoPersona, setTextoPersona] = useState("");
   const [programaId, setProgramaId] = useState("");
   const [estadoLinea, setEstadoLinea] = useState("");
+  /**
+   * Ver también lo ya entregado o cancelado. Apagado por omisión: la pantalla
+   * se abre para trabajar sobre lo pendiente. Pero sin la opción, una
+   * solicitud entregada desaparecía y no había forma de volver a su
+   * expediente ni a sus documentos.
+   */
+  const [incluirCerradas, setIncluirCerradas] = useState(false);
   const [soloPendientesAprobacion, setSoloPendientesAprobacion] =
     useState(false);
 
@@ -85,8 +92,9 @@ function PaginaSolicitudes() {
       programaId: programaId || undefined,
       estadoLinea: estadoLinea || undefined,
       soloPendientesAprobacion: soloPendientesAprobacion ? "true" : undefined,
+      incluirCerradas: incluirCerradas ? "true" : undefined,
     }),
-    [programaId, estadoLinea, soloPendientesAprobacion],
+    [programaId, estadoLinea, soloPendientesAprobacion, incluirCerradas],
   );
 
   const listado = useListadoPaginado<LineaSolicitudActiva>({
@@ -111,13 +119,15 @@ function PaginaSolicitudes() {
     textoPersona !== "" ||
     programaId !== "" ||
     estadoLinea !== "" ||
-    soloPendientesAprobacion;
+    soloPendientesAprobacion ||
+    incluirCerradas;
 
   const limpiarFiltros = () => {
     setTextoPersona("");
     setProgramaId("");
     setEstadoLinea("");
     setSoloPendientesAprobacion(false);
+    setIncluirCerradas(false);
   };
 
   return (
@@ -206,6 +216,16 @@ function PaginaSolicitudes() {
                 onChange={(e) => setSoloPendientesAprobacion(e.target.checked)}
               />
               Solo pendientes de aprobación
+            </label>
+
+            <label className={estilos.opcionesExtra}>
+              <input
+                type="checkbox"
+                className={estilos.casilla}
+                checked={incluirCerradas}
+                onChange={(e) => setIncluirCerradas(e.target.checked)}
+              />
+              Incluir entregadas y canceladas
             </label>
 
             {hayFiltros && (
