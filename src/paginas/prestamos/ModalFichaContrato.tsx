@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
-import { CampoTexto } from "../../componentes/ui/Campo";
+import { CampoTexto, CampoAreaTexto } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
 import Modal from "../../componentes/ui/Modal";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
@@ -9,11 +9,16 @@ import { EstadoVacio, Esqueleto } from "../../componentes/ui/Estado";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { formatearFecha, fechaDeHoy } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
+import { useAuth } from "../../auth/useAuth";
+import { DIRECCION, tieneRol } from "../../types/api";
+import { CLAVE_ENTREGAS } from "../../api/entregas";
 import {
   CLAVE_CONTRATOS,
   obtenerContrato,
   renovarContrato,
   registrarDevolucion,
+  anularContrato,
+  marcarNoDevuelto,
   type Contrato,
 } from "../../api/prestamos";
 import SeccionMultas from "./SeccionMultas";
@@ -58,6 +63,7 @@ function ModalFichaContrato({
   onCerrar: () => void;
 }) {
   const clienteQuery = useQueryClient();
+  const { usuario } = useAuth();
   const { avisar, confirmar } = useAvisos();
 
   const [renovando, setRenovando] = useState(false);
@@ -99,6 +105,46 @@ function ModalFichaContrato({
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
+  /**
+   * Cuál de los dos cierres se está redactando, y su motivo.
+   *
+   * El motivo es obligatorio en ambos: dentro de un año, un contrato anulado
+   * sin explicación no se distingue de un error del sistema.
+   */
+  const [cerrandoMal, setCerrandoMal] = useState<
+    "anular" | "no-devuelto" | null
+  >(null);
+  const [motivoCierre, setMotivoCierre] = useState("");
+
+  const motivoValido = motivoCierre.trim().length >= 5;
+
+  const anulacion = useMutation({
+    mutationFn: (motivo: string) => anularContrato(contratoId, motivo),
+    onSuccess: async () => {
+      await clienteQuery.invalidateQueries({ queryKey: [CLAVE_CONTRATOS] });
+      await clienteQuery.invalidateQueries({ queryKey: [CLAVE_ENTREGAS] });
+      avisar(
+        "Préstamo anulado. El equipo volvió al inventario disponible.",
+        "exito",
+      );
+      onCerrar();
+    },
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
+
+  const noDevuelto = useMutation({
+    mutationFn: (motivo: string) => marcarNoDevuelto(contratoId, motivo),
+    onSuccess: async () => {
+      await clienteQuery.invalidateQueries({ queryKey: [CLAVE_CONTRATOS] });
+      avisar(
+        "Contrato cerrado como no devuelto. El equipo no vuelve al inventario.",
+        "exito",
+      );
+      setCerrandoMal(null);
+    },
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
+
   const esUltimoDeLaCadena = (c: Contrato) =>
     contrato?.cadena.every((otro) => otro.contrato_anterior_id !== c.id) ??
     false;
@@ -110,6 +156,20 @@ function ModalFichaContrato({
     esUltimoDeLaCadena(contrato);
 
   const puedeDevolver = puedeRenovar; // mismas condiciones
+
+  /**
+   * Dos finales que no hay que confundir.
+   *
+   * Anular es para "me equivoqué al capturar": deshace el contrato y la
+   * entrega, y el equipo vuelve al inventario. Solo lo ofrece Dirección y
+   * solo mientras el préstamo no tuvo movimientos; el backend además lo
+   * rechaza si hubo devolución o multas pagadas.
+   *
+   * No devuelto es para "la persona no lo trajo": cierra el contrato SIN
+   * restituir el stock, porque el equipo no está. Decir que hay una silla
+   * disponible que nadie tiene sería mentir sobre el inventario.
+   */
+  const puedeCerrarMal = puedeDevolver && tieneRol(usuario?.rol, DIRECCION);
 
   return (
     <Modal
@@ -150,6 +210,28 @@ function ModalFichaContrato({
             >
               Registrar devolución
             </Boton>
+          )}
+          {puedeCerrarMal && cerrandoMal === null && (
+            <>
+              <Boton
+                variante="terciaria"
+                onClick={() => {
+                  setCerrandoMal("no-devuelto");
+                  setMotivoCierre("");
+                }}
+              >
+                No devuelto
+              </Boton>
+              <Boton
+                variante="rechazar"
+                onClick={() => {
+                  setCerrandoMal("anular");
+                  setMotivoCierre("");
+                }}
+              >
+                Anular
+              </Boton>
+            </>
           )}
           {puedeRenovar && !renovando && (
             <Boton variante="primaria" onClick={() => setRenovando(true)}>
@@ -295,6 +377,58 @@ function ModalFichaContrato({
             evidencias={contrato.evidencias}
             onBorrador={setBorradorEvidencia}
           />
+
+          {cerrandoMal !== null && (
+            <section className={estilos.tarjeta}>
+              <div className={estilos.tituloTarjeta}>
+                <h2>
+                  {cerrandoMal === "anular"
+                    ? "Anular por error de registro"
+                    : "Cerrar como no devuelto"}
+                </h2>
+              </div>
+              <p className={estilos.nota}>
+                {cerrandoMal === "anular"
+                  ? "Se deshacen el contrato y la entrega, y el equipo vuelve al inventario disponible. Use esto solo si el préstamo se registró mal: si el equipo salió y no volvió, ciérrelo como no devuelto."
+                  : "El contrato se cierra y el equipo NO vuelve al inventario, porque no está. Decir que hay una silla disponible que nadie tiene sería mentir sobre las existencias."}
+              </p>
+
+              <CampoAreaTexto
+                etiqueta="Motivo"
+                obligatorio
+                rows={2}
+                maxLength={2000}
+                value={motivoCierre}
+                onChange={(e) => setMotivoCierre(e.target.value)}
+                ayuda="Queda guardado en el contrato. Dentro de un año, esto es lo único que va a explicar qué pasó."
+              />
+
+              <GrupoBotones>
+                <Boton
+                  variante="terciaria"
+                  onClick={() => setCerrandoMal(null)}
+                  disabled={anulacion.isPending || noDevuelto.isPending}
+                >
+                  Cancelar
+                </Boton>
+                <Boton
+                  variante="rechazar"
+                  disabled={!motivoValido}
+                  cargando={anulacion.isPending || noDevuelto.isPending}
+                  textoCargando="Guardando…"
+                  onClick={() =>
+                    cerrandoMal === "anular"
+                      ? anulacion.mutate(motivoCierre.trim())
+                      : noDevuelto.mutate(motivoCierre.trim())
+                  }
+                >
+                  {cerrandoMal === "anular"
+                    ? "Anular préstamo"
+                    : "Cerrar como no devuelto"}
+                </Boton>
+              </GrupoBotones>
+            </section>
+          )}
 
           <SeccionMultas
             contratoId={contrato.id}

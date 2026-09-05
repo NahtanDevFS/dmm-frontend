@@ -24,6 +24,13 @@ export const ESTADO_CONTRATO = {
   DEVUELTO: "DEVUELTO",
   VENCIDO: "VENCIDO",
   EXTENDIDO: "EXTENDIDO",
+  /**
+   * El equipo no volvió: se perdió, no lo trajeron, se dio por incobrable.
+   * El contrato se cierra pero el stock NO se restituye, porque el equipo
+   * efectivamente no está. Distinto de anular, que deshace el registro
+   * entero y sí devuelve el equipo al inventario.
+   */
+  NO_DEVUELTO: "NO_DEVUELTO",
 } as const;
 
 export type EstadoContrato =
@@ -37,6 +44,11 @@ export interface Contrato {
   fecha_devolucion_pactada: string;
   fecha_devolucion_real: string | null;
   estado_id: number;
+  /**
+   * Por qué se anuló el contrato o por qué se dio el equipo por no devuelto.
+   * Vacío mientras el préstamo sigue su curso normal.
+   */
+  motivo_cierre: string | null;
   activo: boolean;
 }
 
@@ -230,6 +242,41 @@ export async function registrarDevolucion(
 ): Promise<ContratoDetalle> {
   const { data } = await axiosClient.post<ContratoDetalle>(
     "contratos/" + id + "/devolucion",
+  );
+  return data;
+}
+
+/**
+ * Anula un préstamo registrado por error: deshace el contrato Y la entrega, y
+ * el equipo vuelve al inventario.
+ *
+ * Es para "me equivoqué al capturar". El backend lo rechaza si el préstamo ya
+ * tuvo devolución o multas pagadas, porque entonces no fue un error de
+ * registro sino algo que sí ocurrió.
+ */
+export async function anularContrato(
+  id: number,
+  motivo: string,
+): Promise<Contrato> {
+  const { data } = await axiosClient.post<Contrato>(
+    "contratos/" + id + "/anular",
+    { motivo },
+  );
+  return data;
+}
+
+/**
+ * Cierra un préstamo cuyo equipo no volvió. El stock NO se restituye: decir
+ * que la silla está disponible cuando nadie la tiene sería mentir sobre el
+ * inventario.
+ */
+export async function marcarNoDevuelto(
+  id: number,
+  motivo: string,
+): Promise<Contrato> {
+  const { data } = await axiosClient.post<Contrato>(
+    "contratos/" + id + "/no-devuelto",
+    { motivo },
   );
   return data;
 }

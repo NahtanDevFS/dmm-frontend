@@ -40,6 +40,7 @@ const OPCIONES_ESTADO: { valor: EstadoContrato; etiqueta: string }[] = [
   { valor: ESTADO_CONTRATO.EXTENDIDO, etiqueta: "Extendido (renovado)" },
   { valor: ESTADO_CONTRATO.VENCIDO, etiqueta: "Vencido" },
   { valor: ESTADO_CONTRATO.DEVUELTO, etiqueta: "Devuelto" },
+  { valor: ESTADO_CONTRATO.NO_DEVUELTO, etiqueta: "No devuelto" },
 ];
 
 const TONO_ESTADO: Record<
@@ -50,6 +51,7 @@ const TONO_ESTADO: Record<
   EXTENDIDO: "neutra",
   VENCIDO: "vencida",
   DEVUELTO: "pendiente",
+  NO_DEVUELTO: "vencida",
 };
 
 /**
