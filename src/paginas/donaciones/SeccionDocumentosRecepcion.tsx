@@ -152,6 +152,7 @@ function SeccionDocumentosRecepcion({
             archivo={archivo}
             onCambiar={elegirArchivo}
             disabled={subida.isPending}
+            permitirCamara
           />
           <CampoTexto
             etiqueta="Descripción"

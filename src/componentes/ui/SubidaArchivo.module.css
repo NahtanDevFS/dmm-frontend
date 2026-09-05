@@ -2,15 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  /*
-    Ancla del input oculto. Sin esto, su `position: absolute` se resolvia
-    contra el ancestro posicionado mas cercano, que dentro de un modal es el
-    propio <dialog> (position: fixed). El input quedaba clavado al dialogo y no
-    acompanaba al contenido al desplazarse, asi que al cerrarse el selector de
-    archivos el navegador devolvia el foco al input y desplazaba el cuerpo del
-    modal para "traerlo a la vista": el cuerpo saltaba a un punto donde no
-    habia nada y la subida parecia dejar la pantalla en blanco.
-  */
   position: relative;
 }
 
@@ -24,8 +15,6 @@
   color: var(--color-primary-dark);
 }
 
-/* Zona de selección con contorno discontinuo: se distingue de un campo de
-   texto sin recurrir a un icono, que la sección 9 prohíbe. */
 .zona {
   display: flex;
   align-items: center;
@@ -48,11 +37,62 @@
   background-color: var(--color-primary-light);
 }
 
-/* El input nativo se oculta pero conserva foco: la zona lleva tabindex y el
-   anillo se pinta sobre ella. */
+.zonaDoble {
+  cursor: default;
+}
+
+.zonaDoble:hover {
+  background-color: var(--color-surface);
+}
+
+.accionesZona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.botonZona {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-primary-soft);
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  color: var(--color-primary-dark);
+  font: var(--texto-etiqueta);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--transicion),
+    border-color var(--transicion);
+}
+
+.botonZona:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-dark);
+}
+
+.botonZona:focus-visible {
+  outline: none;
+  box-shadow: var(--anillo-foco);
+}
+
+.botonZona:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.separadorZona {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
 .entrada {
   position: absolute;
-  /* Anclado al campo, que si va en el flujo y se desplaza con el contenido. */
   top: 0;
   left: 0;
   width: 1px;
@@ -75,15 +115,6 @@
   border-color: var(--color-danger);
 }
 
-/**
- * Archivo elegido. La cursiva está permitida solo para nombres de documentos
- * adjuntos (sección 3).
- *
- * Ocupa exactamente lo mismo que la zona de selección a la que sustituye. Sin
- * el min-height, elegir un archivo encogía el campo 22 px de golpe: el
- * formulario daba un salto, y en una rejilla arrastraba consigo la fila
- * entera. El manual limita el movimiento a 4 px.
- */
 .elegido {
   display: flex;
   align-items: center;
@@ -140,4 +171,135 @@
 .error {
   font: var(--texto-auxiliar);
   color: var(--color-danger);
+}
+
+/* Modal de visor de cámara */
+.modalCamaraOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background-color: rgba(15, 23, 42, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.modalCamaraContenedor {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-field);
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.modalCamaraCabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modalCamaraTitulo {
+  font: var(--texto-etiqueta);
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin: 0;
+}
+
+.modalCamaraCerrar {
+  background: transparent;
+  border: none;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: var(--space-1);
+}
+
+.modalCamaraCerrar:hover {
+  color: var(--color-text-main);
+}
+
+.modalCamaraVisor {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.modalCamaraVideo,
+.modalCamaraPrevia {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modalCamaraOculto {
+  display: none;
+}
+
+.modalCamaraMensaje {
+  color: #fff;
+  font: var(--texto-auxiliar);
+}
+
+.modalCamaraError {
+  padding: var(--space-3);
+  text-align: center;
+  color: #fca5a5;
+  font: var(--texto-auxiliar);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.modalCamaraAcciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.botonCamaraPrimario,
+.botonCamaraSecundario {
+  min-height: 40px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-field);
+  font: var(--texto-etiqueta);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transicion);
+}
+
+.botonCamaraPrimario {
+  background-color: var(--color-primary-dark);
+  color: #fff;
+  border: 1px solid var(--color-primary-dark);
+}
+
+.botonCamaraPrimario:hover {
+  background-color: color-mix(in srgb, var(--color-primary-dark) 85%, #000);
+}
+
+.botonCamaraSecundario {
+  background-color: transparent;
+  color: var(--color-text-main);
+  border: 1px solid var(--color-border);
+}
+
+.botonCamaraSecundario:hover {
+  background-color: var(--color-primary-light);
 }

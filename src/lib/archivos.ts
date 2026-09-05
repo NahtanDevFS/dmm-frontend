@@ -44,3 +44,74 @@ export function formatearPeso(bytes: number): string {
 export function urlArchivo(ruta: string): string {
   return import.meta.env.VITE_API_URL + "/archivos/" + ruta;
 }
+
+/**
+ * Redimensiona y comprime una imagen capturada por la cámara antes de validarla
+ * y enviarla.
+ *
+ * Las cámaras de teléfonos actuales generan fotos de 10 MB a 20 MB que
+ * rebotarían con el límite de 8 MB del backend. Esta función ajusta la
+ * resolución a un máximo de 1920px y comprime a JPEG ~80%, dejando el archivo
+ * en ~400-600 KB con nitidez óptima para documentos y firmas.
+ */
+export async function optimizarImagenCamara(
+  archivo: File,
+  maxAncho = 1920,
+  calidad = 0.8,
+): Promise<File> {
+  if (!archivo.type.startsWith("image/")) {
+    return archivo;
+  }
+
+  return new Promise((resolve) => {
+    const imagen = new Image();
+    const url = URL.createObjectURL(archivo);
+
+    imagen.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = imagen;
+
+      if (width > maxAncho) {
+        height = Math.round((height * maxAncho) / width);
+        width = maxAncho;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(archivo);
+        return;
+      }
+
+      ctx.drawImage(imagen, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(archivo);
+            return;
+          }
+          const nombreBase = archivo.name.replace(/\.[^/.]+$/, "");
+          const archivoOptimizado = new File(
+            [blob],
+            `${nombreBase || "foto"}.jpg`,
+            { type: "image/jpeg", lastModified: Date.now() },
+          );
+          resolve(archivoOptimizado);
+        },
+        "image/jpeg",
+        calidad,
+      );
+    };
+
+    imagen.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(archivo);
+    };
+
+    imagen.src = url;
+  });
+}
