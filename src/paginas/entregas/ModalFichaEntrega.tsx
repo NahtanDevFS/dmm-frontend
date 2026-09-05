@@ -21,7 +21,6 @@ import {
 } from "../../api/entregas";
 import { CLAVE_PERSONAS, obtenerPersona } from "../../api/personas";
 import SeccionEvidencias from "./SeccionEvidencias";
-import ModalNuevoPrestamo from "../prestamos/ModalNuevoPrestamo";
 import estilos from "./Entregas.module.css";
 
 function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
@@ -63,8 +62,6 @@ function ModalFichaEntrega({
   const [borradorEvidencia, setBorradorEvidencia] = useState(false);
   const [anulando, setAnulando] = useState(false);
   const [motivo, setMotivo] = useState("");
-  const [prestandoDetalle, setPrestandoDetalle] =
-    useState<DetalleEntrega | null>(null);
   const [anulandoDetalle, setAnulandoDetalle] = useState<DetalleEntrega | null>(
     null,
   );
@@ -270,32 +267,34 @@ function ModalFichaEntrega({
                           {!detalle.activo && (
                             <Insignia tono="rechazada">Anulado</Insignia>
                           )}
-                          {detalle.tiene_prestamo && (
-                            <Insignia tono="neutra">Con préstamo</Insignia>
+                          {/*
+                            El préstamo ya no se registra desde aquí: se hace
+                            completo en su módulo, entrega y contrato en un
+                            solo paso. Dejarlo también acá volvía a abrir dos
+                            caminos para lo mismo.
+                          */}
+                          {detalle.prestamo_devuelto ? (
+                            <Insignia tono="aprobada">Equipo devuelto</Insignia>
+                          ) : (
+                            detalle.tiene_prestamo && (
+                              <Insignia tono="neutra">En préstamo</Insignia>
+                            )
                           )}
                           {detalle.activo &&
                             entrega.activo &&
+                            puedeAnular &&
                             !detalle.tiene_prestamo && (
                               <Boton
                                 pequeno
-                                variante="secundaria"
-                                onClick={() => setPrestandoDetalle(detalle)}
+                                variante="terciaria"
+                                onClick={() => {
+                                  setAnulandoDetalle(detalle);
+                                  setMotivoDetalle("");
+                                }}
                               >
-                                Registrar préstamo
+                                Anular este insumo
                               </Boton>
                             )}
-                          {detalle.activo && entrega.activo && puedeAnular && (
-                            <Boton
-                              pequeno
-                              variante="terciaria"
-                              onClick={() => {
-                                setAnulandoDetalle(detalle);
-                                setMotivoDetalle("");
-                              }}
-                            >
-                              Anular este insumo
-                            </Boton>
-                          )}
                         </div>
                       </div>
 
@@ -313,6 +312,25 @@ function ModalFichaEntrega({
                               formatearFecha(lote.fecha_caducidad)}
                         </p>
                       ))}
+
+                      {/*
+                        Con préstamo de por medio la anulación no se ofrece.
+                        Si sigue vigente, anular dejaría un contrato apuntando
+                        a algo que el sistema diría que nunca se entregó; y si
+                        ya se devolvió, el stock volvió al lote en ese momento
+                        y anular lo sumaría una segunda vez. La base rechaza
+                        las dos cosas: aquí se explica antes de intentarlo.
+                      */}
+                      {detalle.activo &&
+                        entrega.activo &&
+                        puedeAnular &&
+                        detalle.tiene_prestamo && (
+                          <p className={estilos.auxiliar}>
+                            {detalle.prestamo_devuelto
+                              ? "No se puede anular: el equipo ya se devolvió y su stock volvió al inventario."
+                              : "No se puede anular mientras el préstamo siga vigente. Ciérrelo desde Préstamos."}
+                          </p>
+                        )}
 
                       {!detalle.activo && detalle.motivo_anulacion && (
                         <p className={estilos.auxiliar}>
@@ -432,15 +450,6 @@ function ModalFichaEntrega({
           </div>
         )}
       </Modal>
-
-      {prestandoDetalle && (
-        <ModalNuevoPrestamo
-          detalleEntregaId={prestandoDetalle.id}
-          insumoNombre={prestandoDetalle.insumo_nombre}
-          abierto
-          onCerrar={() => setPrestandoDetalle(null)}
-        />
-      )}
     </>
   );
 }

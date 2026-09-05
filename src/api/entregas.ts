@@ -80,6 +80,12 @@ export interface DetalleEntrega {
   motivo_anulacion: string | null;
   fecha_anulacion: string | null;
   tiene_prestamo: boolean;
+  /**
+   * Si ese préstamo ya se devolvió. La devolución devolvió el stock al lote,
+   * así que anular la entrega después lo sumaría una segunda vez y el
+   * inventario quedaría por encima de lo recibido.
+   */
+  prestamo_devuelto: boolean;
   lotes: LoteDeRenglon[];
 }
 

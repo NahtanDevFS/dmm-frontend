@@ -470,40 +470,26 @@ function ModalSolicitud({
             </CampoSelect>
 
             {/*
-              La modalidad solo se pregunta donde el préstamo es posible.
-              Ofrecerla en medicina hacía parecer que se puede prestar
-              paracetamol; en esas categorías la entrega es siempre donación y
-              se envía sin preguntar.
+              La modalidad ya no se pregunta. Una solicitud existe para decidir
+              si corresponde DONAR, con su estudio socioeconómico y su
+              aprobación; el préstamo es un acuerdo hablado que se registra
+              completo en el módulo de Préstamos, sin pasar por aquí.
+
+              El campo se deja visible y fijo para que quede claro bajo qué
+              figura sale lo que se está pidiendo, en vez de desaparecer y
+              dejar la duda.
             */}
-            {insumoElegido?.permite_prestamo ? (
-              <CampoSelect
-                etiqueta="Modalidad"
-                value={modalidadId}
-                onChange={(e) => {
-                  setModalidadId(e.target.value);
-                  setErrorLinea(undefined);
-                }}
-                ayuda="No se puede cambiar después de registrar la solicitud."
-              >
-                {modalidades.opciones.map((modalidad) => (
-                  <option key={modalidad.id} value={modalidad.id}>
-                    {modalidad.nombre}
-                  </option>
-                ))}
-              </CampoSelect>
-            ) : (
-              <CampoTexto
-                etiqueta="Modalidad"
-                value={insumoId === "" ? "" : "Donación"}
-                disabled
-                ayuda={
-                  insumoId === ""
-                    ? "Se define al elegir el insumo."
-                    : "Esta categoría no se presta: solo se presta lo que se devuelve."
-                }
-                onChange={() => undefined}
-              />
-            )}
+            <CampoTexto
+              etiqueta="Modalidad"
+              value={insumoId === "" ? "" : "Donación"}
+              disabled
+              ayuda={
+                insumoId === ""
+                  ? "Se define al elegir el insumo."
+                  : "Las solicitudes son siempre donaciones. Los préstamos se registran en el módulo de Préstamos."
+              }
+              onChange={() => undefined}
+            />
 
             <CampoTexto
               etiqueta="Cantidad requerida"

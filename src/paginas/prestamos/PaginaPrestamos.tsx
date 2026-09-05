@@ -25,6 +25,7 @@ import {
   type EstadoContrato,
 } from "../../api/prestamos";
 import ModalFichaContrato from "./ModalFichaContrato";
+import ModalRegistrarPrestamo from "./ModalRegistrarPrestamo";
 import estilos from "./Prestamos.module.css";
 
 const VISTAS = [
@@ -113,6 +114,8 @@ function PaginaPrestamos() {
       )
     : listado.datos;
 
+  const [registrando, setRegistrando] = useState(false);
+
   const limpiarRuta = () => {
     if (rutaId !== null) navegar("/prestamos", { replace: true });
   };
@@ -131,10 +134,14 @@ function PaginaPrestamos() {
         <div>
           <h1>Préstamos de equipo</h1>
           <p className={estilos.nota}>
-            Los contratos se registran desde la ficha de la entrega
-            correspondiente. Aquí se consultan, renuevan y devuelven.
+            Todo el préstamo se maneja aquí: registrar la entrega y su contrato,
+            renovar, aplicar multas y registrar la devolución.
           </p>
         </div>
+        <Boton variante="primaria" onClick={() => setRegistrando(true)}>
+          Registrar préstamo
+        </Boton>
+
         {vista === "vencidos" && puedeMarcarVencidos && (
           <Boton
             variante="primaria"
@@ -370,6 +377,13 @@ function PaginaPrestamos() {
             </>
           )}
         </section>
+      )}
+
+      {registrando && (
+        <ModalRegistrarPrestamo
+          abierto
+          onCerrar={() => setRegistrando(false)}
+        />
       )}
 
       {fichaId !== null && (

@@ -156,12 +156,39 @@ export async function listarContratosVencidos(): Promise<ContratoVencido[]> {
 /** Solo DIRECCION: pone en VENCIDO los contratos con fecha pactada ya pasada. */
 export async function marcarVencidos(): Promise<{
   actualizados: number;
+  /** Multas por atraso aplicadas automáticamente en la misma pasada. */
+  multas: number;
   message: string;
 }> {
   const { data } = await axiosClient.post<{
     actualizados: number;
+    multas: number;
     message: string;
   }>("contratos/marcar-vencidos");
+  return data;
+}
+
+/**
+ * Registra un préstamo completo: entrega el equipo y crea su contrato.
+ *
+ * Es la puerta principal del módulo. El préstamo no pasa por solicitud —eso
+ * es para decidir donaciones, con estudio y aprobación— así que aquí se
+ * resuelve todo: quién se lleva qué y hasta cuándo. Las fotos del contrato
+ * firmado y del DPI se adjuntan después, sobre el contrato ya creado.
+ *
+ * La entrega queda registrada y aparece en Entregas, porque el equipo salió
+ * de verdad y el inventario se descontó.
+ */
+export async function crearPrestamoDirecto(datos: {
+  persona_id: number;
+  insumo_id: number;
+  fecha_devolucion_pactada: string;
+  observaciones?: string | null;
+}): Promise<Contrato & { entrega_id: number }> {
+  const { data } = await axiosClient.post<Contrato & { entrega_id: number }>(
+    "contratos/directo",
+    datos,
+  );
   return data;
 }
 
