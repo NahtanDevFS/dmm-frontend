@@ -163,6 +163,33 @@ export async function crearLote(
   return data;
 }
 
+/**
+ * Ingresa varias unidades identificables de un insumo, una fila por número de
+ * serie.
+ *
+ * Es el equivalente de crearLote para el equipo serializado, y va aparte
+ * porque lo que se pregunta es distinto: no cuánto llegó sino cuáles
+ * llegaron. Cinco sillas son cinco unidades con cinco series, no un lote de
+ * cinco — y sin eso, al prestar una no hay forma de saber cuál salió.
+ */
+export async function crearUnidades(
+  recepcionId: number,
+  datos: {
+    insumo_id: number;
+    presentacion_recepcion_id: number;
+    marca_id?: number | null;
+    fecha_caducidad?: string | null;
+    observaciones?: string | null;
+    series: string[];
+  },
+): Promise<LoteRecepcion[]> {
+  const { data } = await axiosClient.post<LoteRecepcion[]>(
+    "recepciones/" + recepcionId + "/unidades",
+    datos,
+  );
+  return data;
+}
+
 /* ── Documentos de respaldo ── */
 
 export async function listarDocumentosRecepcion(

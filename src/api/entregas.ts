@@ -59,6 +59,12 @@ export interface LoteDeRenglon {
   cantidad_entregada: number;
   activo: boolean;
   codigo_lote: string | null;
+  /**
+   * Serie del fabricante, en el equipo donde cada unidad es una pieza
+   * identificable. Dice CUÁL silla salió; codigo_lote solo dice en qué envío
+   * llegó.
+   */
+  numero_serie: string | null;
   fecha_caducidad: string | null;
 }
 
@@ -80,6 +86,8 @@ export interface DetalleEntrega {
   motivo_anulacion: string | null;
   fecha_anulacion: string | null;
   tiene_prestamo: boolean;
+  /** Si el insumo lleva serie por unidad: cambia cómo se rotula cada lote. */
+  serie_por_unidad: boolean;
   /**
    * Si ese préstamo ya se devolvió. La devolución devolvió el stock al lote,
    * así que anular la entrega después lo sumaría una segunda vez y el

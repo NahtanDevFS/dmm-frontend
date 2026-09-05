@@ -301,9 +301,20 @@ function ModalFichaEntrega({
                       {/* El reparto por lotes: informativo, nadie lo eligió. */}
                       {detalle.lotes.map((lote) => (
                         <p key={lote.id} className={estilos.auxiliar}>
-                          {lote.codigo_lote
-                            ? "Lote " + lote.codigo_lote
-                            : "Sin código de lote"}
+                          {/*
+                            En equipo con serie, lo que identifica la pieza es
+                            la serie del fabricante. El código de lote solo
+                            dice en qué envío llegó, que para saber cuál silla
+                            salió no sirve de nada.
+                          */}
+                          {detalle.serie_por_unidad
+                            ? "Serie " + (lote.numero_serie ?? "sin registrar")
+                            : lote.codigo_lote
+                              ? "Lote " + lote.codigo_lote
+                              : "Sin código de lote"}
+                          {detalle.serie_por_unidad &&
+                            lote.codigo_lote &&
+                            " · envío " + lote.codigo_lote}
                           {" · "}
                           {lote.cantidad_entregada.toLocaleString("es-GT")}{" "}
                           unidades

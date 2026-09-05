@@ -282,6 +282,13 @@ function ModalFichaContrato({
                 {contrato.cantidad_entregada != null &&
                   " (" + contrato.cantidad_entregada + ")"}
               </Dato>
+              {/*
+                Cuál pieza concreta salió. Al devolver, es lo único que
+                permite verificar que la silla que traen es la que se llevaron.
+              */}
+              {contrato.numero_serie && (
+                <Dato titulo="Número de serie">{contrato.numero_serie}</Dato>
+              )}
               <Dato titulo="Fecha de inicio">
                 {formatearFecha(contrato.fecha_inicio)}
               </Dato>

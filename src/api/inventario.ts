@@ -34,6 +34,12 @@ export interface Insumo {
   requiere_fecha_caducidad: boolean;
   requiere_codigo_fabricante: boolean;
   bloquea_solicitud_sin_stock: boolean;
+  /**
+   * Si cada unidad es una pieza identificable con su propio número de serie.
+   * Cambia cómo se ingresa —una fila por serie, no un lote con cantidad— y
+   * permite elegir qué unidad concreta se entrega.
+   */
+  serie_por_unidad: boolean;
   activo: boolean;
 }
 
@@ -45,6 +51,7 @@ export interface DatosInsumo {
   descripcion?: string | null;
   requiere_fecha_caducidad?: boolean;
   requiere_codigo_fabricante?: boolean;
+  serie_por_unidad?: boolean;
   bloquea_solicitud_sin_stock?: boolean;
 }
 
@@ -116,6 +123,8 @@ export interface StockInsumoListado {
   requiere_fecha_caducidad: boolean;
   requiere_codigo_fabricante: boolean;
   bloquea_solicitud_sin_stock: boolean;
+  /** Si cada unidad tiene su propio número de serie y se elige al entregar. */
+  serie_por_unidad: boolean;
   stock_total: number;
   proxima_caducidad: string | null;
   semaforo: Semaforo | null;
@@ -209,6 +218,36 @@ export async function listarStockInsumos(filtros?: {
   const { data } = await axiosClient.get<StockInsumoListado[]>(
     "insumos/stock",
     { params: filtros },
+  );
+  return data;
+}
+
+/**
+ * Una unidad identificable disponible: una silla concreta, con su número de
+ * serie.
+ *
+ * Existe para poder elegir la pieza que se tiene en la mano en vez de dejar
+ * que FEFO asigne una. Con equipo que se presta, se devuelve y se vuelve a
+ * prestar, saber cuál es cuál es la mitad del sentido de tener series.
+ */
+export interface UnidadDisponible {
+  detalle_inventario_lote_id: number;
+  insumo_id: number;
+  insumo_nombre: string;
+  numero_serie: string | null;
+  codigo_envio: string | null;
+  fecha_recepcion: string;
+  institucion_nombre: string;
+  marca_nombre: string | null;
+  cantidad_disponible: number;
+}
+
+/** Vacío si el insumo no lleva número de serie por unidad. */
+export async function listarUnidadesDisponibles(
+  insumoId: number,
+): Promise<UnidadDisponible[]> {
+  const { data } = await axiosClient.get<UnidadDisponible[]>(
+    "insumos/" + insumoId + "/unidades",
   );
   return data;
 }

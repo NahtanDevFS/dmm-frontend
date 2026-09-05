@@ -15,6 +15,7 @@ import { mensajeDeError } from "../../lib/errores";
 import {
   CLAVE_INSUMOS,
   listarStockInsumos,
+  listarUnidadesDisponibles,
   type StockInsumoListado,
 } from "../../api/inventario";
 import {
@@ -59,6 +60,7 @@ function ModalRegistrarPrestamo({
 
   const [persona, setPersona] = useState<Persona | null>(null);
   const [insumoId, setInsumoId] = useState("");
+  const [unidadId, setUnidadId] = useState("");
   const [fechaDevolucion, setFechaDevolucion] = useState("");
   const [observaciones, setObservaciones] = useState("");
   const [borradorEvidencia, setBorradorEvidencia] = useState(false);
@@ -86,6 +88,17 @@ function ModalRegistrarPrestamo({
   const insumoElegido = stock.data?.find(
     (i) => i.insumo_id === Number(insumoId),
   );
+
+  /**
+   * Las unidades concretas del equipo elegido, cada una con su número de
+   * serie. Solo tiene sentido en equipo serializado: en lo demás la unidad da
+   * igual y el reparto FEFO es lo correcto.
+   */
+  const unidades = useQuery({
+    queryKey: [CLAVE_INSUMOS, insumoId, "unidades"],
+    queryFn: () => listarUnidadesDisponibles(Number(insumoId)),
+    enabled: insumoId !== "" && insumoElegido?.serie_por_unidad === true,
+  });
 
   const contrato = useQuery({
     queryKey: [CLAVE_CONTRATOS, contratoCreado],
@@ -115,6 +128,7 @@ function ModalRegistrarPrestamo({
         insumo_id: Number(insumoId),
         fecha_devolucion_pactada: fechaDevolucion,
         observaciones: observaciones.trim() || null,
+        detalle_inventario_lote_id: unidadId ? Number(unidadId) : null,
       }),
     onSuccess: async (creado) => {
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_CONTRATOS] });
@@ -130,7 +144,12 @@ function ModalRegistrarPrestamo({
 
   const fechaValida = fechaDevolucion !== "" && fechaDevolucion > fechaDeHoy();
 
-  const listoParaEnviar = persona !== null && insumoId !== "" && fechaValida;
+  // Si el equipo lleva serie, hay que decir cuál: sin eso el contrato no
+  // identifica la pieza y la devolución no se puede verificar.
+  const unidadResuelta = !insumoElegido?.serie_por_unidad || unidadId !== "";
+
+  const listoParaEnviar =
+    persona !== null && insumoId !== "" && fechaValida && unidadResuelta;
 
   // ── Paso 2: el préstamo existe, faltan los papeles ─────────────────────
   if (contratoCreado !== null) {
@@ -156,8 +175,13 @@ function ModalRegistrarPrestamo({
 
         <p className={estilos.nota}>
           {persona!.nombres} {persona!.apellidos} ·{" "}
-          {insumoElegido?.insumo_nombre} · devuelve el{" "}
-          {fechaDevolucion.split("-").reverse().join("/")}
+          {insumoElegido?.insumo_nombre}
+          {unidadId &&
+            " · serie " +
+              (unidades.data?.find(
+                (u) => u.detalle_inventario_lote_id === Number(unidadId),
+              )?.numero_serie ?? "")}{" "}
+          · devuelve el {fechaDevolucion.split("-").reverse().join("/")}
         </p>
 
         {contrato.data && (
@@ -217,7 +241,12 @@ function ModalRegistrarPrestamo({
         etiqueta="Equipo"
         obligatorio
         value={insumoId}
-        onChange={(e) => setInsumoId(e.target.value)}
+        onChange={(e) => {
+          setInsumoId(e.target.value);
+          // Las unidades son del equipo anterior: si no se limpia, quedaría
+          // elegida una silla que no corresponde a lo que se ve en pantalla.
+          setUnidadId("");
+        }}
         disabled={stock.isPending}
         ayuda={
           stock.isError
@@ -243,6 +272,33 @@ function ModalRegistrarPrestamo({
           </optgroup>
         ))}
       </CampoSelect>
+
+      {/*
+        Qué silla concreta se lleva. El sistema podría elegir una por FEFO,
+        pero entonces el contrato diría una serie y la persona saldría con
+        otra: al devolver no habría forma de saber si es la misma.
+      */}
+      {insumoElegido?.serie_por_unidad && (
+        <CampoSelect
+          etiqueta="Unidad que se entrega"
+          obligatorio
+          value={unidadId}
+          onChange={(e) => setUnidadId(e.target.value)}
+          disabled={unidades.isLoading}
+          ayuda="Elija la que tiene en la mano: su número de serie queda en el contrato."
+        >
+          {unidades.data?.map((unidad) => (
+            <option
+              key={unidad.detalle_inventario_lote_id}
+              value={unidad.detalle_inventario_lote_id}
+            >
+              {unidad.numero_serie ?? "Sin serie"}
+              {unidad.marca_nombre ? " · " + unidad.marca_nombre : ""}
+              {" · recibida de " + unidad.institucion_nombre}
+            </option>
+          ))}
+        </CampoSelect>
+      )}
 
       {/* Una unidad por contrato: el contrato ampara un equipo concreto, con
           su fecha y sus multas. Dos sillas son dos préstamos. */}

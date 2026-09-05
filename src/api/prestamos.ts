@@ -127,6 +127,11 @@ export interface ContratoDetalle extends Contrato {
   persona_id?: number;
   persona_nombre_completo?: string;
   insumo_nombre?: string;
+  /**
+   * Serie de la unidad prestada, cuando el equipo la lleva. Es lo que permite
+   * verificar, al devolver, que es la misma pieza que salió.
+   */
+  numero_serie?: string | null;
   cantidad_entregada?: number;
 }
 
@@ -196,6 +201,12 @@ export async function crearPrestamoDirecto(datos: {
   insumo_id: number;
   fecha_devolucion_pactada: string;
   observaciones?: string | null;
+  /**
+   * La unidad concreta que se lleva, cuando el equipo tiene número de serie.
+   * Sin esto el sistema elegiría una por FEFO y el contrato diría una serie
+   * distinta de la silla que salió.
+   */
+  detalle_inventario_lote_id?: number | null;
 }): Promise<Contrato & { entrega_id: number }> {
   const { data } = await axiosClient.post<Contrato & { entrega_id: number }>(
     "contratos/directo",
