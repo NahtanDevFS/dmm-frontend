@@ -183,6 +183,7 @@ function SeccionDocumentosSolicitud({
               marcarBorrador({ archivo: nuevo });
             }}
             disabled={subida.isPending}
+            permitirCamara
           />
           <CampoTexto
             etiqueta="Descripción"

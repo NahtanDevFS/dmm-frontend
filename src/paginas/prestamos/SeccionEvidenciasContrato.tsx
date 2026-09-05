@@ -171,6 +171,7 @@ function SeccionEvidenciasContrato({
               marcarBorrador({ archivo: nuevo });
             }}
             disabled={subida.isPending}
+            permitirCamara
           />
           <CampoSelect
             etiqueta="Tipo de evidencia"
