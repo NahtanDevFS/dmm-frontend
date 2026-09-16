@@ -32,6 +32,7 @@ import {
   type DatosLineaNueva,
 } from "../../api/solicitudes";
 import type { Persona, Programa, ElementoCatalogo } from "../../types/api";
+import { useAuth } from "../../auth/useAuth";
 import BuscadorPersona from "./BuscadorPersona";
 import { datosFaltantesDelEstudio } from "../beneficiarios/datosFaltantes";
 import estilos from "./Solicitudes.module.css";
@@ -66,9 +67,20 @@ function ModalSolicitud({
 }) {
   const clienteQuery = useQueryClient();
   const { avisar } = useAvisos();
+  const { usuario } = useAuth();
 
   const [persona, setPersona] = useState<Persona | null>(null);
-  const [programaId, setProgramaId] = useState("");
+  /**
+   * Preseleccionado con el programa de quien está registrando.
+   *
+   * Es siempre el mismo y elegirlo a mano cada vez invita a equivocarse; un
+   * programa mal puesto ensucia los reportes sin que nadie lo note. Se puede
+   * cambiar: cuando una compañera falta, otra la cubre, y el sistema no debe
+   * estorbar eso — solo dejar constancia, que es lo que hace el backend.
+   */
+  const [programaId, setProgramaId] = useState(
+    usuario?.programa_id ? String(usuario.programa_id) : "",
+  );
   const [fechaSolicitud, setFechaSolicitud] = useState(fechaDeHoy());
   const [requiereAprobacion, setRequiereAprobacion] = useState(false);
   const [observaciones, setObservaciones] = useState("");
@@ -332,6 +344,19 @@ function ModalSolicitud({
           obligatorio
           flotante={false}
         />
+
+        {/*
+          Cubrir a otra compañera es normal, pero conviene saber que se está
+          haciendo: queda registrado en la solicitud y se ve en el listado.
+        */}
+        {usuario?.programa_id != null &&
+          programaId !== "" &&
+          Number(programaId) !== usuario.programa_id && (
+            <Insignia tono="pendiente">
+              Este programa no es el suyo ({usuario.programa_nombre}). La
+              solicitud quedará marcada como registrada en suplencia.
+            </Insignia>
+          )}
 
         <CampoSelect
           etiqueta="Programa"

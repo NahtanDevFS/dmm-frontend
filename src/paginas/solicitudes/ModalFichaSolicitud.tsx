@@ -237,7 +237,23 @@ function ModalFichaSolicitud({
                   ? persona.data.nombres + " " + persona.data.apellidos
                   : "—"}
               </Dato>
-              <Dato titulo="Programa">{programa?.nombre ?? "—"}</Dato>
+              <Dato titulo="Programa">
+                {programa?.nombre ?? "—"}
+                {/*
+                  Quien la registró no era la encargada de ese programa:
+                  estaba cubriendo a otra persona. No es un problema —así
+                  trabajan cuando una falta— pero conviene que se vea sin
+                  tener que cruzar datos.
+                */}
+                {solicitud.registrada_en_suplencia && (
+                  <>
+                    {" "}
+                    <Insignia tono="pendiente">
+                      Registrada en suplencia
+                    </Insignia>
+                  </>
+                )}
+              </Dato>
               <Dato titulo="Fecha de la solicitud">
                 {formatearFecha(solicitud.fecha_solicitud)}
               </Dato>
