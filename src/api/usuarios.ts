@@ -26,6 +26,9 @@ export interface Usuario {
   username: string;
   rol_id: number;
   rol_nombre: string;
+  /** Programa a su cargo, si lleva alguno. */
+  programa_id: number | null;
+  programa_nombre: string | null;
   ultimo_login: string | null;
   activo: boolean;
 }
@@ -34,11 +37,13 @@ export interface DatosCrearUsuario {
   username: string;
   password: string;
   rol_id: number;
+  programa_id?: number | null;
 }
 
 export interface DatosEditarUsuario {
   username?: string;
   rol_id?: number;
+  programa_id?: number | null;
 }
 
 export interface FiltrosUsuarios {

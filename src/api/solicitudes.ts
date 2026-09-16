@@ -38,6 +38,11 @@ export interface Solicitud {
   fecha_aprobacion: string | null;
   aprobado_por: number | null;
   observaciones_trabajo_social: string | null;
+  /**
+   * Quien registró no era la encargada de ese programa: estaba cubriendo a
+   * otra persona. Se fija al crear y no se recalcula.
+   */
+  registrada_en_suplencia: boolean;
   activo: boolean;
 }
 

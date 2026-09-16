@@ -138,6 +138,13 @@ export interface UsuarioSesion {
   id: number;
   username: string;
   rol: Rol;
+  /**
+   * Programa del que es encargada. Preselecciona el campo al crear una
+   * solicitud; no restringe qué puede registrar, porque cuando una falta
+   * otra la cubre. Nulo para Directora, Alcalde y Administrador.
+   */
+  programa_id: number | null;
+  programa_nombre: string | null;
 }
 
 export interface RespuestaSesion {

@@ -5,6 +5,8 @@ import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAuth } from "../../auth/useAuth";
+import { useCatalogo } from "../../hooks/useCatalogo";
+import type { Programa } from "../../types/api";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { mensajeDeError } from "../../lib/errores";
 import {
@@ -50,15 +52,26 @@ function ModalUsuario({
   const [username, setUsername] = useState(usuario?.username ?? "");
   const [password, setPassword] = useState("");
   const [rolId, setRolId] = useState(usuario ? String(usuario.rol_id) : "");
+  const [programaId, setProgramaId] = useState(
+    usuario?.programa_id ? String(usuario.programa_id) : "",
+  );
+
+  const programas = useCatalogo<Programa>("programas");
 
   const roles = useQuery({
     queryKey: [CLAVE_ROLES],
     queryFn: listarRoles,
   });
 
+  const programaOriginal = usuario?.programa_id
+    ? String(usuario.programa_id)
+    : "";
+
   const hayCambios = esEdicion
-    ? username !== usuario.username || rolId !== String(usuario.rol_id)
-    : username !== "" || password !== "" || rolId !== "";
+    ? username !== usuario.username ||
+      rolId !== String(usuario.rol_id) ||
+      programaId !== programaOriginal
+    : username !== "" || password !== "" || rolId !== "" || programaId !== "";
 
   const cerrar = useCierreSeguro({ hayCambios, onCerrar });
 
@@ -69,8 +82,20 @@ function ModalUsuario({
             username: username !== usuario.username ? username : undefined,
             rol_id:
               rolId !== String(usuario.rol_id) ? Number(rolId) : undefined,
+            // null vacía la asignación; undefined la deja como estaba.
+            programa_id:
+              programaId !== programaOriginal
+                ? programaId
+                  ? Number(programaId)
+                  : null
+                : undefined,
           })
-        : crearUsuario({ username, password, rol_id: Number(rolId) }),
+        : crearUsuario({
+            username,
+            password,
+            rol_id: Number(rolId),
+            programa_id: programaId ? Number(programaId) : null,
+          }),
     onSuccess: async () => {
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_USUARIOS] });
       avisar(esEdicion ? "Usuario actualizado." : "Usuario creado.", "exito");
@@ -161,6 +186,27 @@ function ModalUsuario({
           ))}
         </CampoSelect>
       )}
+
+      {/*
+        De qué programa es encargada. Solo preselecciona el campo al crear una
+        solicitud: no impide registrar en otro, porque cuando una falta otra la
+        cubre. Vacío para quienes no llevan uno propio.
+
+        Fuera del bloque del rol a propósito: cambiarse el rol a uno mismo es
+        peligroso, cambiarse el programa no.
+      */}
+      <CampoSelect
+        etiqueta="Programa a su cargo"
+        value={programaId}
+        onChange={(e) => setProgramaId(e.target.value)}
+        ayuda="Se preselecciona al crear solicitudes. Puede cambiarse en cada una; déjelo vacío si no lleva un programa propio."
+      >
+        {programas.opciones.map((programa) => (
+          <option key={programa.id} value={programa.id}>
+            {programa.nombre}
+          </option>
+        ))}
+      </CampoSelect>
     </Modal>
   );
 }
