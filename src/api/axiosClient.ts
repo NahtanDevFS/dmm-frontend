@@ -20,7 +20,7 @@ const axiosClient = axios.create({
  */
 const AUTENTICACION_ESPERADA = ["auth/login", "auth/me", "auth/logout"];
 
-function esFlujoDeAutenticacion(url: string | undefined): boolean {
+export function esFlujoDeAutenticacion(url: string | undefined): boolean {
   if (!url) return false;
   return AUTENTICACION_ESPERADA.some((ruta) => url.includes(ruta));
 }

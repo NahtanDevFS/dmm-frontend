@@ -8,7 +8,7 @@ import axios from "axios";
  */
 const SIN_REINTENTO = new Set([400, 401, 403, 404, 409, 422]);
 
-function convieneReintentar(error: unknown): boolean {
+export function convieneReintentar(error: unknown): boolean {
   if (!axios.isAxiosError(error)) return false;
   const estado = error.response?.status;
   // Sin respuesta es fallo de red o el backend caído: ahí sí vale reintentar.
