@@ -96,3 +96,39 @@
   max-width: 420px;
   margin-bottom: var(--space-3);
 }
+
+/* Rejilla de gráficas: dos columnas fijas, no auto-fit. Con auto-fit y
+   cuatro tarjetas la rejilla las agrupaba en fila comprimiéndolas a ~320px
+   cada una; con columnas fijas cada tarjeta tiene la mitad real del ancho
+   disponible. La tendencia ocupa las dos columnas y va al final porque es
+   la gráfica más ancha y las demás se leen mejor antes, en bloques parejos. */
+.rejillaGraficas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 720px) {
+  .rejillaGraficas {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tarjetaGrafica {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  min-width: 0; /* si no, el texto largo de una barra empuja el ancho de la columna */
+}
+
+.tarjetaGraficaAncha {
+  grid-column: 1 / -1;
+}
+
+.tituloGrafica {
+  font: var(--texto-titulo-tarjeta);
+  color: var(--color-primary-darker);
+  margin-bottom: var(--space-2);
+}
