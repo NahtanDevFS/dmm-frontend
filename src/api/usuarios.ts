@@ -23,7 +23,13 @@ export interface Rol {
 /** password_hash nunca sale del backend, ni siquiera hacia un ADMINISTRADOR. */
 export interface Usuario {
   id: number;
+  /** Identificador de acceso: ASCII, sin tildes ni espacios. */
   username: string;
+  /**
+   * Nombre de la persona, como se escribe. Nulo en las cuentas creadas antes
+   * de que el campo existiera; la interfaz muestra el username entonces.
+   */
+  nombre_completo: string | null;
   rol_id: number;
   rol_nombre: string;
   /** Programa a su cargo, si lleva alguno. */
@@ -35,6 +41,7 @@ export interface Usuario {
 
 export interface DatosCrearUsuario {
   username: string;
+  nombre_completo: string;
   password: string;
   rol_id: number;
   programa_id?: number | null;
@@ -42,6 +49,7 @@ export interface DatosCrearUsuario {
 
 export interface DatosEditarUsuario {
   username?: string;
+  nombre_completo?: string;
   rol_id?: number;
   programa_id?: number | null;
 }

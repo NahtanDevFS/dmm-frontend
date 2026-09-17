@@ -57,8 +57,29 @@ function cuerpoDe(error: unknown): CuerpoDeError | undefined {
  */
 export function mensajeDeError(error: unknown, respaldo?: string): string {
   if (axios.isAxiosError(error)) {
-    const delServidor = cuerpoDe(error)?.message;
-    if (delServidor) return delServidor;
+    const cuerpo = cuerpoDe(error);
+    const delServidor = cuerpo?.message;
+
+    if (delServidor) {
+      /*
+        Las respuestas de validación traen el mensaje general 'Datos
+        inválidos' y, aparte, el detalle por campo. Devolver solo el general
+        deja a quien lo lee adivinando qué campo estaba mal, y si la pantalla
+        no pinta los errores bajo cada input —no todas lo hacen— el aviso no
+        dice absolutamente nada.
+
+        Se agregan los detalles al mensaje. Es redundante en los formularios
+        que sí los pintan, pero prefiero repetir la información a que se
+        pierda.
+      */
+      const detalles = Object.values(cuerpo?.errores ?? {})
+        .map((mensajes) => mensajes[0])
+        .filter(Boolean);
+
+      return detalles.length > 0
+        ? delServidor + ": " + detalles.join(" ")
+        : delServidor;
+    }
 
     const estado = error.response?.status;
     if (estado === undefined) return respaldo ?? SIN_RESPUESTA;
@@ -82,7 +103,10 @@ export function erroresPorCampo(error: unknown): ErroresPorCampo | null {
 }
 
 /** Primer mensaje de un campo concreto, que es lo que se pinta bajo el input. */
-export function errorDeCampo(error: unknown, campo: string): string | undefined {
+export function errorDeCampo(
+  error: unknown,
+  campo: string,
+): string | undefined {
   return erroresPorCampo(error)?.[campo]?.[0];
 }
 
