@@ -1,0 +1,79 @@
+.vacio {
+  padding: var(--space-3) var(--space-2);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ─────────────────────── Línea ─────────────────────── */
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.valorPunto {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--color-primary-darker);
+}
+
+.etiquetaEje {
+  font-family: var(--font-main);
+  font-size: 10px;
+  fill: var(--color-text-muted);
+}
+
+/* ─────────────────────── Barras ─────────────────────── */
+
+.listaBarras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.filaBarra {
+  display: grid;
+  grid-template-columns: minmax(96px, 30%) 1fr auto;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.etiquetaBarra {
+  font-size: 0.85rem;
+  color: var(--color-text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pistaBarra {
+  display: block;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-border-soft);
+  overflow: hidden;
+}
+
+.relleno {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-primary-mid);
+}
+
+.rellenoResaltado {
+  background-color: var(--color-danger);
+}
+
+.valorBarra {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  min-width: 2.5em;
+  text-align: right;
+}

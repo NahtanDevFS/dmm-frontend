@@ -1,5 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "../../api/axiosClient";
+import {
+  obtenerEntregasPorMes,
+  obtenerStockPorCategoria,
+  obtenerPoblacionPorPrograma,
+  obtenerPoblacionPorGenero,
+} from "../../api/panel";
 import { SEMAFORO, type Semaforo, type Sobre } from "../../types/api";
 
 /**
@@ -120,6 +126,48 @@ export function useEntregasDelPeriodo(desde: string, hasta: string) {
   });
 }
 
+/**
+ * Serie mensual de entregas, para la gráfica de tendencia.
+ *
+ * Ventana fija (6 meses) en vez de atarla al selector de "Actividad del
+ * período": son preguntas distintas — una es "¿cuánto se hizo en el rango
+ * que elegí?" y la otra "¿cómo viene la tendencia?", que solo tiene sentido
+ * mirando varios meses seguidos.
+ */
+export function useEntregasPorMes(meses = 6) {
+  return useQuery({
+    queryKey: ["inicio", "entregas-por-mes", meses],
+    queryFn: ({ signal }) => obtenerEntregasPorMes(meses, signal),
+    staleTime: VIGENCIA,
+  });
+}
+
+export function useStockPorCategoriaGrafica() {
+  return useQuery({
+    queryKey: ["inicio", "stock-por-categoria"],
+    queryFn: ({ signal }) => obtenerStockPorCategoria(signal),
+    staleTime: VIGENCIA,
+  });
+}
+
+export function usePoblacionPorPrograma(desde: string, hasta: string) {
+  return useQuery({
+    queryKey: ["inicio", "poblacion-por-programa", desde, hasta],
+    queryFn: ({ signal }) => obtenerPoblacionPorPrograma(desde, hasta, signal),
+    enabled: desde !== "" && hasta !== "",
+    staleTime: VIGENCIA,
+  });
+}
+
+export function usePoblacionPorGenero(desde: string, hasta: string) {
+  return useQuery({
+    queryKey: ["inicio", "poblacion-por-genero", desde, hasta],
+    queryFn: ({ signal }) => obtenerPoblacionPorGenero(desde, hasta, signal),
+    enabled: desde !== "" && hasta !== "",
+    staleTime: VIGENCIA,
+  });
+}
+
 export function useCaducidades() {
   const consulta = useQuery({
     queryKey: ["inicio", "semaforo"],
@@ -137,6 +185,9 @@ export function useCaducidades() {
 
   return {
     ...consulta,
+    sinFecha: lotes.filter((l) => l.semaforo === SEMAFORO.GRIS).length,
+    verdes: lotes.filter((l) => l.semaforo === SEMAFORO.VERDE).length,
+    amarillos: lotes.filter((l) => l.semaforo === SEMAFORO.AMARILLO).length,
     porVencer: lotes.filter((l) => l.semaforo === SEMAFORO.ROJO).length,
     vencidos: lotes.filter((l) => l.semaforo === SEMAFORO.VENCIDO).length,
   };

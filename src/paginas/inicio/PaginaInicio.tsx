@@ -8,13 +8,22 @@ import {
   RejillaIndicadores,
   TarjetaIndicador,
 } from "../../componentes/ui/Estado";
+import {
+  GraficaBarras,
+  GraficaLinea,
+  GraficaPastel,
+} from "../../componentes/ui/Grafica";
 import { mensajeDeError } from "../../lib/errores";
 import {
   useCaducidades,
   useEntregasDelPeriodo,
+  useEntregasPorMes,
   useListaEspera,
+  usePoblacionPorGenero,
+  usePoblacionPorPrograma,
   usePrestamosVencidos,
   useSolicitudesPendientes,
+  useStockPorCategoriaGrafica,
   useTotalBeneficiarios,
 } from "./useIndicadores";
 import estilos from "./PaginaInicio.module.css";
@@ -66,6 +75,21 @@ function Valor({
   return <>{valor ?? 0}</>;
 }
 
+/** "2026-04-01" → "abr". Corto porque son cinco o seis a la vez en el eje. */
+function mesCorto(valorIso: string): string {
+  const [, mes] = valorIso.split("-");
+  const fecha = new Date(2000, Number(mes) - 1, 1);
+  return fecha.toLocaleDateString("es-GT", { month: "short" }).replace(".", "");
+}
+
+/** Mismas etiquetas que ya usa Reportes para género (SeccionPoblacionBeneficiada.tsx). */
+const ETIQUETA_GENERO: Record<string, string> = {
+  MASCULINO: "Masculino",
+  FEMENINO: "Femenino",
+  OTRO: "Otro",
+  PREFIERE_NO_DECIR: "Prefiere no decir",
+};
+
 function PaginaInicio() {
   const { usuario } = useAuth();
   const beneficiarios = useTotalBeneficiarios();
@@ -74,6 +98,9 @@ function PaginaInicio() {
 
   const prestamosVencidos = usePrestamosVencidos();
   const listaEspera = useListaEspera();
+
+  const entregasPorMes = useEntregasPorMes(6);
+  const stockGrafica = useStockPorCategoriaGrafica();
 
   /**
    * Rango del período, por omisión el mes en curso: es la ventana con la que
@@ -88,6 +115,14 @@ function PaginaInicio() {
   const rangoValido = desde !== "" && hasta !== "" && desde <= hasta;
 
   const entregas = useEntregasDelPeriodo(
+    rangoValido ? desde : "",
+    rangoValido ? hasta : "",
+  );
+  const poblacionPorPrograma = usePoblacionPorPrograma(
+    rangoValido ? desde : "",
+    rangoValido ? hasta : "",
+  );
+  const poblacionPorGenero = usePoblacionPorGenero(
     rangoValido ? desde : "",
     rangoValido ? hasta : "",
   );
@@ -220,6 +255,163 @@ function PaginaInicio() {
             )}
           </p>
         )}
+      </section>
+
+      <section className={estilos.seccion} aria-labelledby="graficas">
+        <h2 id="graficas" className={estilos.tituloSeccion}>
+          Tendencias
+        </h2>
+
+        <div className={estilos.rejillaGraficas}>
+          <div className={estilos.tarjetaGrafica}>
+            <h3 className={estilos.tituloGrafica}>
+              Stock disponible por categoría
+            </h3>
+            {stockGrafica.isPending ? (
+              <Esqueleto alto={140} />
+            ) : stockGrafica.isError ? (
+              <p className={estilos.fallo}>
+                {mensajeDeError(
+                  stockGrafica.error,
+                  "No se pudo cargar el stock por categoría.",
+                )}
+              </p>
+            ) : (
+              <GraficaBarras
+                datos={(stockGrafica.data ?? []).map((c) => ({
+                  etiqueta: c.categoria_nombre,
+                  valor: c.unidades_totales_disponibles,
+                  resaltada: c.lotes_urgentes_o_vencidos > 0,
+                }))}
+                etiquetaVacio="No hay categorías con existencias"
+              />
+            )}
+          </div>
+
+          <div className={estilos.tarjetaGrafica}>
+            <h3 className={estilos.tituloGrafica}>
+              Personas beneficiadas por programa
+            </h3>
+            {!rangoValido ? (
+              <p className={estilos.contexto}>
+                Elige un rango de fechas válido arriba para ver esta gráfica.
+              </p>
+            ) : poblacionPorPrograma.isPending ? (
+              <Esqueleto alto={140} />
+            ) : poblacionPorPrograma.isError ? (
+              <p className={estilos.fallo}>
+                {mensajeDeError(
+                  poblacionPorPrograma.error,
+                  "No se pudo cargar la población beneficiada.",
+                )}
+              </p>
+            ) : (
+              <GraficaBarras
+                datos={(poblacionPorPrograma.data ?? []).map((p) => ({
+                  etiqueta: p.programa_nombre,
+                  valor: p.personas_unicas_beneficiadas,
+                }))}
+                etiquetaVacio="Sin entregas registradas en el rango elegido"
+              />
+            )}
+          </div>
+
+          <div className={estilos.tarjetaGrafica}>
+            <h3 className={estilos.tituloGrafica}>Estado del inventario</h3>
+            {caducidades.isPending ? (
+              <Esqueleto alto={220} />
+            ) : caducidades.isError ? (
+              <p className={estilos.fallo}>
+                {mensajeDeError(
+                  caducidades.error,
+                  "No se pudo cargar el semáforo de inventario.",
+                )}
+              </p>
+            ) : (
+              <GraficaPastel
+                datos={[
+                  {
+                    etiqueta: "Sin novedad (más de 6 meses)",
+                    valor: caducidades.verdes,
+                    color: "var(--color-success)",
+                  },
+                  {
+                    etiqueta: "Vence en 3-6 meses",
+                    valor: caducidades.amarillos,
+                    color: "var(--color-warning)",
+                  },
+                  {
+                    etiqueta: "Vence en menos de 3 meses",
+                    valor: caducidades.porVencer,
+                    color: "var(--color-primary-dark)",
+                  },
+                  {
+                    etiqueta: "Vencido",
+                    valor: caducidades.vencidos,
+                    color: "var(--color-danger)",
+                  },
+                  {
+                    etiqueta: "Sin fecha de caducidad",
+                    valor: caducidades.sinFecha,
+                    color: "var(--color-text-muted)",
+                  },
+                ]}
+                etiquetaVacio="No hay lotes con existencias"
+              />
+            )}
+          </div>
+
+          <div className={estilos.tarjetaGrafica}>
+            <h3 className={estilos.tituloGrafica}>
+              Población beneficiada por género
+            </h3>
+            {!rangoValido ? (
+              <p className={estilos.contexto}>
+                Elige un rango de fechas válido arriba para ver esta gráfica.
+              </p>
+            ) : poblacionPorGenero.isPending ? (
+              <Esqueleto alto={220} />
+            ) : poblacionPorGenero.isError ? (
+              <p className={estilos.fallo}>
+                {mensajeDeError(
+                  poblacionPorGenero.error,
+                  "No se pudo cargar la población beneficiada.",
+                )}
+              </p>
+            ) : (
+              <GraficaPastel
+                datos={(poblacionPorGenero.data ?? []).map((p) => ({
+                  etiqueta: ETIQUETA_GENERO[p.genero] ?? p.genero,
+                  valor: p.personas_unicas_beneficiadas,
+                }))}
+                etiquetaVacio="Sin entregas registradas en el rango elegido"
+              />
+            )}
+          </div>
+
+          <div
+            className={`${estilos.tarjetaGrafica} ${estilos.tarjetaGraficaAncha}`}
+          >
+            <h3 className={estilos.tituloGrafica}>Entregas por mes</h3>
+            {entregasPorMes.isPending ? (
+              <Esqueleto alto={180} />
+            ) : entregasPorMes.isError ? (
+              <p className={estilos.fallo}>
+                {mensajeDeError(
+                  entregasPorMes.error,
+                  "No se pudo cargar la tendencia de entregas.",
+                )}
+              </p>
+            ) : (
+              <GraficaLinea
+                datos={(entregasPorMes.data ?? []).map((p) => ({
+                  etiqueta: mesCorto(p.mes),
+                  valor: p.total_entregas,
+                }))}
+              />
+            )}
+          </div>
+        </div>
       </section>
 
       <section className={estilos.seccion} aria-labelledby="periodo">
