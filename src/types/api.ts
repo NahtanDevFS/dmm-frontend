@@ -136,7 +136,10 @@ export function tieneRol(
 /** Lo que devuelven POST /auth/login y GET /auth/me. */
 export interface UsuarioSesion {
   id: number;
+  /** Identificador de acceso: ASCII, sin tildes ni espacios. */
   username: string;
+  /** Nombre de la persona, como se escribe. Nulo en cuentas anteriores. */
+  nombre_completo: string | null;
   rol: Rol;
   /**
    * Programa del que es encargada. Preselecciona el campo al crear una

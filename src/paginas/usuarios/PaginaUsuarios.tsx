@@ -189,8 +189,10 @@ function PaginaUsuarios() {
             <Tabla titulo="Usuarios del sistema">
               <thead>
                 <tr>
+                  <th>Nombre</th>
                   <th>Usuario</th>
                   <th>Rol</th>
+                  <th>Programa a su cargo</th>
                   <th>Último ingreso</th>
                   <th>Estado</th>
                   <th>Acciones</th>
@@ -201,8 +203,12 @@ function PaginaUsuarios() {
                   const esUnoMismo = fila.id === sesionActual?.id;
                   return (
                     <tr key={fila.id}>
+                      {/* Las cuentas anteriores al campo no tienen nombre;
+                          se muestra el usuario para no dejar la celda vacía. */}
+                      <td>{fila.nombre_completo ?? "—"}</td>
                       <td className={estilos.usuario}>{fila.username}</td>
                       <td>{fila.rol_nombre}</td>
+                      <td>{fila.programa_nombre ?? "—"}</td>
                       <td>{formatearFecha(fila.ultimo_login)}</td>
                       <td className={estilos.celdaEstado}>
                         {fila.activo ? (

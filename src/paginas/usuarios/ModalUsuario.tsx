@@ -8,7 +8,11 @@ import { useAuth } from "../../auth/useAuth";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import type { Programa } from "../../types/api";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
-import { mensajeDeError } from "../../lib/errores";
+import {
+  mensajeDeError,
+  erroresPorCampo,
+  type ErroresPorCampo,
+} from "../../lib/errores";
 import {
   CLAVE_USUARIOS,
   CLAVE_ROLES,
@@ -50,8 +54,12 @@ function ModalUsuario({
   const esUnoMismo = usuario?.id === sesionActual?.id;
 
   const [username, setUsername] = useState(usuario?.username ?? "");
+  const [nombreCompleto, setNombreCompleto] = useState(
+    usuario?.nombre_completo ?? "",
+  );
   const [password, setPassword] = useState("");
   const [rolId, setRolId] = useState(usuario ? String(usuario.rol_id) : "");
+  const [errores, setErrores] = useState<ErroresPorCampo>({});
   const [programaId, setProgramaId] = useState(
     usuario?.programa_id ? String(usuario.programa_id) : "",
   );
@@ -69,9 +77,14 @@ function ModalUsuario({
 
   const hayCambios = esEdicion
     ? username !== usuario.username ||
+      nombreCompleto !== (usuario.nombre_completo ?? "") ||
       rolId !== String(usuario.rol_id) ||
       programaId !== programaOriginal
-    : username !== "" || password !== "" || rolId !== "" || programaId !== "";
+    : username !== "" ||
+      nombreCompleto !== "" ||
+      password !== "" ||
+      rolId !== "" ||
+      programaId !== "";
 
   const cerrar = useCierreSeguro({ hayCambios, onCerrar });
 
@@ -80,6 +93,10 @@ function ModalUsuario({
       esEdicion
         ? editarUsuario(usuario.id, {
             username: username !== usuario.username ? username : undefined,
+            nombre_completo:
+              nombreCompleto !== (usuario.nombre_completo ?? "")
+                ? nombreCompleto
+                : undefined,
             rol_id:
               rolId !== String(usuario.rol_id) ? Number(rolId) : undefined,
             // null vacía la asignación; undefined la deja como estaba.
@@ -92,6 +109,7 @@ function ModalUsuario({
           })
         : crearUsuario({
             username,
+            nombre_completo: nombreCompleto,
             password,
             rol_id: Number(rolId),
             programa_id: programaId ? Number(programaId) : null,
@@ -103,7 +121,12 @@ function ModalUsuario({
     },
     // Incluye las guardas del backend: username duplicado, rol inactivo,
     // "no puede cambiar su propio rol", "único administrador activo".
-    onError: (error) => avisar(mensajeDeError(error), "error"),
+    onError: (error) => {
+      // El detalle por campo se pinta bajo cada input; el aviso lleva el
+      // mensaje completo por si el campo culpable quedó fuera de la vista.
+      setErrores(erroresPorCampo(error) ?? {});
+      avisar(mensajeDeError(error), "error");
+    },
   });
 
   const usernameValido = username.trim().length >= 3;
@@ -143,7 +166,24 @@ function ModalUsuario({
         obligatorio
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        ayuda="Letras, números, punto, guion y guion bajo. Mínimo 3 caracteres."
+        error={errores.username?.[0]}
+        ayuda="Es lo que se teclea para entrar: letras sin tilde, números, punto, guion y guion bajo. Sin espacios ni ñ. El nombre real va en el campo de abajo."
+      />
+
+      {/*
+        El nombre de la persona, separado del identificador de acceso. Antes
+        se usaba el usuario como si fuera el nombre, y por eso molestaba que
+        rechazara las tildes: son dos cosas distintas, una se teclea y la otra
+        se lee.
+      */}
+      <CampoTexto
+        etiqueta="Nombre completo"
+        obligatorio={!esEdicion}
+        maxLength={150}
+        value={nombreCompleto}
+        onChange={(e) => setNombreCompleto(e.target.value)}
+        error={errores.nombre_completo?.[0]}
+        ayuda="Como se escribe de verdad, con tildes. Es lo que aparece en pantallas y expedientes."
       />
 
       {!esEdicion && (
@@ -157,7 +197,7 @@ function ModalUsuario({
             error={
               password !== "" && !passwordValida(password)
                 ? "Debe tener al menos 8 caracteres, con una letra y un número."
-                : undefined
+                : errores.password?.[0]
             }
           />
           <p className={estilos.ayudaPassword}>
@@ -178,6 +218,7 @@ function ModalUsuario({
           marcador="Seleccione…"
           value={rolId}
           onChange={(e) => setRolId(e.target.value)}
+          error={errores.rol_id?.[0]}
         >
           {roles.data?.map((rol) => (
             <option key={rol.id} value={rol.id}>
@@ -199,6 +240,7 @@ function ModalUsuario({
         etiqueta="Programa a su cargo"
         value={programaId}
         onChange={(e) => setProgramaId(e.target.value)}
+        error={errores.programa_id?.[0]}
         ayuda="Se preselecciona al crear solicitudes. Puede cambiarse en cada una; déjelo vacío si no lleva un programa propio."
       >
         {programas.opciones.map((programa) => (
