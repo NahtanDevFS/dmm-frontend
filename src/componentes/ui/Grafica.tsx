@@ -13,11 +13,8 @@ import {
 } from "recharts";
 
 /**
- * Gráficas del panel con Recharts.
- *
- * Los colores se pasan explícitos (var(--color-...)) en vez de dejar la
- * paleta por defecto de la librería: el manual de marca (sección 9) no
- * admite colores fuera de la escala de tokens.css.
+ * Gráficas del panel con Recharts
+ * Colores explícitos según tokens.css (manual de marca)
  */
 
 const COLOR_LINEA = "var(--color-primary-dark)";
@@ -27,7 +24,7 @@ const COLOR_BARRA_RESALTADA = "var(--color-danger)";
 const COLOR_EJE = "var(--color-text-muted)";
 const COLOR_REJILLA = "var(--color-border-soft)";
 
-/* ─────────────────────── Línea ─────────────────────── */
+/* Línea */
 
 export interface PuntoLinea {
   etiqueta: string;
@@ -83,7 +80,7 @@ export function GraficaLinea({
   );
 }
 
-/* ─────────────────────── Barras ─────────────────────── */
+/* Barras */
 
 export interface BarraDato {
   etiqueta: string;
@@ -148,7 +145,7 @@ export function GraficaBarras({
   );
 }
 
-/* ─────────────────────── Pastel ─────────────────────── */
+/* Pastel */
 
 export interface PorcionPastel {
   etiqueta: string;
@@ -166,15 +163,8 @@ const ESCALA_PASTEL_DEFECTO = [
 ];
 
 /**
- * Pastel genérico. Sin filtro de porciones en cero: una porción en 0 todavía
- * es información (p.ej. "cero lotes vencidos" es justo lo que se quiere
- * poder confirmar de un vistazo), así que solo se oculta la gráfica entera
- * si TODO el total es cero.
- *
- * La leyenda es propia (HTML, no <Legend> de Recharts) porque esa componente
- * fuerza una altura fija para el bloque de leyenda: con 5 etiquetas largas
- * ("Vence en menos de 3 meses") el texto se corta en vez de hacer wrap. Una
- * lista normal a un lado no tiene ese límite.
+ * Pastel genérico (muestra porciones en 0 si hay datos en el total)
+ * Leyenda HTML propia para permitir wrap de etiquetas largas
  */
 export function GraficaPastel({
   datos,
@@ -274,7 +264,7 @@ export function GraficaPastel({
   );
 }
 
-/* ─────────────────────── Estado vacío ─────────────────────── */
+/* Estado vacío */
 
 function Vacio({ texto }: { texto: string }) {
   return (

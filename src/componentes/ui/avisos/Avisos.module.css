@@ -117,7 +117,7 @@
   }
 }
 
-/* ─────────────────── Diálogo de confirmación ─────────────────── */
+/* Diálogo de confirmación */
 
 .textoConfirmacion {
   font: var(--texto-cuerpo);

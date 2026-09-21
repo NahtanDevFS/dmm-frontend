@@ -21,12 +21,8 @@ import ModalFichaRecepcion from "./ModalFichaRecepcion";
 import estilos from "./Donaciones.module.css";
 
 /**
- * Recepciones de donación.
- *
- * Una recepción es un envío: una institución, una fecha y el código con que
- * ella identifica la entrega. Lo que llegó dentro son sus lotes, y viven en la
- * ficha, no aquí: un mismo envío puede traer diez insumos distintos y la tabla
- * de cabeceras dejaría de leerse si intentara mostrarlos.
+ * Listado de recepciones de donación (cabeceras de envío)
+ * Los lotes individuales de cada envío se ven dentro de su respectiva ficha
  */
 function PaginaDonaciones() {
   const navegar = useNavigate();
@@ -38,7 +34,7 @@ function PaginaDonaciones() {
   const [institucionId, setInstitucionId] = useState("");
   const [incluirInactivas, setIncluirInactivas] = useState(false);
 
-  /** Con inactivas: una recepción puede apuntar a una institución dada de baja. */
+  /** Con inactivas: una recepción puede apuntar a una institución dada de baja */
   const instituciones = useCatalogo<InstitucionDonante>(
     "instituciones-donantes",
     { incluirInactivos: true },
@@ -61,7 +57,7 @@ function PaginaDonaciones() {
   const nombreInstitucion = (idInstitucion: number) =>
     instituciones.opciones.find((i) => i.id === idInstitucion)?.nombre ?? "—";
 
-  /** Devuelve la barra de direcciones al módulo si se entró por la ruta profunda. */
+  /** Devuelve la barra de direcciones al módulo si se entró por la ruta profunda */
   const limpiarRuta = () => {
     if (rutaId !== null) navegar("/donaciones", { replace: true });
   };
@@ -201,7 +197,7 @@ function PaginaDonaciones() {
           abierto={creando}
           onCerrar={() => setCreando(false)}
           // Registrar el envío y no poder abrirlo obligaría a buscarlo en la
-          // tabla, y lo que sigue después de registrarlo es cargar sus lotes.
+          // tabla, y lo que sigue después de registrarlo es cargar sus lotes
           onCreada={(recepcionNueva) => setFichaId(recepcionNueva)}
         />
       )}
@@ -209,7 +205,7 @@ function PaginaDonaciones() {
       {fichaId !== null && (
         <ModalFichaRecepcion
           // La clave remonta la ficha al cambiar de recepción: sin ella se
-          // reutilizaría el estado del modal de edición de la anterior.
+          // reutilizaría el estado del modal de edición de la anterior
           key={fichaId}
           recepcionId={fichaId}
           abierto

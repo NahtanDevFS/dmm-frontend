@@ -22,20 +22,8 @@ import estilos from "./Catalogos.module.css";
 const TODAS = "";
 
 /**
- * Qué formularios exige cada categoría de insumo, y bajo qué modalidad.
- *
- * Hasta ahora esto solo se podía configurar insertando filas por SQL a mano,
- * siguiendo la migración 17 como plantilla. Eso significaba que agregar un
- * formulario nuevo dependía de alguien con acceso a la base, y que nadie
- * podía ver desde el sistema qué exigía cada categoría.
- *
- * La modalidad es lo que permite que una silla de ruedas pida el estudio
- * socioeconómico cuando se dona y no cuando se presta. «Todas» —el valor por
- * omisión— deja el formulario exigido en cualquier caso, que es como se
- * comportaban las asignaciones anteriores.
- *
- * No se administran aquí los CAMPOS de cada formulario: eso vive en el
- * módulo de Formularios. Aquí solo se decide qué formulario aplica a qué.
+ * Qué formularios exige cada categoría de insumo y bajo qué modalidad
+ * No administra campos del formulario, solo asignaciones
  */
 function SeccionFormulariosCategoria() {
   const clienteQuery = useQueryClient();

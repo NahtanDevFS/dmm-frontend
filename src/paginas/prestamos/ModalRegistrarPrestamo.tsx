@@ -30,21 +30,8 @@ import SeccionEvidenciasContrato from "./SeccionEvidenciasContrato";
 import estilos from "./Prestamos.module.css";
 
 /**
- * Registrar un préstamo completo: la entrega del equipo y su contrato.
- *
- * El préstamo no pasa por solicitud. Una solicitud existe para decidir si
- * corresponde donar, con su estudio socioeconómico y su aprobación; un
- * préstamo es un acuerdo hablado que se formaliza firmando un papel. Hacerle
- * recorrer solicitud, aprobación, despacho y recién después contrato era
- * cuatro vueltas para un trámite de un paso.
- *
- * Dos pasos en la misma ventana, como la entrega directa de medicina: primero
- * quién se lleva qué y hasta cuándo, después las fotos del contrato firmado y
- * del DPI. El modal no se cierra en el medio porque los papeles están sobre
- * la mesa en ese momento, no una pantalla después.
- *
- * Solo se ofrecen categorías que admiten préstamo: prestar tiene sentido con
- * lo que se devuelve.
+ * Registro de préstamo (entrega y contrato) sin solicitud previa
+ * Flujo de dos pasos ininterrumpido exclusivo para equipo prestable
  */
 function ModalRegistrarPrestamo({
   abierto,
@@ -70,10 +57,7 @@ function ModalRegistrarPrestamo({
     queryFn: () => listarStockInsumos(),
   });
 
-  /**
-   * Solo el equipo prestable, agrupado por categoría y con las existencias a
-   * la vista: quien atiende necesita saber si hay antes de comprometerse.
-   */
+  /** Equipo prestable agrupado por categoría con existencias visibles */
   const porCategoria = useMemo(() => {
     const grupos = new Map<string, StockInsumoListado[]>();
     for (const fila of stock.data ?? []) {
@@ -89,11 +73,7 @@ function ModalRegistrarPrestamo({
     (i) => i.insumo_id === Number(insumoId),
   );
 
-  /**
-   * Las unidades concretas del equipo elegido, cada una con su número de
-   * serie. Solo tiene sentido en equipo serializado: en lo demás la unidad da
-   * igual y el reparto FEFO es lo correcto.
-   */
+  /** Unidades con serie del equipo elegido (irrelevante para equipo general) */
   const unidades = useQuery({
     queryKey: [CLAVE_INSUMOS, insumoId, "unidades"],
     queryFn: () => listarUnidadesDisponibles(Number(insumoId)),
@@ -151,7 +131,7 @@ function ModalRegistrarPrestamo({
   const listoParaEnviar =
     persona !== null && insumoId !== "" && fechaValida && unidadResuelta;
 
-  // ── Paso 2: el préstamo existe, faltan los papeles ─────────────────────
+  // Paso 2: el préstamo existe, faltan los papeles 
   if (contratoCreado !== null) {
     return (
       <Modal
@@ -195,7 +175,7 @@ function ModalRegistrarPrestamo({
     );
   }
 
-  // ── Paso 1: registrar ──────────────────────────────────────────────────
+  // Paso 1: registrar
   return (
     <Modal
       abierto={abierto}

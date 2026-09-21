@@ -42,7 +42,7 @@
   transform: none;
 }
 
-/* ── Primaria: sólida en Rosa 600. Una por pantalla. ── */
+/* Primaria: sólida en Rosa 600. Una por pantalla. */
 .primaria {
   background-color: var(--color-primary-dark);
   color: var(--color-surface);
@@ -52,7 +52,7 @@
   background-color: color-mix(in srgb, var(--color-primary-dark) 92%, #000);
 }
 
-/* ── Secundaria: contorno rosa. ── */
+/* Secundaria: contorno rosa. */
 .secundaria {
   background-color: transparent;
   border-color: var(--color-primary-dark);
@@ -63,7 +63,7 @@
   background-color: var(--color-primary-light);
 }
 
-/* ── Terciaria: contorno neutro. Cancelar y acciones de descarte. ── */
+/* Terciaria: contorno neutro. Cancelar y acciones de descarte. */
 .terciaria {
   background-color: var(--color-surface);
   border-color: var(--color-border);
@@ -98,7 +98,7 @@
   background-color: color-mix(in srgb, var(--color-danger) 92%, #000);
 }
 
-/* ── Tamaño reducido, para las acciones de fila de una tabla. ── */
+/* Tamaño reducido, para las acciones de fila de una tabla. */
 .pequeno {
   min-height: 36px;
   padding: 0 var(--space-2);

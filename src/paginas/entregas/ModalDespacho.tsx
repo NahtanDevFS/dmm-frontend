@@ -18,19 +18,8 @@ import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import PreviaLotes from "./PreviaLotes";
 
 /**
- * Despacho de una línea de solicitud.
- *
- * Se abre desde la ficha de la solicitud, sobre una línea concreta que ya
- * fija la persona y el insumo — lo único que este modal pregunta es cuánto
- * se entrega ahora (puede ser parcial) y quién lo recibe.
- *
- * Es uno de los dos caminos hacia una entrega. El otro es la entrega directa
- * de medicina o comida (ModalEntregaDirecta), que no nace de ninguna
- * solicitud porque no hay nada que aprobar.
- *
- * Registra un solo insumo aunque la API acepte varios: el despacho parte de
- * UNA línea, y cada línea es de un insumo. Despachar dos líneas a la vez
- * sería otra pantalla, con la lista de líneas pendientes de la solicitud.
+ * Despacho de una línea específica de solicitud
+ * Registra cuánto se entrega y quién recibe (camino alterno a entrega directa)
  */
 function ModalDespacho({
   solicitudId,
@@ -47,7 +36,7 @@ function ModalDespacho({
   personaId: number;
   insumoId: number;
   insumoNombre: string;
-  /** Lo que queda por entregar de esta línea (cantidad_requerida - cantidad_entregada). */
+  /** Lo que queda por entregar de esta línea (cantidad_requerida - cantidad_entregada) */
   pendiente: number;
   abierto: boolean;
   onCerrar: () => void;
@@ -97,7 +86,7 @@ function ModalDespacho({
       onCerrar();
     },
     // Incluye el rechazo por stock insuficiente (sp_registrar_entrega): el
-    // backend ya redacta el mensaje en español con las cantidades exactas.
+    // backend ya redacta el mensaje en español con las cantidades exactas
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 

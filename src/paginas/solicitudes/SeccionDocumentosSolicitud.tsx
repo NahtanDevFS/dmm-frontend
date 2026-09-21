@@ -17,21 +17,8 @@ import { CLAVE_FORMULARIOS, listarFormularios } from "../../api/formularios";
 import estilos from "./Solicitudes.module.css";
 
 /**
- * El legajo escaneado de la solicitud.
- *
- * Reemplaza a la sección de recetas médicas, que era residuo del diseño
- * viejo: la tabla receta_medica nació cuando la medicina pasaba por
- * solicitud, y con el flujo actual la receta se sube como evidencia de la
- * entrega directa. Aquella sección aparecía en toda solicitud, incluidas las
- * de silla de ruedas, donde no tiene ningún sentido.
- *
- * Aquí cabe cualquier respaldo en papel, y por eso se enumeran arriba los
- * casos habituales: sin esa pista, una sección llamada solo «Documentos» no
- * le dice a nadie qué se espera que suba.
- *
- * Identificar a qué formulario corresponde cada escaneo es opcional: hay
- * documentos del legajo que no son ninguno de los formularios, y obligar a
- * clasificar empuja a elegir cualquiera con tal de poder guardar.
+ * Legajo escaneado de respaldo de solicitud
+ * Admite cualquier documento (recetas, formularios), clasificación opcional
  */
 function SeccionDocumentosSolicitud({
   solicitudId,

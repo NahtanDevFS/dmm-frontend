@@ -5,7 +5,7 @@
   font-size: 0.9rem;
 }
 
-/* ─────────────────────── Línea ─────────────────────── */
+/* Línea */
 
 .svg {
   width: 100%;
@@ -25,7 +25,7 @@
   fill: var(--color-text-muted);
 }
 
-/* ─────────────────────── Barras ─────────────────────── */
+/* Barras */
 
 .listaBarras {
   list-style: none;

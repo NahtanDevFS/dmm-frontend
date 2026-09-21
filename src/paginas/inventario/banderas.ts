@@ -1,18 +1,8 @@
 import type { Insumo } from "../../api/inventario";
 
 /**
- * Las tres banderas del insumo, con el nombre que ve el usuario y lo que
- * realmente provocan.
- *
- * Vive aparte del formulario porque las lee también el listado y la ficha: si
- * cada pantalla escribiera su propio texto, el mismo campo acabaría explicado
- * de tres maneras distintas. La etiqueta corta es para la insignia de la
- * tabla; la explicación, para la casilla del formulario, donde hay sitio para
- * decir qué se rompe si se marca.
- *
- * Están en el insumo y no en su categoría. Dentro de «Medicamentos» conviven
- * productos que caducan y productos que no, así que heredarlas de la categoría
- * obligaba a inventar una categoría por cada combinación de requisitos.
+ * Definición centralizada de banderas de insumo (etiquetas y explicaciones)
+ * Asignadas por insumo, no por categoría, para admitir variaciones internas
  */
 export interface DefinicionBandera {
   clave: keyof Pick<

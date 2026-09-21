@@ -1,16 +1,11 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Reportes: personas atendidas, stock por categoría, población beneficiada.
- * Único módulo donde ALCALDE tiene acceso — solo lectura, nunca escritura.
- *
- * Cada reporte admite tres formatos vía `?formato=`: json (para mostrar la
- * tabla en pantalla), xlsx y pdf (para descargar). El backend genera el
- * archivo binario directamente — el frontend no arma el Excel ni el PDF, solo
- * pide el formato correcto y ofrece el resultado para guardar.
+ * Reportes descargables o tabulares para perfiles como ALCALDE (solo lectura)
+ * Permite formatos json/xlsx/pdf
  */
 
-/* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
+/* Tipos del módulo */
 
 export type FormatoReporte = "json" | "xlsx" | "pdf";
 
@@ -62,7 +57,7 @@ export interface FiltrosPoblacionBeneficiada {
   soloConDiscapacidad?: boolean;
 }
 
-/* ═══════════════════════════ Cliente ═══════════════════════════ */
+/* Cliente */
 
 export const CLAVE_REPORTES = "reportes";
 
@@ -86,12 +81,7 @@ async function obtenerReporte(
   return data;
 }
 
-/**
- * Descarga un reporte como archivo. axios con responseType "blob" no puede
- * distinguir un archivo real de un error JSON hasta después de recibirlo, así
- * que si el content-type no es el del archivo esperado, se relee el blob como
- * texto y se relanza como un error normal para que mensajeDeError lo entienda.
- */
+/** Descarga directa (maneja fallback si se recibe JSON indicando error en vez de Blob) */
 async function descargarReporte(
   ruta: string,
   filtros: object,
@@ -124,7 +114,7 @@ async function descargarReporte(
   URL.revokeObjectURL(url);
 }
 
-/* ── Personas atendidas ── */
+/* Personas atendidas */
 
 export function obtenerPersonasAtendidas(
   filtros: FiltrosPersonasAtendidas,
@@ -144,7 +134,7 @@ export function descargarPersonasAtendidas(
   );
 }
 
-/* ── Stock por categoría ── */
+/* Stock por categoría */
 
 export function obtenerStockPorCategoria(
   filtros: FiltrosStockPorCategoria,
@@ -164,7 +154,7 @@ export function descargarStockPorCategoria(
   );
 }
 
-/* ── Población beneficiada ── */
+/* Población beneficiada */
 
 export function obtenerPoblacionBeneficiada(
   filtros: FiltrosPoblacionBeneficiada,

@@ -1,37 +1,18 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Formularios configurables: qué formulario exige una categoría de insumo
- * (típicamente equipo) antes de aprobar una línea, de qué campos se compone
- * cada uno, y las respuestas capturadas para una línea de solicitud
- * concreta.
- *
- * Un campo de selección obtiene sus opciones de exactamente un lugar: o de
- * un catálogo reutilizable (catalogo_id, compartido entre formularios —
- * Tenencia de vivienda, Material de construcción) o de sus propias opciones
- * (formulario_campo_opcion — las tallas de una silla de ruedas, que no
- * tiene sentido reutilizar en otro formulario). El backend nunca manda
- * ambos a la vez para un mismo campo.
- *
- * grupo_repetible agrupa los campos que forman una tabla de filas
- * repetibles dentro del formulario (grupo familiar, egresos mensuales):
- * varios campos comparten el mismo nombre de grupo, y numero_fila en la
- * respuesta distingue cada repetición.
+ * Gestión de formularios dinámicos, sus campos y respuestas
+ * Administra asignaciones por categoría y soporte para grupos repetibles
  */
 
-/* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
+/* Tipos del módulo */
 
 export const TIPO_DATO = {
   TEXTO_CORTO: "TEXTO_CORTO",
   TEXTO_LARGO: "TEXTO_LARGO",
   NUMERO: "NUMERO",
   FECHA: "FECHA",
-  /**
-   * Una fecha de la que se deriva una edad. Se guarda igual que FECHA —el
-   * valor es la fecha— pero al mostrarla se calcula y se enseña la edad al
-   * lado. La edad no se guarda: es un número que envejece, y un estudio de
-   * hace dos años diría que el hijo tiene 8 cuando ya tiene 10.
-   */
+  /** Fecha para calcular edad dinámicamente al visualizar (se almacena como FECHA) */
   FECHA_NACIMIENTO: "FECHA_NACIMIENTO",
   SI_NO: "SI_NO",
   SELECCION_UNICA: "SELECCION_UNICA",
@@ -127,12 +108,12 @@ export interface DatosRespuesta {
   valor_texto: string | null;
 }
 
-/* ═══════════════════════════ Cliente ═══════════════════════════ */
+/* Cliente */
 
 export const CLAVE_FORMULARIOS = "formularios";
 export const CLAVE_CATALOGOS_FORMULARIO = "catalogos-formulario";
 
-/* ── Catálogos reutilizables ── */
+/* Catálogos reutilizables */
 
 export async function listarCatalogosFormulario(): Promise<Catalogo[]> {
   const { data } = await axiosClient.get<Catalogo[]>("formularios/catalogos");
@@ -155,7 +136,7 @@ export async function listarTiposDato(): Promise<TipoDatoCampo[]> {
   return data;
 }
 
-/* ── Formularios: lectura ── */
+/* Formularios: lectura */
 
 export async function listarFormularios(): Promise<Formulario[]> {
   const { data } = await axiosClient.get<Formulario[]>("formularios");
@@ -164,12 +145,7 @@ export async function listarFormularios(): Promise<Formulario[]> {
 
 export async function obtenerFormulario(
   id: number,
-  /**
-   * Solo para la pantalla de administración. Al LLENAR un formulario los
-   * campos desactivados no deben aparecer —esa es la razón de desactivarlos—
-   * pero al DEFINIRLO hay que verlos: siguen ocupando su número de orden, que
-   * la base exige único, y sin verlos no se puede reactivar ninguno.
-   */
+  /** Incluir inactivos (solo útil para edición en administración) */
   incluirInactivos = false,
 ): Promise<FormularioConCampos> {
   const { data } = await axiosClient.get<FormularioConCampos>(
@@ -188,7 +164,7 @@ export async function listarOpcionesCampo(
   return data;
 }
 
-/* ── Formularios: administración (DIRECCION) ── */
+/* Formularios: administración (DIRECCION) */
 
 export async function crearFormulario(datos: {
   nombre: string;
@@ -230,12 +206,8 @@ export async function agregarCampoFormulario(
 }
 
 /**
- * Mueve un campo un lugar arriba o abajo dentro de su formulario.
- *
- * Se mueve de a uno en vez de escribir el número de orden: al definir un
- * formulario nadie sabe de antemano que un campo va en la posición 14, y
- * escribirlo a mano choca contra la unicidad de (formulario, orden) en cuanto
- * se equivoca. El intercambio lo hace la base en una transacción.
+ * Mueve un campo un lugar arriba/abajo
+ * Evita conflictos de ordenamiento manual delegando en la base de datos
  */
 export async function moverCampoFormulario(
   campoId: number,
@@ -260,11 +232,8 @@ export async function editarCampoFormulario(
 }
 
 /**
- * Una asignación categoría → formulario, tal como se administra.
- *
- * `modalidad_solicitud_id` en null significa que el formulario aplica a
- * cualquier modalidad. Con valor, solo a esa: es lo que permite exigir el
- * estudio socioeconómico en donación y no en préstamo.
+ * Asignación administrable de categoría a formulario
+ * modalidad_solicitud_id en null aplica a cualquier modalidad
  */
 export interface AsignacionFormulario {
   id: number;
@@ -289,12 +258,8 @@ export async function listarAsignacionesFormulario(
 }
 
 /**
- * Qué formularios va a exigir un insumo bajo cierta modalidad, ANTES de que
- * exista la línea de solicitud.
- *
- * Es lo que permite avisarlo mientras la persona sigue en la ventanilla. El
- * estudio socioeconómico hay que llenarlo con ella presente; descubrirlo al
- * intentar aprobar, cuando ya se fue, vuelve el dato irrecuperable.
+ * Formularios exigidos por insumo y modalidad (previo a crear línea)
+ * Permite recabar datos presenciales (ej. estudio socioeconómico) oportunamente
  */
 export async function listarFormulariosDeInsumo(
   insumoId: number,
@@ -330,7 +295,7 @@ export async function quitarFormularioDeCategoria(
   );
 }
 
-/* ── Respuestas de una línea de solicitud ── */
+/* Respuestas de una línea de solicitud */
 
 /** Formularios exigidos por la línea (según la categoría de su insumo), con su avance. */
 export async function listarFormulariosDeLinea(

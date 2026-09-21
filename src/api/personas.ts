@@ -1,7 +1,7 @@
 import axiosClient from "./axiosClient";
 import type { Persona, Sobre } from "../types/api";
 
-/* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
+/* Tipos del módulo */
 
 export interface DiscapacidadDePersona {
   discapacidad_id: number;
@@ -50,11 +50,7 @@ export interface DatosBasePersona {
   genero_id?: number | null;
   comunidad_id?: number | null;
   telefono?: string | null;
-  /**
-   * Lo que pide la sección I del estudio socioeconómico. Vive en la ficha y
-   * no dentro del formulario: dos copias del mismo dato pueden discrepar, y
-   * la del formulario no sirve para buscar ni para reportes.
-   */
+  /** Datos socioeconómicos centralizados para evitar discrepancias */
   estado_civil_id?: number | null;
   grado_academico_id?: number | null;
   ocupacion_id?: number | null;
@@ -73,9 +69,8 @@ export interface ContactoNuevo {
 }
 
 /**
- * Alta completa. El backend crea persona, discapacidades, encargados y
- * contactos en una sola transacción, así que se envía todo junto: si algo
- * falla no queda una persona a medias con sus encargados sueltos.
+ * Alta completa transaccional (persona, discapacidades, encargados, contactos)
+ * Evita datos parciales si falla alguna inserción dependiente
  */
 export interface CrearPersona extends DatosBasePersona {
   discapacidadIds?: number[];
@@ -83,7 +78,7 @@ export interface CrearPersona extends DatosBasePersona {
   contactos?: ContactoNuevo[];
 }
 
-/* ═══════════════════════════ Cliente ═══════════════════════════ */
+/* Cliente */
 
 export const CLAVE_PERSONAS = "personas";
 
@@ -123,7 +118,7 @@ export async function reactivarPersona(id: number): Promise<void> {
   await axiosClient.patch("personas/" + id + "/reactivar");
 }
 
-/* ── Discapacidades ── */
+/* Discapacidades */
 
 export async function agregarDiscapacidad(
   personaId: number,
@@ -143,7 +138,7 @@ export async function quitarDiscapacidad(
   );
 }
 
-/* ── Encargados ── */
+/* Encargados */
 
 export async function vincularEncargado(
   personaId: number,
@@ -161,7 +156,7 @@ export async function desvincularEncargado(
   );
 }
 
-/* ── Contactos ── */
+/* Contactos */
 
 export async function agregarContacto(
   personaId: number,
@@ -190,7 +185,7 @@ export async function eliminarContacto(
   );
 }
 
-/* ── Documentos de identificación ── */
+/* Documentos de identificación */
 
 export async function listarDocumentos(
   personaId: number,

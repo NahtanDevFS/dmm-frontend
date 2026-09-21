@@ -18,17 +18,8 @@ import ModalFichaEntrega from "./ModalFichaEntrega";
 import estilos from "./Entregas.module.css";
 
 /**
- * Entregas: el despacho real de insumos, por cualquiera de los dos caminos.
- *
- * El despacho de equipo NO se da de alta aquí: vive en la ficha de la
- * solicitud (Ver solicitud → Insumos solicitados → Despachar), porque
- * necesita elegir primero QUÉ línea pendiente se está despachando y ese
- * contexto solo existe allá.
- *
- * La entrega directa de medicina y comida sí nace aquí, porque no tiene
- * solicitud de la cual colgarse: la persona llega, hay existencias y se le
- * entrega. El modal no se cierra al registrar — encadena con la carga de la
- * receta y el formulario firmado, que es el mismo acto.
+ * Listado de entregas y punto de entrada para entregas directas
+ * El despacho por solicitud se hace desde la ficha de solicitud respectiva
  */
 function PaginaEntregas() {
   const navegar = useNavigate();
@@ -43,11 +34,7 @@ function PaginaEntregas() {
   const [hasta, setHasta] = useState("");
   const [incluirAnuladas, setIncluirAnuladas] = useState(false);
 
-  // El filtro de persona es client-side, igual que en Solicitudes: el
-  // listado no tiene vista propia por nombre, solo por id (que nadie tiene a
-  // mano). El de insumo sí se manda al servidor porque listarEntregas ya
-  // filtra por insumoId exacto vía EXISTS -- pero ese id tampoco lo escribe
-  // nadie a mano, así que aquí también se filtra sobre lo ya traído.
+  // Filtros aplicados localmente sobre los datos traídos
   const filtros = useMemo(
     () => ({
       desde: desde || undefined,

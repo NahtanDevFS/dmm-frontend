@@ -1,28 +1,19 @@
 /**
- * Tipos del API — Sistema DMM Usumatlán.
- *
- * Aquí viven solo las formas transversales: el sobre de paginación, la sesión,
- * los roles y las entidades que consume más de un módulo. Las entidades propias
- * de un módulo (solicitud, entrega, contrato…) llegan con el PR de ese módulo,
- * junto a su cliente, para no acumular un archivo que nadie sabe si sigue
- * cuadrando con el backend.
+ * Tipos del API — Sistema DMM Usumatlán
+ * Formas transversales (paginación, sesión, roles, entidades multicomponente)
  */
 
-/* ═══════════════════════════ Paginación ═══════════════════════════ */
+/* Paginación  */
 
 /**
- * Sobre uniforme de los listados de negocio.
- * Espejo de RespuestaPaginada<T> en dmm-backend/src/lib/paginacion.ts.
- *
- * Lo devuelven: personas, insumos, recepciones, solicitudes, entregas,
- * contratos, usuarios y auditoría. Los catálogos de selección NO: entregan el
- * arreglo completo porque su consumidor es un <select>.
+ * Sobre uniforme de listados de negocio (espejo de RespuestaPaginada<T>)
+ * Usado por listas paginadas, excepto catálogos de selección
  */
 export interface Sobre<T> {
   total: number;
   limite: number;
   desplazamiento: number;
-  /** Lo calcula el servidor para que el cliente no repita la aritmética. */
+  /** Calculado por el servidor para evitar repetir aritmética en el cliente */
   hay_mas: boolean;
   datos: T[];
 }
@@ -30,15 +21,15 @@ export interface Sobre<T> {
 export const LIMITE_MAXIMO = 200;
 export const LIMITE_POR_DEFECTO = 50;
 
-/* ═══════════════════════════ Errores ═══════════════════════════ */
+/* Errores */
 
 export interface RespuestaError {
   message: string;
-  /** Solo en respuestas de validación: detalle por campo. */
+  /** Detalle por campo solo en respuestas de validación */
   errores?: Record<string, string[]>;
 }
 
-/* ═══════════════════════════ Roles y sesión ═══════════════════════════ */
+/* Roles y sesión */
 
 export const ROL = {
   EMPLEADO_DMM: "EMPLEADO_DMM",
@@ -50,18 +41,11 @@ export const ROL = {
 export type Rol = (typeof ROL)[keyof typeof ROL];
 
 /**
- * Conjuntos de autorización, espejo de dmm-backend/src/config/roles.ts.
- *
- * El backend es la autoridad: los permisos están codificados en cada ruta con
- * requireRole y no son administrables desde ninguna pantalla. Esta copia sirve
- * únicamente para no ofrecer en la interfaz lo que el servidor va a rechazar
- * con un 403. Si ambos se separan, manda el backend.
- *
- * Se nombran por intención —qué permiten— y no por quién los compone, para que
- * agregar o quitar un rol sea una decisión consciente en un solo lugar.
+ * Conjuntos de autorización (espejo de backend)
+ * Nombrados por intención, restringen opciones de interfaz sin suplir al backend
  */
 
-/** Cualquier usuario autenticado. La propia sesión y la propia contraseña. */
+/** Cualquier usuario autenticado para sesión y contraseña propia */
 export const TODOS: readonly Rol[] = [
   ROL.EMPLEADO_DMM,
   ROL.DIRECTORA,
@@ -70,9 +54,8 @@ export const TODOS: readonly Rol[] = [
 ];
 
 /**
- * Operación diaria: beneficiarios, inventario, solicitudes, entregas y
- * préstamos. Excluye a ALCALDE por decisión de negocio: su acceso es
- * exclusivamente el módulo de reportes.
+ * Operación diaria excluyendo al ALCALDE
+ * Incluye beneficiarios, inventario, solicitudes, entregas y préstamos
  */
 export const OPERACION: readonly Rol[] = [
   ROL.EMPLEADO_DMM,
@@ -80,13 +63,10 @@ export const OPERACION: readonly Rol[] = [
   ROL.ADMINISTRADOR,
 ];
 
-/**
- * Decisiones que quedan con dirección: catálogos, aprobación y rechazo de
- * solicitudes, anulación de entregas, multas y marcado de contratos vencidos.
- */
+/** Decisiones exclusivas de dirección (catálogos, aprobaciones, anulaciones) */
 export const DIRECCION: readonly Rol[] = [ROL.DIRECTORA, ROL.ADMINISTRADOR];
 
-/** Único módulo donde entra ALCALDE, y sin ningún endpoint de escritura. */
+/** Módulo exclusivo de reportes, de solo lectura, donde entra ALCALDE */
 export const REPORTES: readonly Rol[] = [
   ROL.DIRECTORA,
   ROL.ALCALDE,
@@ -94,17 +74,8 @@ export const REPORTES: readonly Rol[] = [
 ];
 
 /**
- * Administración del sistema: gestión de usuarios, catálogo de roles y
- * consulta de la bitácora de auditoría.
- *
- * Incluye a DIRECTORA por decisión de la DMM: en una dirección municipal
- * pequeña no hay un área de sistemas aparte, y es la directora quien da de
- * alta al personal y responde por lo que queda registrado. Espejo de
- * ADMINISTRACION en dmm-backend/src/config/roles.ts, que se llamaba
- * SOLO_ADMIN mientras el conjunto tuvo un solo rol.
- *
- * En la práctica deja los dos roles equivalentes en poder, porque quien
- * gestiona usuarios puede crear otra cuenta de administrador.
+ * Administración del sistema (usuarios, roles, auditoría)
+ * Incluye a DIRECTORA por requerimiento del negocio
  */
 export const ADMINISTRACION: readonly Rol[] = [
   ROL.DIRECTORA,
@@ -112,17 +83,8 @@ export const ADMINISTRACION: readonly Rol[] = [
 ];
 
 /**
- * Resolución de solicitudes de apoyo: aprobar y rechazar.
- *
- * Es el único conjunto que se aparta a propósito del backend. El servidor
- * admite DIRECTORA y ADMINISTRADOR en POST /solicitudes/:id/aprobar, pero la
- * dirección de la DMM decidió que el dictamen es competencia exclusiva de la
- * directora: administración existe para sostener el sistema, no para resolver
- * expedientes de personas.
- *
- * La interfaz por tanto solo se lo ofrece a DIRECTORA. Un ADMINISTRADOR que
- * llamara al endpoint a mano seguiría siendo aceptado por el servidor; cerrar
- * también esa puerta exige un cambio de backend.
+ * Resolución de solicitudes exclusivamente por DIRECTORA en interfaz
+ * Se aparta intencionalmente del backend que admite también ADMINISTRADOR
  */
 export const RESOLUCION_SOLICITUD: readonly Rol[] = [ROL.DIRECTORA];
 
@@ -133,18 +95,17 @@ export function tieneRol(
   return rol !== undefined && (permitidos as readonly string[]).includes(rol);
 }
 
-/** Lo que devuelven POST /auth/login y GET /auth/me. */
+/** Datos devueltos por POST /auth/login y GET /auth/me */
 export interface UsuarioSesion {
   id: number;
-  /** Identificador de acceso: ASCII, sin tildes ni espacios. */
+  /** Identificador de acceso ASCII sin tildes ni espacios */
   username: string;
-  /** Nombre de la persona, como se escribe. Nulo en cuentas anteriores. */
+  /** Nombre de la persona (puede ser nulo en cuentas antiguas) */
   nombre_completo: string | null;
   rol: Rol;
   /**
-   * Programa del que es encargada. Preselecciona el campo al crear una
-   * solicitud; no restringe qué puede registrar, porque cuando una falta
-   * otra la cubre. Nulo para Directora, Alcalde y Administrador.
+   * Programa a cargo, preselecciona el campo al crear solicitud
+   * Nulo para Directora, Alcalde y Administrador
    */
   programa_id: number | null;
   programa_nombre: string | null;
@@ -154,25 +115,21 @@ export interface RespuestaSesion {
   usuario: UsuarioSesion;
 }
 
-/* ═══════════════════════════ Catálogos ═══════════════════════════ */
+/* Catálogos */
 
-/**
- * Forma común de los catálogos con CRUD genérico: discapacidades, programas,
- * categorías de insumo, marcas de insumo, unidades de medida e instituciones
- * donantes.
- */
+/** Estructura base para catálogos con CRUD genérico */
 export interface ElementoCatalogo {
   id: number;
   nombre: string;
   activo: boolean;
 }
 
-/** Único catálogo con descripción. */
+/** Catálogo específico que incluye descripción */
 export interface Programa extends ElementoCatalogo {
   descripcion: string | null;
 }
 
-/** Único catálogo con datos de contacto. */
+/** Catálogo específico que incluye datos de contacto */
 export interface InstitucionDonante extends ElementoCatalogo {
   telefono: string | null;
   correo: string | null;
@@ -184,53 +141,49 @@ export interface Municipio extends ElementoCatalogo {
   departamento_id: number;
 }
 
-/** Módulo aparte del CRUD genérico: su unicidad es por (nombre, municipio_id). */
+/** Entidad con clave única compuesta por nombre y municipio_id */
 export interface Comunidad extends ElementoCatalogo {
   municipio_id: number;
   ubicacion: string | null;
 }
 
-/* ═══════════════════════════ Beneficiarios ═══════════════════════════ */
+/* Beneficiarios */
 
 /**
- * Persona tal como la devuelve el listado. Espejo de SELECT_PUBLICO en
- * dmm-backend/src/modules/personas/persona.repository.ts: el repositorio
- * selecciona columnas explícitas, así que la ficha no expone más que esto.
+ * Datos de persona devueltos en listados
+ * Refleja SELECT_PUBLICO del repositorio en el backend
  */
 export interface Persona {
   id: number;
   cui_dpi: string | null;
   nombres: string;
   apellidos: string;
-  /** ISO 8601. Un menor sin DPI exige encargado, y lo valida la base. */
+  /** Fecha ISO 8601, requiere encargado si es menor sin DPI */
   fecha_nacimiento: string;
   genero_id: number | null;
   comunidad_id: number | null;
   telefono: string | null;
   /**
-   * Los datos que pide la sección I del estudio socioeconómico. Se guardan
-   * en la ficha y NO se vuelven a preguntar dentro de cada formulario: dos
-   * copias del mismo dato pueden discrepar, y la del formulario no sirve
-   * para buscar ni para reportes.
+   * Datos de sección I del estudio socioeconómico
+   * Centralizados aquí para evitar duplicación en formularios
    */
   direccion: string | null;
   estado_civil_id: number | null;
   grado_academico_id: number | null;
   ocupacion_id: number | null;
   /**
-   * Municipio donde nació, que cuelga de su departamento. Distinto de la
-   * comunidad, que es dónde vive hoy: se puede nacer en un sitio y residir en
-   * otro, y el estudio socioeconómico distingue las dos cosas.
+   * Municipio de nacimiento
+   * Distinto de la comunidad actual de residencia
    */
   municipio_nacimiento_id: number | null;
   activo: boolean;
 }
 
-/* ═══════════════════════════ Inventario ═══════════════════════════ */
+/* Inventario */
 
 /**
- * Semáforo de caducidad. GRIS es «sin fecha de caducidad», no un estado
- * intermedio: los insumos que no caducan nunca entran en la escala de colores.
+ * Semáforo de caducidad
+ * GRIS indica productos sin fecha de caducidad aplicable
  */
 export const SEMAFORO = {
   VENCIDO: "VENCIDO",

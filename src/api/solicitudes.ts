@@ -1,13 +1,8 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Solicitudes de apoyo: la cabecera del trámite, sus líneas por insumo y las
- * recetas médicas que las respaldan.
- *
- * Registrar y dar seguimiento es OPERACION, como el resto del trabajo diario.
- * Aprobar y rechazar es DIRECCION en el backend, pero la interfaz se aparta a
- * propósito y solo se lo ofrece a DIRECTORA (types/api.ts, RESOLUCION_SOLICITUD):
- * es decisión de negocio, no del servidor.
+ * Solicitudes de apoyo (cabecera, líneas, recetas)
+ * Operaciones de seguimiento (OPERACION), aprobaciones (DIRECTORA exclusivamente)
  */
 
 /*Tipos del módulo */
@@ -38,10 +33,7 @@ export interface Solicitud {
   fecha_aprobacion: string | null;
   aprobado_por: number | null;
   observaciones_trabajo_social: string | null;
-  /**
-   * Quien registró no era la encargada de ese programa: estaba cubriendo a
-   * otra persona. Se fija al crear y no se recalcula.
-   */
+  /** Indicador de registro en suplencia (fijado a la creación, no recalculado) */
   registrada_en_suplencia: boolean;
   activo: boolean;
 }
@@ -74,13 +66,7 @@ export interface RecetaMedica {
   activo: boolean;
 }
 
-/**
- * Un documento del legajo: el respaldo en papel del trámite. Formularios
- * firmados, hojas de firma, recetas, constancias.
- *
- * `formulario_id` dice a cuál de los formularios corresponde el escaneo, y es
- * opcional: no todo lo que se adjunta es uno de ellos.
- */
+/** Documentos de legajo en papel (formularios_id opcional) */
 export interface DocumentoSolicitud {
   id: number;
   solicitud_id: number;
@@ -94,21 +80,12 @@ export interface DocumentoSolicitud {
 /** Lo que devuelve GET /solicitudes/:id: la cabecera con sus sub-recursos. */
 export interface SolicitudDetalle extends Solicitud {
   lineas: LineaSolicitud[];
-  /**
-   * Residuo del diseño anterior, cuando la medicina pasaba por solicitud. Con
-   * el flujo actual la receta se adjunta como evidencia de la entrega
-   * directa, o aquí mismo como un documento más del legajo.
-   */
+  /** Recetas médicas (mantenidas por compatibilidad con flujo anterior) */
   recetas: RecetaMedica[];
   documentos: DocumentoSolicitud[];
 }
 
-/**
- * Una fila de v_solicitudes_activas: una LÍNEA con nombres ya resueltos y el
- * estado de su cabecera para contexto. La vista está a nivel de línea, no de
- * solicitud, porque un trámite puede pedir varios insumos y cada uno avanza
- * por su cuenta; excluye ENTREGADA y CANCELADA.
- */
+/** LÍNEA de solicitud activa (v_solicitudes_activas), excluye estados finales */
 export interface LineaSolicitudActiva {
   solicitud_id: number;
   detalle_solicitud_id: number;
@@ -129,20 +106,12 @@ export interface LineaSolicitudActiva {
 
 export interface DatosLineaNueva {
   insumo_id: number;
-  /**
-   * En unidad base. Se omite cuando se pide por presentación: en ese caso el
-   * backend hace la conversión, para que el número que gobierna stock y
-   * despacho no dependa de que el navegador multiplicara bien.
-   */
+  /** Cantidad requerida en unidad base (calculada en backend si se usa presentación) */
   cantidad_requerida?: number;
   /** "2 cajas": van juntas o no van. */
   presentacion_solicitud_id?: number;
   cantidad_presentacion?: number;
-  /**
-   * Bajo qué figura se entrega: donación definitiva o préstamo. Decide qué
-   * formularios se van a exigir y no se puede cambiar después — si la figura
-   * cambia, es una solicitud nueva.
-   */
+  /** Figura de entrega (donación/préstamo), determina formularios exigidos y es inmutable */
   modalidad_solicitud_id: number;
 }
 
@@ -161,15 +130,11 @@ export interface FiltrosSolicitudes {
   programaId?: number;
   estadoLinea?: EstadoLinea;
   soloPendientesAprobacion?: boolean;
-  /**
-   * Incluye las líneas ya entregadas o canceladas. Sin esto desaparecen del
-   * listado, y con ellas el acceso a sus formularios, sus documentos y su
-   * expediente, que siguen existiendo.
-   */
+  /** Mostrar líneas entregadas o canceladas para no ocultar sus formularios/expedientes */
   incluirCerradas?: boolean;
 }
 
-/* ═══════════════════════════ Cliente ═══════════════════════════ */
+/* Cliente */
 
 export const CLAVE_SOLICITUDES = "solicitudes";
 
@@ -203,8 +168,9 @@ export async function editarSolicitud(
   return data;
 }
 
-/* ── Resolución (aprobar / rechazar) ── */
+/* Resolución (aprobar / rechazar) */
 
+/** Aprueba la solicitud y permite avanzar al despacho (solo DIRECTORA) */
 export async function aprobarSolicitud(id: number): Promise<Solicitud> {
   const { data } = await axiosClient.post<Solicitud>(
     "solicitudes/" + id + "/aprobar",
@@ -212,6 +178,7 @@ export async function aprobarSolicitud(id: number): Promise<Solicitud> {
   return data;
 }
 
+/** Rechaza la solicitud indicando un motivo (solo DIRECTORA) */
 export async function rechazarSolicitud(
   id: number,
   motivo: string,
@@ -223,11 +190,7 @@ export async function rechazarSolicitud(
   return data;
 }
 
-/**
- * Cancela el trámite completo: todas sus líneas activas, vía
- * sp_cancelar_solicitud_completa. El motivo es opcional y queda en
- * observaciones_trabajo_social.
- */
+/** Cancela trámite y todas sus líneas activas (sp_cancelar_solicitud_completa) */
 export async function cancelarSolicitud(
   id: number,
   motivo?: string,
@@ -239,7 +202,7 @@ export async function cancelarSolicitud(
   return data;
 }
 
-/* ── Líneas ── */
+/* Líneas */
 
 export async function listarLineas(
   solicitudId: number,
@@ -287,7 +250,7 @@ export async function cancelarLinea(
   return data;
 }
 
-/* ── Recetas médicas ── */
+/* Recetas médicas */
 
 export async function listarRecetas(
   solicitudId: number,
@@ -318,14 +281,7 @@ export async function subirReceta(
   return data;
 }
 
-/**
- * Descarga el expediente completo de la solicitud en PDF.
- *
- * Mismo tratamiento que los reportes: con responseType "blob" axios no puede
- * distinguir un archivo real de un error JSON hasta después de recibirlo, así
- * que si el content-type no es PDF se relee el blob como texto y se relanza
- * como error normal para que mensajeDeError lo entienda.
- */
+/** Descarga expediente PDF (maneja fallback de errores JSON sobre Blobs) */
 export async function descargarExpediente(solicitudId: number): Promise<void> {
   const respuesta = await axiosClient.get(
     "solicitudes/" + solicitudId + "/expediente.pdf",

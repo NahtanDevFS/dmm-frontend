@@ -46,10 +46,8 @@
 }
 
 /**
- * Región de resolución (aprobar/rechazar). Ajuste de Gestalt exigido por el
- * manual: se cierra como bloque propio con título y borde superior Rosa 300,
- * porque la decisión pertenece a otro rol (DIRECTORA) y no al resto de la
- * ficha, que cualquiera de OPERACION puede ver.
+ * Región de resolución (bloque propio con borde superior Rosa 300)
+ * Visualmente separada por pertenecer a DIRECTORA
  */
 .enModal .resolucion {
   padding-top: var(--space-3);
@@ -170,7 +168,7 @@
   }
 }
 
-/* ─────────────────────── Líneas de la solicitud ─────────────────────── */
+/* Líneas de la solicitud */
 
 .formularioLote {
   margin-top: var(--space-3);
@@ -201,7 +199,7 @@
   margin-top: var(--space-2);
 }
 
-/* ─────────────────────── Buscador de persona ─────────────────────── */
+/* Buscador de persona */
 
 .contenedorBuscador {
   position: relative;
@@ -227,12 +225,8 @@
 }
 
 /**
- * Variante no flotante: dentro de un modal, el panel absoluto queda cortado
- * por el overflow-y: auto del cuerpo del modal (Modal.module.css), que es lo
- * que mantiene la cabecera y el pie fijos mientras el contenido larga hace
- * scroll. Ahí el panel empuja el resto del formulario hacia abajo en vez de
- * flotar por encima: hay espacio de sobra para eso dentro de un modal
- * amplio, a diferencia de una fila compacta de filtros.
+ * Variante no flotante para modales (empuja contenido en lugar de flotar)
+ * Evita recortes por el overflow-y del cuerpo del modal
  */
 .resultadosBusquedaFijos {
   display: flex;
@@ -285,7 +279,7 @@
   color: var(--color-text-main);
 }
 
-/* ─────────────────────── Recetas médicas ─────────────────────── */
+/* Recetas médicas */
 
 .listaDocumentos {
   display: flex;

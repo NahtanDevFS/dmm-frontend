@@ -142,12 +142,11 @@
   }
 }
 
-/* ─────────────────────── Alta de lote ─────────────────────── */
+/* Alta de lote */
 
 /**
- * El formulario de lote se cierra como bloque propio dentro de la sección.
- * No es «un campo más» de la ficha: es la tarea de descargar el camión, y
- * mientras dure se repite varias veces seguidas sin salir de aquí.
+ * Formulario de lote (bloque propio dentro de la sección)
+ * Pensado para uso repetitivo al descargar un camión
  */
 .formularioLote {
   margin-top: var(--space-3);
@@ -180,12 +179,8 @@
 }
 
 /**
- * Aviso de solicitudes destrabadas por el lote recién registrado.
- *
- * Se queda en pantalla en lugar de pasar como un mensaje efímero: no es la
- * confirmación de que se guardó —eso ya lo dice el aviso corriente— sino una
- * consecuencia con tarea detrás. Alguien tiene que ir a despachar esas
- * entregas, y quien descarga el camión no siempre es quien las despacha.
+ * Aviso persistente de solicitudes destrabadas
+ * Alerta sobre tareas pendientes (despachos de entregas)
  */
 .promocion {
   display: flex;
@@ -211,7 +206,7 @@
   color: var(--color-text-main);
 }
 
-/* ─────────────────────── Documentos de respaldo ─────────────────────── */
+/* Documentos de respaldo */
 
 .listaDocumentos {
   display: flex;
@@ -236,11 +231,8 @@
 }
 
 /**
- * Recordatorio de las dos unidades del lote.
- *
- * Zona de marca y no un semántico: no comunica un estado ni un problema, solo
- * recuerda en qué unidad llegó el bulto y en cuál se cuenta su contenido, que
- * es lo que hay que tener claro antes de teclear los dos números.
+ * Recordatorio de unidades del lote
+ * Zona de marca que clarifica unidades de bulto vs. contenido
  */
 .equivalencia {
   grid-column: 1 / -1;

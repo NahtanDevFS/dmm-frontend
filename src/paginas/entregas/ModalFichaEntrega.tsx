@@ -33,18 +33,8 @@ function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
 }
 
 /**
- * Ficha de una entrega: la cabecera, los insumos entregados con los lotes
- * reales de donde salieron (no una previsualización — esto ya ocurrió) y las
- * evidencias.
- *
- * La anulación es de DIRECCION porque revierte inventario: cada lote recibe
- * de vuelta lo suyo, no un total, así que un despacho posterior que ya haya
- * tomado de otro lote no queda descuadrado.
- *
- * Se puede anular un solo insumo o la entrega completa. Lo primero existe
- * porque obligar a rehacer toda una entrega para corregir un renglón invita
- * a no corregir nada; la base rechaza los casos que no se pueden deshacer
- * así, como un préstamo ya devuelto cuyo stock volvió al inventario.
+ * Ficha de entrega con lotes reales de origen y evidencias
+ * Permite a DIRECCION anular insumos individuales o la entrega completa
  */
 function ModalFichaEntrega({
   entregaId,
@@ -267,12 +257,7 @@ function ModalFichaEntrega({
                           {!detalle.activo && (
                             <Insignia tono="rechazada">Anulado</Insignia>
                           )}
-                          {/*
-                            El préstamo ya no se registra desde aquí: se hace
-                            completo en su módulo, entrega y contrato en un
-                            solo paso. Dejarlo también acá volvía a abrir dos
-                            caminos para lo mismo.
-                          */}
+                          {/* Préstamo se registra desde su módulo para no duplicar flujos */}
                           {detalle.prestamo_devuelto ? (
                             <Insignia tono="aprobada">Equipo devuelto</Insignia>
                           ) : (
@@ -301,12 +286,7 @@ function ModalFichaEntrega({
                       {/* El reparto por lotes: informativo, nadie lo eligió. */}
                       {detalle.lotes.map((lote) => (
                         <p key={lote.id} className={estilos.auxiliar}>
-                          {/*
-                            En equipo con serie, lo que identifica la pieza es
-                            la serie del fabricante. El código de lote solo
-                            dice en qué envío llegó, que para saber cuál silla
-                            salió no sirve de nada.
-                          */}
+                          {/* Muestra número de serie si aplica, sino código de lote */}
                           {detalle.serie_por_unidad
                             ? "Serie " + (lote.numero_serie ?? "sin registrar")
                             : lote.codigo_lote
@@ -324,14 +304,7 @@ function ModalFichaEntrega({
                         </p>
                       ))}
 
-                      {/*
-                        Con préstamo de por medio la anulación no se ofrece.
-                        Si sigue vigente, anular dejaría un contrato apuntando
-                        a algo que el sistema diría que nunca se entregó; y si
-                        ya se devolvió, el stock volvió al lote en ese momento
-                        y anular lo sumaría una segunda vez. La base rechaza
-                        las dos cosas: aquí se explica antes de intentarlo.
-                      */}
+                      {/* Explica por qué no se puede anular si hay un préstamo involucrado */}
                       {detalle.activo &&
                         entrega.activo &&
                         puedeAnular &&

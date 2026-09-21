@@ -28,7 +28,7 @@
   }
 }
 
-/* ─────────────────────────── Panel de marca ─────────────────────────── */
+/* Panel de marca */
 
 .panel {
   display: flex;
@@ -92,7 +92,7 @@
   color: var(--color-surface);
 }
 
-/* ─────────────────────────── Formulario ─────────────────────────── */
+/* Formulario */
 
 .zonaFormulario {
   display: flex;
@@ -270,7 +270,7 @@
   font: var(--texto-auxiliar);
 }
 
-/* ─────────────────────────── Móvil ─────────────────────────── */
+/* Móvil */
 
 @media (max-width: 768px) {
   /* El panel de marca se reduce a una banda superior de 120 px y el

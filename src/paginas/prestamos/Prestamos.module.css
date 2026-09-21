@@ -39,9 +39,8 @@
 }
 
 /**
- * Región de multas y devolución. Ajuste de Gestalt: las multas son decisión
- * económica de Dirección, no operación diaria — se cierran como bloque
- * propio con borde superior Rosa 300, igual que la resolución de solicitudes.
+ * Región de multas y devolución (bloque propio con borde Rosa 300)
+ * Visualmente separada por ser decisión de Dirección
  */
 .enModal .region {
   padding-top: var(--space-3);
@@ -158,7 +157,7 @@
   }
 }
 
-/* ─────────────────────── Cadena de renovaciones ─────────────────────── */
+/* Cadena de renovaciones */
 
 .cadena {
   display: flex;
@@ -181,7 +180,7 @@
   background-color: var(--color-primary-light);
 }
 
-/* ─────────────────────── Multas ─────────────────────── */
+/* Multas */
 
 .listaMultas {
   display: flex;
@@ -227,7 +226,7 @@
   margin-top: var(--space-2);
 }
 
-/* ─────────────────────── Documento firmado ─────────────────────── */
+/* Documento firmado */
 
 .listaDocumentos {
   display: flex;
@@ -251,7 +250,7 @@
   overflow-wrap: anywhere;
 }
 
-/* ─────────────────────── Selector de vista (píldoras) ─────────────────────── */
+/* Selector de vista (píldoras) */
 
 .selector {
   display: flex;
