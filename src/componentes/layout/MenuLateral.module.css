@@ -63,7 +63,7 @@
   background-color: var(--color-primary-light);
 }
 
-/* ─────────────────────────── Móvil ─────────────────────────── */
+/* Móvil */
 
 @media (max-width: 768px) {
   /* El menú se convierte en tira horizontal con scroll. */

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import estilos from "./Estado.module.css";
 
-/* ─────────────────────── Indicadores ─────────────────────── */
+/* Indicadores */
 
 export function RejillaIndicadores({ children }: { children: ReactNode }) {
   return <div className={estilos.rejilla}>{children}</div>;
@@ -48,7 +48,7 @@ export function TarjetaIndicador({
   );
 }
 
-/* ─────────────────────── Estado vacío ─────────────────────── */
+/* Estado vacío */
 
 /**
  * Qué se ve cuando no hay nada que ver.
@@ -75,7 +75,7 @@ export function EstadoVacio({
   );
 }
 
-/* ─────────────────────── Esqueletos ─────────────────────── */
+/* Esqueletos */
 
 /** Bloque de carga. Se dimensiona desde fuera para imitar lo que sustituye. */
 export function Esqueleto({

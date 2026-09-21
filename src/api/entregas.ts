@@ -1,42 +1,11 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Entregas: el despacho real de insumos a una persona.
- *
- * Una entrega tiene tres niveles, y conviene no confundirlos:
- *
- *   Entrega          el acto: persona, receptor, fecha, quién entregó.
- *   DetalleEntrega   un renglón por insumo entregado.
- *   LoteDeRenglon    de qué lotes salió cada renglón y cuánto de cada uno.
- *
- * Una entrega puede llevar VARIOS insumos, porque así ocurre en la
- * ventanilla: si la receta indica acetaminofén y jarabe, la persona firma un
- * solo renglón del formulario y se toma una sola foto. Partirlo en dos
- * entregas registraría dos actos donde hubo uno.
- *
- * Hay dos caminos hacia una entrega, y no se mezclan nunca dentro de la
- * misma:
- *
- * - **Entrega directa** (`detalle_solicitud_id` en null en cada renglón):
- *   medicina y comida por donación directa. La persona llega, hay
- *   existencias, se le entrega. No hay solicitud porque no hay nada que
- *   aprobar; la constancia son la receta y el formulario firmado, que se
- *   adjuntan como evidencias de la entrega.
- * - **Despacho de una solicitud** (`detalle_solicitud_id` con valor): equipo
- *   que pasó por solicitud, formularios y aprobación.
- *
- * El motivo de no mezclarlos es la evidencia: la medicina se respalda con
- * receta y el equipo con contrato firmado, y una entrega mezclada tendría
- * documentos que cubren solo una parte sin que se sepa cuál. La base lo
- * rechaza además de esta capa.
- *
- * El backend NO elige lotes ni presentación: sp_agregar_insumo_entrega
- * recorre v_inventario_lote_fifo (FEFO con respaldo FIFO) y hace el reparto.
- * La interfaz solo previsualiza ese orden con GET /entregas/lotes-fifo —
- * nunca deja elegir un lote a mano.
+ * Entregas físicas: gestiona cabeceras, detalles por insumo y asignación de lotes (FEFO/FIFO)
+ * Evita mezclar entregas directas (medicinas/víveres) con despachos de solicitudes
  */
 
-/* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
+/* Tipos del módulo */
 
 /** Cabecera de una entrega ya registrada. */
 export interface Entrega {
@@ -59,22 +28,12 @@ export interface LoteDeRenglon {
   cantidad_entregada: number;
   activo: boolean;
   codigo_lote: string | null;
-  /**
-   * Serie del fabricante, en el equipo donde cada unidad es una pieza
-   * identificable. Dice CUÁL silla salió; codigo_lote solo dice en qué envío
-   * llegó.
-   */
+  /** Número de serie del fabricante (identifica unidades precisas, distinto a código de lote) */
   numero_serie: string | null;
   fecha_caducidad: string | null;
 }
 
-/**
- * Un insumo entregado. `detalle_solicitud_id` distingue el origen: con valor
- * despacha una línea de solicitud, en null es entrega directa.
- *
- * `tiene_prestamo` sirve para decidir si ofrecer «Registrar préstamo» sobre
- * este renglón, y también explica por qué a veces no se puede anular.
- */
+/** Renglón de insumo entregado, detalle_solicitud_id nulo indica entrega directa */
 export interface DetalleEntrega {
   id: number;
   insumo_id: number;
@@ -88,11 +47,7 @@ export interface DetalleEntrega {
   tiene_prestamo: boolean;
   /** Si el insumo lleva serie por unidad: cambia cómo se rotula cada lote. */
   serie_por_unidad: boolean;
-  /**
-   * Si ese préstamo ya se devolvió. La devolución devolvió el stock al lote,
-   * así que anular la entrega después lo sumaría una segunda vez y el
-   * inventario quedaría por encima de lo recibido.
-   */
+  /** Préstamo ya devuelto (bloquea la anulación para evitar sumas dobles en inventario) */
   prestamo_devuelto: boolean;
   lotes: LoteDeRenglon[];
 }
@@ -147,10 +102,7 @@ export interface LoteFifo {
 export interface RenglonEntrega {
   insumo_id: number;
   cantidad: number;
-  /**
-   * La línea de solicitud que despacha, o null/ausente en entrega directa.
-   * Dentro de una entrega, o todos los renglones la traen, o ninguno.
-   */
+  /** Línea origen de la solicitud (todas las filas deben coincidir en tenerlo o no) */
   detalle_solicitud_id?: number | null;
 }
 
@@ -171,20 +123,17 @@ export interface FiltrosEntregas {
   incluirAnuladas?: boolean;
 }
 
-/* ═══════════════════════════ Cliente ═══════════════════════════ */
+/* Cliente */
 
 export const CLAVE_ENTREGAS = "entregas";
 
+/** Obtiene la entrega y sus sub-recursos (detalles y evidencias) */
 export async function obtenerEntrega(id: number): Promise<EntregaDetalle> {
   const { data } = await axiosClient.get<EntregaDetalle>("entregas/" + id);
   return data;
 }
 
-/**
- * Vista previa del orden FEFO/FIFO para un insumo: de qué lotes va a salir
- * el despacho si se registra la entrega ahora mismo. Es solo lectura — la
- * base decide de verdad al registrar, con la existencia real en ese momento.
- */
+/** Previsualización de orden FEFO/FIFO al momento actual, solo lectura */
 export async function listarLotesFifo(insumoId: number): Promise<LoteFifo[]> {
   const { data } = await axiosClient.get<LoteFifo[]>("entregas/lotes-fifo", {
     params: { insumoId },
@@ -192,6 +141,7 @@ export async function listarLotesFifo(insumoId: number): Promise<LoteFifo[]> {
   return data;
 }
 
+/** Registra una entrega consumiendo inventario (FEFO/FIFO automático) */
 export async function registrarEntrega(
   datos: DatosEntrega,
 ): Promise<EntregaDetalle> {
@@ -211,11 +161,7 @@ export async function anularEntrega(
   return data;
 }
 
-/**
- * Anula un solo insumo y deja el resto de la entrega en pie. El backend la
- * rechaza si el renglón tiene un préstamo vigente, o si el préstamo ya se
- * devolvió y su stock por tanto ya volvió al inventario.
- */
+/** Anulación parcial de insumo, rechazada por backend si hay préstamos vinculados */
 export async function anularDetalleEntrega(
   entregaId: number,
   detalleId: number,
@@ -228,7 +174,7 @@ export async function anularDetalleEntrega(
   return data;
 }
 
-/* ── Evidencias ── */
+/* Evidencias */
 
 export async function listarEvidencias(
   entregaId: number,
@@ -239,10 +185,7 @@ export async function listarEvidencias(
   return data;
 }
 
-/**
- * Sube una evidencia. Va como multipart y el archivo viaja en el campo
- * `archivo`, el nombre que espera el middleware del backend.
- */
+/** Sube evidencia como multipart (`archivo`) */
 export async function subirEvidencia(
   entregaId: number,
   datos: { archivo: File; tipoEvidenciaId: number; observaciones?: string },

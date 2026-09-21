@@ -71,12 +71,8 @@
 }
 
 /**
- * Las tres banderas del insumo.
- *
- * Van con su explicación debajo y no solo con el nombre del campo: decir
- * «requiere fecha de caducidad» no aclara qué pasa si se marca, y lo que pasa
- * es que la base rechaza el lote que llegue sin fecha. Quien da de alta el
- * insumo tiene que poder anticipar eso desde aquí.
+ * Banderas del insumo con explicación debajo
+ * Permite anticipar rechazos de base de datos desde la interfaz
  */
 .banderas {
   display: flex;
@@ -126,7 +122,7 @@
   flex-wrap: wrap;
 }
 
-/* ─────────────────────── Ficha del insumo ─────────────────────── */
+/* Ficha del insumo */
 
 .encabezadoFicha {
   display: flex;
@@ -228,7 +224,7 @@
   border-top: 1px dashed var(--color-border);
 }
 
-/* ─────────────────────── Semáforo de caducidad ─────────────────────── */
+/* Semáforo de caducidad */
 
 /* Selector de vista. Píldoras, no pestañas, igual que en catálogos. */
 .selector {
@@ -269,8 +265,7 @@
 }
 
 /**
- * Resumen por nivel. Cada recuadro es además el filtro de su nivel: el gesto
- * natural al leer «3 vencidos» es querer ver cuáles son.
+ * Resumen por nivel (funciona también como filtro)
  */
 .resumen {
   display: grid;
@@ -327,11 +322,7 @@
   font-weight: 700;
 }
 
-/**
- * Nombre del insumo en el semáforo. Es un botón porque abre un modal y no
- * navega, pero se lee como el enlace que era: quitarle el aspecto de enlace
- * escondería que la celda es pulsable.
- */
+/** Nombre de insumo (botón con aspecto de enlace para indicar que es pulsable) */
 .enlaceInsumo {
   padding: 0;
   border: none;

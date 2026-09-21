@@ -209,7 +209,7 @@ function ModalEntregaDirecta({
     );
   }
 
-  // ── Paso 1: registrar ──────────────────────────────────────────────────
+  // Paso 1: registrar 
   return (
     <Modal
       abierto={abierto}

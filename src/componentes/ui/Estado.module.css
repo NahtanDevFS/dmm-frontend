@@ -1,6 +1,6 @@
 /* Tarjetas indicadoras, estados vacíos y esqueletos de carga. */
 
-/* ─────────────────────── Indicadores ─────────────────────── */
+/* Indicadores */
 
 .rejilla {
   display: grid;
@@ -61,7 +61,7 @@
   color: var(--color-text-muted);
 }
 
-/* ─────────────────────── Estado vacío ─────────────────────── */
+/* Estado vacío */
 
 .vacio {
   display: flex;
@@ -83,7 +83,7 @@
   color: var(--color-text-muted);
 }
 
-/* ─────────────────────── Esqueleto ─────────────────────── */
+/* Esqueleto */
 
 .esqueleto {
   border-radius: var(--radius-field);

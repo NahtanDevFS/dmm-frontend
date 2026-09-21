@@ -1,18 +1,11 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Gestión de usuarios y contraseñas.
- *
- * Exclusivo de ADMINISTRACION (DIRECTORA + ADMINISTRADOR) salvo el cambio de
- * la propia contraseña, que puede hacer cualquiera con sesión iniciada.
- *
- * Las guardas de negocio —no cambiar el rol propio, no desactivarse a sí
- * mismo, no tocar al único ADMINISTRADOR activo— las aplica el backend
- * (usuario.controller.ts); aquí solo se refleja el mensaje que devuelve, no
- * se duplica la regla en el cliente.
+ * Gestión de usuarios y contraseñas reservada para ADMINISTRACION
+ * Reglas de negocio validadas en backend para evitar manipulación de propios accesos
  */
 
-/* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
+/* Tipos del módulo */
 
 export interface Rol {
   id: number;
@@ -25,10 +18,7 @@ export interface Usuario {
   id: number;
   /** Identificador de acceso: ASCII, sin tildes ni espacios. */
   username: string;
-  /**
-   * Nombre de la persona, como se escribe. Nulo en las cuentas creadas antes
-   * de que el campo existiera; la interfaz muestra el username entonces.
-   */
+  /** Nombre completo, nulo en cuentas antiguas (interfaz usa username como fallback) */
   nombre_completo: string | null;
   rol_id: number;
   rol_nombre: string;
@@ -60,7 +50,7 @@ export interface FiltrosUsuarios {
   incluirInactivos?: boolean;
 }
 
-/* ═══════════════════════════ Cliente ═══════════════════════════ */
+/* Cliente */
 
 export const CLAVE_USUARIOS = "usuarios";
 export const CLAVE_ROLES = "roles";

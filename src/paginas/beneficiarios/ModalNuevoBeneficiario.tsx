@@ -248,7 +248,7 @@ function ModalNuevoBeneficiario({
         onSubmit={enviar}
         noValidate
       >
-        {/* ─────────────── Datos generales ─────────────── */}
+        {/* Datos generales */}
         <section className={estilos.seccion} aria-labelledby="s-generales">
           <h2 id="s-generales" className={estilos.tituloSeccion}>
             Datos generales
@@ -402,7 +402,7 @@ function ModalNuevoBeneficiario({
           </div>
         </section>
 
-        {/* ─────────────── Discapacidades ─────────────── */}
+        {/* Discapacidades */}
         <section className={estilos.seccion} aria-labelledby="s-discapacidades">
           <h2 id="s-discapacidades" className={estilos.tituloSeccion}>
             Discapacidades
@@ -443,7 +443,7 @@ function ModalNuevoBeneficiario({
           />
         </section>
 
-        {/* ─────────────── Encargado ─────────────── */}
+        {/* Encargado */}
         <section className={estilos.seccion} aria-labelledby="s-encargado">
           <h2 id="s-encargado" className={estilos.tituloSeccion}>
             Encargado
@@ -523,7 +523,7 @@ function ModalNuevoBeneficiario({
           )}
         </section>
 
-        {/* ─────────────── Contactos de referencia ─────────────── */}
+        {/* Contactos de referencia */}
         <section className={estilos.seccion} aria-labelledby="s-contactos">
           <h2 id="s-contactos" className={estilos.tituloSeccion}>
             Contactos de referencia

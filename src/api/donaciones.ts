@@ -1,15 +1,11 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Donaciones: recepciones, sus lotes de inventario y sus documentos de
- * respaldo.
- *
- * Todo el módulo es de OPERACION, sin excepciones. Recibir una donación es
- * trabajo de bodega y lo hace quien está ahí cuando llega el camión, no
- * dirección; se aparta en eso del catálogo de insumos, que sí es dato maestro.
+ * Donaciones: recepciones, lotes de inventario y documentos de respaldo
+ * Módulo de OPERACION (tareas de bodega al recibir insumos)
  */
 
-/* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
+/* Tipos del módulo */
 
 /** Cabecera de la recepción. Una entrega de una institución en una fecha. */
 export interface Recepcion {
@@ -23,15 +19,8 @@ export interface Recepcion {
 }
 
 /**
- * Renglón de inventario recibido.
- *
- * `cantidad_recepcion_original` y `unidades_por_presentacion_lote` llegan como
- * texto: son numeric(12,4) en Postgres y el driver los entrega sin convertir
- * para no perder decimales por el camino.
- *
- * `cantidad_inicial` y `cantidad_disponible` **no se envían al crear**: las
- * calcula trg_calcular_recepcion_lote como
- * FLOOR(cantidad_recepcion_original × unidades_por_presentacion_lote).
+ * Renglón de inventario recibido
+ * Cantidades inicial/disponible son calculadas por DB (trg_calcular_recepcion_lote)
  */
 export interface LoteRecepcion {
   id: number;
@@ -83,9 +72,8 @@ export interface DatosLote {
 }
 
 /**
- * Una línea de solicitud esperando existencias, tal como la expone
- * v_lista_espera. Aquí se usa solo para contar: es lo que permite saber a
- * cuántas personas destrabó el lote que se acaba de registrar.
+ * Línea de solicitud esperando existencias (v_lista_espera)
+ * Utilizada para contar cuántas solicitudes se destraban al registrar un lote
  */
 export interface LineaEnEspera {
   detalle_solicitud_id: number;
@@ -104,7 +92,7 @@ export interface LineaEnEspera {
 /** Estado del que saca a una línea la llegada de existencias. */
 export const EN_ESPERA_DE_STOCK = "PENDIENTE_ADQUISICION";
 
-/* ═══════════════════════════ Cliente ═══════════════════════════ */
+/* Cliente */
 
 export const CLAVE_RECEPCIONES = "recepciones";
 
@@ -139,7 +127,7 @@ export async function reactivarRecepcion(id: number): Promise<void> {
   await axiosClient.patch("recepciones/" + id + "/reactivar");
 }
 
-/* ── Lotes ── */
+/* Lotes */
 
 export async function listarLotes(
   recepcionId: number,
@@ -164,13 +152,8 @@ export async function crearLote(
 }
 
 /**
- * Ingresa varias unidades identificables de un insumo, una fila por número de
- * serie.
- *
- * Es el equivalente de crearLote para el equipo serializado, y va aparte
- * porque lo que se pregunta es distinto: no cuánto llegó sino cuáles
- * llegaron. Cinco sillas son cinco unidades con cinco series, no un lote de
- * cinco — y sin eso, al prestar una no hay forma de saber cuál salió.
+ * Ingresa múltiples unidades identificables de un insumo (una por número de serie)
+ * Equivalente a crearLote para equipo serializado, registrando qué unidades llegan
  */
 export async function crearUnidades(
   recepcionId: number,
@@ -190,7 +173,7 @@ export async function crearUnidades(
   return data;
 }
 
-/* ── Documentos de respaldo ── */
+/* Documentos de respaldo */
 
 export async function listarDocumentosRecepcion(
   recepcionId: number,
@@ -229,12 +212,11 @@ export async function eliminarDocumentoRecepcion(
   );
 }
 
-/* ── Lista de espera ── */
+/* Lista de espera */
 
 /**
- * Líneas de solicitud esperando existencias. El filtro del servidor es un
- * ILIKE por nombre de insumo, así que puede devolver de más —«Jabón» trae
- * también «Jabón líquido»—; quien la use debe afinar por nombre exacto.
+ * Líneas de solicitud esperando existencias filtrables por nombre
+ * El filtro de servidor (ILIKE) requiere afinación exacta en el cliente
  */
 export async function listarListaEspera(
   insumoNombre?: string,

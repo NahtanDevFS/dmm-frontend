@@ -150,7 +150,7 @@
   }
 }
 
-/* ─────────────────────── Lotes de origen (FEFO/FIFO) ─────────────────────── */
+/* Lotes de origen (FEFO/FIFO) */
 
 .listaLotes {
   display: flex;
@@ -180,7 +180,7 @@
   background-color: var(--color-primary-light);
 }
 
-/* ─────────────────────── Evidencias ─────────────────────── */
+/* Evidencias */
 
 .listaDocumentos {
   display: flex;

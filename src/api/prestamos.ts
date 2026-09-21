@@ -1,35 +1,18 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Préstamos de equipo: contratos que nacen de un renglón de entrega ya
- * registrado (detalle_entrega_id), no de un formulario aparte — el alta
- * vive en la ficha de la entrega (ModalFichaEntrega → «Registrar préstamo»),
- * porque un contrato siempre necesita esa entrega física real, no un dato
- * que alguien recuerde de memoria.
- *
- * La renovación es una cadena LINEAL: renovar un contrato crea uno nuevo
- * encadenado (contrato_anterior_id) y deja al anterior en EXTENDIDO. Solo
- * el último contrato de la cadena admite renovarse o registrar la
- * devolución; el backend lo valida y aquí solo se refleja su mensaje.
- *
- * "Vencido" se calcula por fechas, no por estado_id: nada en la base mueve
- * el estado solo. marcarVencidos() es la acción explícita de Dirección que
- * lo hace, y no ocurre sola.
+ * Préstamos de equipo: contratos vinculados a entregas físicas (detalle_entrega_id)
+ * Las renovaciones forman cadenas lineales donde solo el último es modificable
  */
 
-/* ═══════════════════════════ Tipos del módulo ═══════════════════════════ */
+/* Tipos del módulo */
 
 export const ESTADO_CONTRATO = {
   VIGENTE: "VIGENTE",
   DEVUELTO: "DEVUELTO",
   VENCIDO: "VENCIDO",
   EXTENDIDO: "EXTENDIDO",
-  /**
-   * El equipo no volvió: se perdió, no lo trajeron, se dio por incobrable.
-   * El contrato se cierra pero el stock NO se restituye, porque el equipo
-   * efectivamente no está. Distinto de anular, que deshace el registro
-   * entero y sí devuelve el equipo al inventario.
-   */
+  /** Contrato cerrado sin restituir inventario (equipo perdido/incobrable) */
   NO_DEVUELTO: "NO_DEVUELTO",
 } as const;
 
@@ -97,13 +80,7 @@ export interface Multa {
   activo: boolean;
 }
 
-/**
- * Evidencias del contrato: el documento firmado (tipo CONTRATO_FIRMADO), el
- * DPI de quien firma (frontal/reverso), y la foto de recepción del equipo
- * -- todo vive aquí, no hay una columna dedicada solo para el contrato
- * firmado. Un préstamo no exige formularios de estudio socioeconómico —
- * eso es solo para donación definitiva.
- */
+/** Evidencias centralizadas (contrato firmado, DPI, fotos) sin requerir estudio socioeconómico */
 export interface EvidenciaContrato {
   id: number;
   contrato_prestamo_id: number;
@@ -120,17 +97,11 @@ export interface ContratoDetalle extends Contrato {
   cadena: Contrato[];
   /** El DPI de quien firma, frontal/reverso, y cualquier otra evidencia. */
   evidencias: EvidenciaContrato[];
-  /**
-   * Resueltos desde el contrato raíz de la cadena. Ausentes (undefined) en
-   * el caso raro de una cadena sin entrega física resoluble.
-   */
+  /** Resueltos desde el contrato raíz (undefined si no hay entrega física resoluble) */
   persona_id?: number;
   persona_nombre_completo?: string;
   insumo_nombre?: string;
-  /**
-   * Serie de la unidad prestada, cuando el equipo la lleva. Es lo que permite
-   * verificar, al devolver, que es la misma pieza que salió.
-   */
+  /** Serie del equipo (permite verificar que la devolución es correcta) */
   numero_serie?: string | null;
   cantidad_entregada?: number;
 }
@@ -155,7 +126,7 @@ export interface FiltrosContratos {
   incluirInactivos?: boolean;
 }
 
-/* ═══════════════════════════ Cliente ═══════════════════════════ */
+/* Cliente */
 
 export const CLAVE_CONTRATOS = "contratos";
 
@@ -186,26 +157,15 @@ export async function marcarVencidos(): Promise<{
 }
 
 /**
- * Registra un préstamo completo: entrega el equipo y crea su contrato.
- *
- * Es la puerta principal del módulo. El préstamo no pasa por solicitud —eso
- * es para decidir donaciones, con estudio y aprobación— así que aquí se
- * resuelve todo: quién se lleva qué y hasta cuándo. Las fotos del contrato
- * firmado y del DPI se adjuntan después, sobre el contrato ya creado.
- *
- * La entrega queda registrada y aparece en Entregas, porque el equipo salió
- * de verdad y el inventario se descontó.
+ * Alta completa de préstamo (entrega y contrato)
+ * No requiere solicitud previa, las fotos y DPI se adjuntan en el siguiente paso
  */
 export async function crearPrestamoDirecto(datos: {
   persona_id: number;
   insumo_id: number;
   fecha_devolucion_pactada: string;
   observaciones?: string | null;
-  /**
-   * La unidad concreta que se lleva, cuando el equipo tiene número de serie.
-   * Sin esto el sistema elegiría una por FEFO y el contrato diría una serie
-   * distinta de la silla que salió.
-   */
+  /** Identificador de serie, evita selección automática por FEFO en equipos enumerables */
   detalle_inventario_lote_id?: number | null;
 }): Promise<Contrato & { entrega_id: number }> {
   const { data } = await axiosClient.post<Contrato & { entrega_id: number }>(
@@ -215,10 +175,7 @@ export async function crearPrestamoDirecto(datos: {
   return data;
 }
 
-/**
- * Crea el contrato inicial de un renglón de entrega. Se llama desde la
- * ficha de la entrega, nunca desde un formulario que pida el id a mano.
- */
+/** Crea el contrato inicial desde la ficha de entrega */
 export async function crearContrato(
   datos: DatosCrearContrato,
 ): Promise<Contrato> {
@@ -226,6 +183,7 @@ export async function crearContrato(
   return data;
 }
 
+/** Renueva un préstamo extendiendo su fecha de devolución */
 export async function renovarContrato(
   id: number,
   fechaDevolucionPactada: string,
@@ -247,7 +205,7 @@ export async function editarContrato(
   return data;
 }
 
-/** Registra la devolución; el backend resuelve solo el contrato raíz de la cadena si aplica. */
+/** Registra la devolución (backend resuelve el contrato raíz) */
 export async function registrarDevolucion(
   id: number,
 ): Promise<ContratoDetalle> {
@@ -257,14 +215,7 @@ export async function registrarDevolucion(
   return data;
 }
 
-/**
- * Anula un préstamo registrado por error: deshace el contrato Y la entrega, y
- * el equipo vuelve al inventario.
- *
- * Es para "me equivoqué al capturar". El backend lo rechaza si el préstamo ya
- * tuvo devolución o multas pagadas, porque entonces no fue un error de
- * registro sino algo que sí ocurrió.
- */
+/** Anula contrato y entrega por error de captura (rechaza si hay multas) */
 export async function anularContrato(
   id: number,
   motivo: string,
@@ -276,11 +227,7 @@ export async function anularContrato(
   return data;
 }
 
-/**
- * Cierra un préstamo cuyo equipo no volvió. El stock NO se restituye: decir
- * que la silla está disponible cuando nadie la tiene sería mentir sobre el
- * inventario.
- */
+/** Cierra un préstamo por no devolución (stock no se restituye) */
 export async function marcarNoDevuelto(
   id: number,
   motivo: string,
@@ -292,7 +239,7 @@ export async function marcarNoDevuelto(
   return data;
 }
 
-/* ── Multas ── */
+/* Multas */
 
 export async function listarMultas(
   contratoId: number,
@@ -350,7 +297,7 @@ export async function anularMulta(
   return data;
 }
 
-/* ── Evidencias del contrato (DPI, principalmente) ── */
+/* Evidencias del contrato */
 
 export async function listarEvidenciasContrato(
   contratoId: number,
@@ -361,10 +308,7 @@ export async function listarEvidenciasContrato(
   return data;
 }
 
-/**
- * Sube una evidencia del contrato. Va como multipart y el archivo viaja en
- * el campo `archivo`, el nombre que espera el middleware del backend.
- */
+/** Sube evidencia como multipart (`archivo`) */
 export async function subirEvidenciaContrato(
   contratoId: number,
   datos: { archivo: File; tipoEvidenciaId: number; observaciones?: string },

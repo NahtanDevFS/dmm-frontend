@@ -23,11 +23,8 @@ import { normalizarTelefono, telefonoValido } from "../../lib/telefono";
 import estilos from "./Ficha.module.css";
 
 /**
- * Hook común de las tres secciones.
- *
- * Todas hacen lo mismo alrededor de la mutación: refrescar la ficha, avisar y
- * traducir el error. Tenerlo en un sitio evita que una sección olvide
- * invalidar y deje la pantalla mostrando lo que ya no existe.
+ * Hook común de secciones (refresca ficha, avisa y traduce error)
+ * Centraliza invalidación de query para evitar datos fantasma
  */
 function useAccionFicha(personaId: number) {
   const clienteQuery = useQueryClient();
@@ -53,7 +50,7 @@ function useAccionFicha(personaId: number) {
   return { ejecutar, confirmar };
 }
 
-/* ═════════════════════════ Discapacidades ═════════════════════════ */
+/* Discapacidades */
 
 export function SeccionDiscapacidades({
   personaId,
@@ -159,15 +156,11 @@ export function SeccionDiscapacidades({
   );
 }
 
-/* ═════════════════════════ Encargados ═════════════════════════ */
+/* Encargados */
 
 /**
- * Encargados de una persona ya registrada.
- *
- * El encargado se recomienda para menores de edad y para quienes tienen
- * alguna discapacidad registrada, pero nunca bloquea: la base dejó de
- * exigirlo en la migración 22. La ficha usa el mismo criterio y el mismo tono
- * que el alta, para que la regla no se lea distinta según por dónde se entre.
+ * Encargados de persona registrada
+ * Recomendado para menores y personas con discapacidad (no bloqueante)
  */
 export function SeccionEncargados({
   personaId,
@@ -300,7 +293,7 @@ export function SeccionEncargados({
   );
 }
 
-/* ═════════════════════════ Contactos ═════════════════════════ */
+/* Contactos */
 
 export function SeccionContactos({
   personaId,
