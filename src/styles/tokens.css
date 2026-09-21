@@ -1,6 +1,6 @@
-/* =========================================================================
+/*
    Tokens de marca — Red de Ayuda
-   Manual de Marca v1.0, sección 8 «Tokens listos para el código».
+   Manual de Marca v1.0, sección, Tokens listos para el código.
 
    Este es el único bloque :root del proyecto. Ninguna vista debe redefinir
    estas variables ni introducir colores fuera de esta escala.
@@ -9,7 +9,7 @@
    DMM NO está aquí a propósito. Vive únicamente dentro del archivo de
    imagen y nunca se usa como color de interfaz (el manual prohíbe el rosa
    neón y los degradados rosa-violeta, sección 9).
-   ========================================================================= */
+   */
 
 :root {
   /* Marca — escala rosa (Suavizada) */
