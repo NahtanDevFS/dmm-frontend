@@ -31,11 +31,8 @@ function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
 }
 
 /**
- * Ficha de una recepción: el envío y lo que trajo dentro.
- *
- * Va en modal sobre el listado, como el resto de las fichas del sistema: la
- * consulta nace en la tabla y vuelve a ella, y navegar costaba el filtro por
- * institución y la página.
+ * Ficha de recepción en modal sobre el listado
+ * Muestra el envío y los lotes que contiene
  */
 function ModalFichaRecepcion({
   recepcionId,
@@ -49,12 +46,7 @@ function ModalFichaRecepcion({
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
   const [editando, setEditando] = useState(false);
-  /**
-   * Qué secciones tienen algo a medio escribir. La ficha en sí es de consulta
-   * —lo que se ve ya está guardado—, pero dentro conviven dos formularios: el
-   * de lote, que son ocho campos, y el de documentos. Sin esto, un clic fuera
-   * del modal se llevaba el renglón del camión que se estaba capturando.
-   */
+  /** Evita perder datos no guardados al cerrar el modal si hay borradores */
   const [borradores, setBorradores] = useState({
     lotes: false,
     documentos: false,
@@ -88,11 +80,7 @@ function ModalFichaRecepcion({
         "exito",
       );
     },
-    /*
-      El 409 aquí dice que quedan lotes activos colgando del envío. Se muestra
-      el mensaje del servidor porque nombra exactamente lo que hay que resolver
-      antes: dar de baja esos lotes.
-    */
+    /* Muestra error del servidor (ej. 409 por lotes activos pendientes de baja) */
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 

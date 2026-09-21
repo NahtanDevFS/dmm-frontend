@@ -1,15 +1,6 @@
 /**
- * Cuántas unidades base entran realmente al inventario.
- *
- * Es la misma fórmula que aplica trg_calcular_recepcion_lote:
- * FLOOR(cantidad × unidades_por_presentación). Se replica aquí **solo para
- * mostrarla**; el valor que manda es el que calcula la base, y por eso el
- * formulario no envía cantidad_inicial ni cantidad_disponible.
- *
- * El truncamiento es lo que hay que enseñar antes de guardar. Media caja de
- * cien entra entera —2.5 × 100 son 250—, pero media caja de tres se pierde:
- * 2.5 × 3 entra como 7, no como 7.5. Esa unidad de menos no vuelve a aparecer
- * en ningún informe posterior, así que el sitio para verla es este.
+ * Cálculo de unidades base que entran al inventario (solo para visualización)
+ * El valor real lo calcula la base de datos (trg_calcular_recepcion_lote)
  */
 export function calcularUnidadesBase(
   cantidad: number,

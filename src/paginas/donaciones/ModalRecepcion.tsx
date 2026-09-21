@@ -22,14 +22,8 @@ import {
 import type { InstitucionDonante } from "../../types/api";
 
 /**
- * Alta y edición de la cabecera de una recepción.
- *
- * Solo la cabecera: quién donó, cuándo llegó y con qué código lo identifica la
- * institución. Lo que vino dentro se registra después, lote a lote, desde la
- * ficha. Separarlo no es un capricho de pantallas: cada lote pasa por
- * validaciones propias de la base —caducidad y código de fabricante según el
- * insumo— y agruparlos en un solo envío haría que el fallo de uno tirara el
- * registro de todos.
+ * Alta y edición exclusiva de la cabecera de una recepción
+ * Los lotes se registran por separado en la ficha para aislar validaciones
  */
 function ModalRecepcion({
   recepcion,
@@ -79,12 +73,7 @@ function ModalRecepcion({
     ) =>
       setDatos((previos) => ({ ...previos, [campo]: evento.target.value }));
 
-  /**
-   * Cuerpo del PATCH: solo lo que cambió. El backend valida que la institución
-   * esté activa únicamente cuando viene en el cuerpo, así que reenviarla sin
-   * tocarla haría fallar la corrección de una observación en una recepción
-   * cuya institución se dio de baja después.
-   */
+  /** Cuerpo del PATCH: envía solo cambios para evitar validaciones innecesarias */
   const soloCambios = (): Partial<DatosRecepcion> => {
     if (!recepcion) return {};
     const cambios: Partial<DatosRecepcion> = {};

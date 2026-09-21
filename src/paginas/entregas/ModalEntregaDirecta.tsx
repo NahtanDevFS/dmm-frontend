@@ -29,22 +29,8 @@ import PreviaLotes from "./PreviaLotes";
 import estilos from "./Entregas.module.css";
 
 /**
- * Entrega directa: el camino de la medicina y la comida por donación directa.
- *
- * El flujo real que replica: la persona llega y pregunta si hay tal
- * medicamento, se revisa, se le pide la receta, se revisa, se le entrega, y
- * ahí mismo firma el formulario de papel. La receta y la foto del formulario
- * se suben en ese momento, con la persona todavía enfrente.
- *
- * Por eso el modal tiene dos pasos y NO se cierra al registrar: registrar y
- * documentar son un solo acto, y mandar al usuario a buscar la entrega en el
- * listado para adjuntar las fotos rompería justo el momento en que puede
- * hacerlo.
- *
- * Varios insumos en una sola entrega porque así lo indica la receta: si dice
- * acetaminofén y jarabe, la persona firma un solo renglón del formulario y se
- * toma una sola foto. Partirlo en dos entregas registraría dos actos donde
- * hubo uno.
+ * Entrega directa de medicina/comida sin solicitud previa
+ * Flujo en dos pasos (registro y evidencias) que replica el acto físico único
  */
 function ModalEntregaDirecta({
   abierto,
@@ -56,7 +42,7 @@ function ModalEntregaDirecta({
   const clienteQuery = useQueryClient();
   const { avisar } = useAvisos();
 
-  // Paso 1: datos de la entrega. Paso 2: evidencias de la ya registrada.
+  // Paso 1: datos de la entrega. Paso 2: evidencias de la ya registrada
   const [entregaRegistrada, setEntregaRegistrada] = useState<number | null>(
     null,
   );
@@ -78,7 +64,7 @@ function ModalEntregaDirecta({
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
 
   // La entrega recién creada, para que la sección de evidencias vea las que
-  // se van subiendo. Solo consulta cuando ya existe.
+  // se van subiendo. Solo consulta cuando ya existe
   const registrada = useQuery({
     queryKey: [CLAVE_ENTREGAS, entregaRegistrada],
     queryFn: () => obtenerEntrega(entregaRegistrada!),
@@ -90,13 +76,7 @@ function ModalEntregaDirecta({
     queryFn: () => listarStockInsumos(),
   });
 
-  /**
-   * Insumos agrupados por categoría, con las existencias dentro de cada
-   * opción. Una lista plana obliga a saber el nombre exacto de memoria; la
-   * categoría es la pista que quien atiende sí tiene ("es una medicina"), y
-   * el stock a la vista es lo que le permite contestar "sí hay" sin abrir
-   * nada.
-   */
+  /** Agrupa insumos por categoría y muestra stock para búsqueda rápida */
   const porCategoria = useMemo(() => {
     const grupos = new Map<string, StockInsumoListado[]>();
     for (const fila of stock.data ?? []) {
@@ -135,7 +115,7 @@ function ModalEntregaDirecta({
     observaciones.trim() !== "";
 
   const cerrar = useCierreSeguro({
-    // Ya registrada, lo único que se puede perder es una evidencia a medias.
+    // Ya registrada, lo único que se puede perder es una evidencia a medias
     hayCambios: entregaRegistrada !== null ? borradorEvidencia : hayCambios,
     onCerrar,
     mensaje:
@@ -149,7 +129,7 @@ function ModalEntregaDirecta({
       registrarEntrega({
         persona_id: persona!.id,
         // Sin detalle_solicitud_id: es el punto entero de esta pantalla, no
-        // hay solicitud detrás porque no hay nada que aprobar.
+        // hay solicitud detrás porque no hay nada que aprobar
         insumos: renglones.map((r) => ({
           insumo_id: r.insumo.insumo_id,
           cantidad: r.cantidad,
@@ -166,7 +146,7 @@ function ModalEntregaDirecta({
       setEntregaRegistrada(entrega.id);
     },
     // Incluye el rechazo por stock insuficiente: la base ya redacta el
-    // mensaje en español con las cantidades exactas.
+    // mensaje en español con las cantidades exactas
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
@@ -174,7 +154,7 @@ function ModalEntregaDirecta({
   const listoParaEnviar =
     persona !== null && renglones.length > 0 && receptorValido;
 
-  // ── Paso 2: la entrega ya existe, faltan las fotos ──────────────────────
+  // ── Paso 2: la entrega ya existe, faltan las fotos
   if (entregaRegistrada !== null) {
     return (
       <Modal

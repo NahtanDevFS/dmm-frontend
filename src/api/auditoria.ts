@@ -1,17 +1,8 @@
 import axiosClient from "./axiosClient";
 
 /**
- * Auditoría: bitácora de solo lectura de cada INSERT/UPDATE/DELETE del
- * sistema. Exclusivo de ADMINISTRADOR — el log contiene el contenido
- * completo de cada fila modificada, y nada aquí se edita ni se borra: los
- * triggers de la base son los únicos que escriben en ella.
- *
- * password_hash y token_hash ya vienen redactados por el backend
- * ("[redactado]") antes de llegar aquí, así que el frontend nunca los ve.
- *
- * El listado paginado (GET /auditoria) pasa por useListadoPaginado, igual
- * que el resto de listados del sistema: aquí solo van las consultas que ese
- * hook no cubre.
+ * Bitácora de lectura de INSERT/UPDATE/DELETE exclusiva de administrador
+ * Las consultas paginadas usan useListadoPaginado, aquí van otras consultas
  */
 
 export type AccionAuditoria = "INSERT" | "UPDATE" | "DELETE";
@@ -40,7 +31,7 @@ export async function listarTablasAuditadas(): Promise<TablaAuditada[]> {
   return data;
 }
 
-/** Historial completo de un registro concreto, del más antiguo al más reciente. */
+/** Historial completo de un registro desde el más antiguo al más reciente */
 export async function historialDeRegistro(
   tabla: string,
   registroId: number,
