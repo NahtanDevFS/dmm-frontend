@@ -9,8 +9,15 @@ export interface ValorAuth {
     username: string;
     password: string;
   }) => Promise<UsuarioSesion>;
+  /** Nunca rechaza: si el servidor no confirma, deja `cierrePendiente` activo. */
   salir: () => Promise<void>;
   saliendo: boolean;
+  /**
+   * El logout no llegó a confirmarse en el servidor: los datos ya no se
+   * muestran, pero la sesión podría seguir viva hasta que un reintento
+   * funcione.
+   */
+  cierrePendiente: boolean;
 }
 
 /**

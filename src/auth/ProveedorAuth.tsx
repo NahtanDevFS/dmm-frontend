@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   cerrarSesion as cerrarSesionApi,
@@ -8,10 +14,19 @@ import {
 import { alExpirarSesion } from "../api/sesion";
 import { estadoDe } from "../lib/errores";
 import { CLAVE_SESION, ContextoAuth, type ValorAuth } from "./contexto";
+import {
+  hayCierrePendiente,
+  limpiarCierrePendiente,
+  marcarCierrePendiente,
+} from "./cierrePendiente";
 import type { UsuarioSesion } from "../types/api";
 
 export function ProveedorAuth({ children }: { children: ReactNode }) {
   const clienteQuery = useQueryClient();
+
+  // Se lee una sola vez al montar: si la página se recargó con un cierre sin
+  // confirmar, la sesión NO se rescata con /auth/me, se reintenta el cierre.
+  const [cierrePendiente, setCierrePendiente] = useState(hayCierrePendiente);
 
   /**
    * Rescate de sesión al arrancar. La cookie dmm_session es HttpOnly: el
@@ -39,6 +54,7 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
     },
     retry: false,
     staleTime: Infinity,
+    enabled: !cierrePendiente,
   });
 
   /**
@@ -67,16 +83,49 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
     },
   });
 
+  const confirmarCierre = useCallback(() => {
+    limpiarCierrePendiente();
+    setCierrePendiente(false);
+    limpiarEstado();
+  }, [limpiarEstado]);
+
   const mutacionSalir = useMutation({
     mutationFn: cerrarSesionApi,
-    // Logout es idempotente y la cookie pudo vencer antes de pulsar el botón.
-    // Si el servidor responde con error igual se limpia: dejar al usuario
-    // «dentro» de una sesión que ya no existe es peor que cerrarla de más.
-    onSettled: limpiarEstado,
+    onSuccess: confirmarCierre,
+    onError: (error) => {
+      // 401: el servidor ya no reconoce la sesión (venció o la revocaron), así
+      // que no queda nada abierto. Es un cierre tan confirmado como un 200.
+      if (estadoDe(error) === 401) {
+        confirmarCierre();
+        return;
+      }
+      // Sin red, servidor caído o error 500: la sesión puede seguir viva. Los
+      // datos se ocultan igual, pero no se finge un cierre que no ocurrió.
+      marcarCierrePendiente();
+      setCierrePendiente(true);
+      limpiarEstado();
+    },
   });
 
   const { mutateAsync: entrarAsync } = mutacionEntrar;
   const { mutateAsync: salirAsync } = mutacionSalir;
+
+  const { mutate: reintentarCierre } = mutacionSalir;
+
+  // La página se recargó con un cierre sin confirmar: se reintenta de entrada.
+  // El arreglo vacío es a propósito, es solo lo que había al montar.
+  const [pendienteAlMontar] = useState(cierrePendiente);
+  useEffect(() => {
+    if (pendienteAlMontar) reintentarCierre();
+  }, [pendienteAlMontar, reintentarCierre]);
+
+  // Y cada vez que el navegador recupera la conexión mientras siga pendiente
+  useEffect(() => {
+    if (!cierrePendiente) return;
+    const alVolverLaRed = () => reintentarCierre();
+    window.addEventListener("online", alVolverLaRed);
+    return () => window.removeEventListener("online", alVolverLaRed);
+  }, [cierrePendiente, reintentarCierre]);
 
   const entrar = useCallback(
     (credenciales: { username: string; password: string }) =>
@@ -84,17 +133,22 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
     [entrarAsync],
   );
 
+  // El fallo ya lo resuelve onError (cierre pendiente); rechazar aquí solo
+  // dejaría una promesa sin atender en quien llama con `void salir()`
   const salir = useCallback(async () => {
-    await salirAsync();
+    await salirAsync().catch(() => undefined);
   }, [salirAsync]);
 
   const valor = useMemo<ValorAuth>(
     () => ({
       usuario: consultaSesion.data ?? null,
-      comprobandoSesion: consultaSesion.isPending,
+      // Con la consulta deshabilitada TanStack la deja «pending» para siempre:
+      // sin esta condición la app se quedaría en «Comprobando sesión…»
+      comprobandoSesion: !cierrePendiente && consultaSesion.isPending,
       entrar,
       salir,
       saliendo: mutacionSalir.isPending,
+      cierrePendiente,
     }),
     [
       consultaSesion.data,
@@ -102,6 +156,7 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
       entrar,
       salir,
       mutacionSalir.isPending,
+      cierrePendiente,
     ],
   );
 
