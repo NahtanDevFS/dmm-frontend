@@ -16,6 +16,7 @@ import { CLAVE_SOLICITUDES } from "../../api/solicitudes";
 import type { Persona, ElementoCatalogo } from "../../types/api";
 import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import PreviaLotes from "./PreviaLotes";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Despacho de una línea específica de solicitud
@@ -163,7 +164,7 @@ function ModalDespacho({
         >
           {parentescos.opciones.map((tipo) => (
             <option key={tipo.id} value={tipo.id}>
-              {tipo.nombre}
+              {etiquetaDe(tipo.nombre)}
             </option>
           ))}
         </CampoSelect>

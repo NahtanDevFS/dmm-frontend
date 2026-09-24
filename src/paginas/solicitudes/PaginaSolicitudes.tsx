@@ -24,6 +24,7 @@ import ModalSolicitud from "./ModalSolicitud";
 import ModalFichaSolicitud from "./ModalFichaSolicitud";
 import SeccionListaEspera from "./SeccionListaEspera";
 import estilos from "./Solicitudes.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 const VISTAS = [
   { id: "listado", etiqueta: "Solicitudes" },
@@ -308,7 +309,7 @@ function PaginaSolicitudes() {
                         >
                           {OPCIONES_ESTADO.find(
                             (o) => o.valor === linea.estado_linea,
-                          )?.etiqueta ?? linea.estado_linea}
+                          )?.etiqueta ?? etiquetaDe(linea.estado_linea)}
                         </Insignia>
                         {linea.requiere_aprobacion && !linea.aprobada && (
                           <Insignia tono="informativa">

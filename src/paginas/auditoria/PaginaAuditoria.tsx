@@ -21,6 +21,7 @@ import {
 import ModalDetalleAuditoria from "./ModalDetalleAuditoria";
 import ModalHistorialRegistro from "./ModalHistorialRegistro";
 import estilos from "./Auditoria.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 const OPCIONES_ACCION: { valor: AccionAuditoria; etiqueta: string }[] = [
   { valor: "INSERT", etiqueta: "Creación" },
@@ -246,7 +247,7 @@ function PaginaAuditoria() {
                     <CeldaCantidad>{registro.registro_id}</CeldaCantidad>
                     <td>
                       <Insignia tono={TONO_ACCION[registro.accion]}>
-                        {registro.accion}
+                        {etiquetaDe(registro.accion)}
                       </Insignia>
                     </td>
                     <td className={estilos.usuario}>

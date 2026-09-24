@@ -4,6 +4,7 @@ import Modal from "../../componentes/ui/Modal";
 import type { RegistroAuditoria } from "../../api/auditoria";
 import TablaCambios from "./TablaCambios";
 import estilos from "./Auditoria.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 const TONO_ACCION: Record<string, "aprobada" | "pendiente" | "rechazada"> = {
   INSERT: "aprobada",
@@ -58,7 +59,7 @@ function ModalDetalleAuditoria({
             <dt>Acción</dt>
             <dd>
               <Insignia tono={TONO_ACCION[registro.accion]}>
-                {registro.accion}
+                {etiquetaDe(registro.accion)}
               </Insignia>
             </dd>
           </div>

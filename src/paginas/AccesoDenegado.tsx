@@ -2,13 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { rutaInicialDe } from "../rutas/navegacion";
 import estilos from "./AccesoDenegado.module.css";
-
-const NOMBRE_ROL: Record<string, string> = {
-  EMPLEADO_DMM: "Trabajo social",
-  DIRECTORA: "Dirección",
-  ALCALDE: "Alcaldía",
-  ADMINISTRADOR: "Administración",
-};
+import { etiquetaDe } from "../lib/etiquetas";
 
 /**
  * Pantalla para una ruta que existe pero que el rol no puede abrir.
@@ -20,7 +14,7 @@ const NOMBRE_ROL: Record<string, string> = {
  */
 function AccesoDenegado() {
   const { usuario } = useAuth();
-  const rol = usuario ? (NOMBRE_ROL[usuario.rol] ?? usuario.rol) : null;
+  const rol = usuario ? etiquetaDe(usuario.rol) : null;
 
   return (
     <>

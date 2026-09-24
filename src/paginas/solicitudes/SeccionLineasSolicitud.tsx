@@ -25,6 +25,7 @@ import {
 import ModalDespacho from "../entregas/ModalDespacho";
 import ModalFormulariosLinea from "../formularios/ModalFormulariosLinea";
 import estilos from "./Solicitudes.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /** Estados en los que una línea todavía admite cancelarse desde aquí. */
 const ESTADOS_CANCELABLES = new Set([
@@ -130,7 +131,8 @@ function SeccionLineasSolicitud({
   });
 
   const nombreModalidad = (modalidadId: number) =>
-    modalidades.opciones.find((m) => m.id === modalidadId)?.nombre ?? "—";
+    etiquetaDe(modalidades.opciones.find((m) => m.id === modalidadId)?.nombre) ||
+    "—";
 
   const listaParaAgregar =
     insumoId !== "" &&
@@ -179,7 +181,7 @@ function SeccionLineasSolicitud({
                   </CeldaCantidad>
                   <td>
                     <Insignia tono={tonoDeEstadoSolicitud(nombre)}>
-                      {nombre}
+                      {etiquetaDe(nombre)}
                     </Insignia>
                     {!linea.activo && (
                       <Insignia tono="neutra">Inactiva</Insignia>
@@ -262,7 +264,7 @@ function SeccionLineasSolicitud({
             >
               {modalidades.opciones.map((modalidad) => (
                 <option key={modalidad.id} value={modalidad.id}>
-                  {modalidad.nombre}
+                  {etiquetaDe(modalidad.nombre)}
                 </option>
               ))}
             </CampoSelect>

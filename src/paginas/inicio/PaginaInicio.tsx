@@ -27,13 +27,7 @@ import {
   useTotalBeneficiarios,
 } from "./useIndicadores";
 import estilos from "./PaginaInicio.module.css";
-
-const NOMBRE_ROL: Record<string, string> = {
-  EMPLEADO_DMM: "Trabajo social",
-  DIRECTORA: "Dirección",
-  ALCALDE: "Alcaldía",
-  ADMINISTRADOR: "Administración",
-};
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Qué hace cada módulo, para describirlo en su atajo.
@@ -81,14 +75,6 @@ function mesCorto(valorIso: string): string {
   const fecha = new Date(2000, Number(mes) - 1, 1);
   return fecha.toLocaleDateString("es-GT", { month: "short" }).replace(".", "");
 }
-
-/** Mismas etiquetas que ya usa Reportes para género (SeccionPoblacionBeneficiada.tsx). */
-const ETIQUETA_GENERO: Record<string, string> = {
-  MASCULINO: "Masculino",
-  FEMENINO: "Femenino",
-  OTRO: "Otro",
-  PREFIERE_NO_DECIR: "Prefiere no decir",
-};
 
 function PaginaInicio() {
   const { usuario } = useAuth();
@@ -157,7 +143,7 @@ function PaginaInicio() {
           Le damos la bienvenida, {usuario?.username}
         </h1>
         <p className={estilos.contexto}>
-          {usuario ? (NOMBRE_ROL[usuario.rol] ?? usuario.rol) : null} ·
+          {usuario ? etiquetaDe(usuario.rol) : null} ·
           Dirección Municipal de la Mujer, Usumatlán
         </p>
       </header>
@@ -381,7 +367,7 @@ function PaginaInicio() {
             ) : (
               <GraficaPastel
                 datos={(poblacionPorGenero.data ?? []).map((p) => ({
-                  etiqueta: ETIQUETA_GENERO[p.genero] ?? p.genero,
+                  etiqueta: etiquetaDe(p.genero),
                   valor: p.personas_unicas_beneficiadas,
                 }))}
                 etiquetaVacio="Sin entregas registradas en el rango elegido"

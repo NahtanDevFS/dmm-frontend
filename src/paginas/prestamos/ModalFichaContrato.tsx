@@ -310,7 +310,8 @@ function ModalFichaContrato({
               </div>
               <p className={estilos.nota}>
                 Crea un contrato nuevo encadenado a este, con una fecha de
-                devolución posterior. Este contrato queda como EXTENDIDO.
+                devolución posterior. Este contrato queda como «Extendido
+                (renovado)».
               </p>
               <CampoTexto
                 etiqueta="Nueva fecha de devolución pactada"

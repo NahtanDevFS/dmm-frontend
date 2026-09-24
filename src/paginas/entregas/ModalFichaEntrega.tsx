@@ -22,6 +22,7 @@ import {
 import { CLAVE_PERSONAS, obtenerPersona } from "../../api/personas";
 import SeccionEvidencias from "./SeccionEvidencias";
 import estilos from "./Entregas.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
@@ -86,9 +87,11 @@ function ModalFichaEntrega({
 
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
 
-  const nombreParentesco = parentescos.opciones.find(
-    (p) => p.id === entrega?.tipo_parentesco_receptor_id,
-  )?.nombre;
+  const nombreParentesco = etiquetaDe(
+    parentescos.opciones.find(
+      (p) => p.id === entrega?.tipo_parentesco_receptor_id,
+    )?.nombre,
+  ) || undefined;
 
   const anulacion = useMutation({
     mutationFn: () => anularEntrega(entregaId, motivo.trim()),

@@ -16,6 +16,7 @@ import {
 } from "../../api/auditoria";
 import ModalDetalleAuditoria from "./ModalDetalleAuditoria";
 import estilos from "./Auditoria.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 const TONO_ACCION: Record<string, "aprobada" | "pendiente" | "rechazada"> = {
   INSERT: "aprobada",
@@ -112,7 +113,7 @@ function ModalHistorialRegistro({
                   </CeldaCantidad>
                   <td>
                     <Insignia tono={TONO_ACCION[registro.accion]}>
-                      {registro.accion}
+                      {etiquetaDe(registro.accion)}
                     </Insignia>
                   </td>
                   <td className={estilos.usuario}>

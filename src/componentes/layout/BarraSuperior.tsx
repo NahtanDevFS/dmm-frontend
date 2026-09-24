@@ -3,14 +3,7 @@ import Logotipo from "../marca/Logotipo";
 import { useAuth } from "../../auth/useAuth";
 import ModalCambiarPassword from "../../paginas/usuarios/ModalCambiarPassword";
 import estilos from "./BarraSuperior.module.css";
-
-/** Etiquetas legibles de los roles. El API devuelve el identificador crudo. */
-const NOMBRE_ROL: Record<string, string> = {
-  EMPLEADO_DMM: "Trabajo social",
-  DIRECTORA: "Dirección",
-  ALCALDE: "Alcaldía",
-  ADMINISTRADOR: "Administración",
-};
+import { etiquetaDe } from "../../lib/etiquetas";
 
 function BarraSuperior() {
   const { usuario, salir, saliendo } = useAuth();
@@ -28,7 +21,7 @@ function BarraSuperior() {
         <div className={estilos.identidad}>
           <p className={estilos.nombre}>{usuario?.username}</p>
           <p className={estilos.rol}>
-            {usuario ? (NOMBRE_ROL[usuario.rol] ?? usuario.rol) : null}
+            {usuario ? etiquetaDe(usuario.rol) : null}
           </p>
           <button
             type="button"
