@@ -36,6 +36,7 @@ import { useAuth } from "../../auth/useAuth";
 import BuscadorPersona from "./BuscadorPersona";
 import { datosFaltantesDelEstudio } from "../beneficiarios/datosFaltantes";
 import estilos from "./Solicitudes.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /** Una línea todavía sin enviar, con los nombres ya resueltos para mostrarla. */
 interface LineaBorrador extends DatosLineaNueva {
@@ -89,7 +90,6 @@ function ModalSolicitud({
   // Formulario de la línea en curso, separado del resto: se limpia solo él
   // al agregar, sin tocar lo que ya se llenó de la cabecera.
   const [insumoId, setInsumoId] = useState("");
-  const [modalidadId, setModalidadId] = useState("");
   const [cantidad, setCantidad] = useState("");
   const [presentacionId, setPresentacionId] = useState("");
   const [errorLinea, setErrorLinea] = useState<string | undefined>();
@@ -119,15 +119,13 @@ function ModalSolicitud({
   )?.id;
 
   /**
-   * Modalidad que se va a enviar. Cuando la categoría no admite préstamo no
-   * se pregunta: es donación y punto. La base rechaza lo contrario, así que
-   * ofrecerlo sería ofrecer algo que va a fallar.
+   * Modalidad que se va a enviar: siempre donación. Una solicitud existe para
+   * decidir si corresponde donar; el préstamo se registra completo en el
+   * módulo de Préstamos. Antes, si la categoría admitía préstamo (la silla de
+   * ruedas), se tomaba la de un selector que ya no existe, así que quedaba
+   * vacía y no se podía agregar el insumo.
    */
-  const modalidadEfectiva = insumoElegido?.permite_prestamo
-    ? modalidadId
-    : idDonacion
-      ? String(idDonacion)
-      : "";
+  const modalidadEfectiva = idDonacion ? String(idDonacion) : "";
 
   const filasStock = insumos.data;
 
@@ -246,13 +244,13 @@ function ModalSolicitud({
           : cantidadNum.toLocaleString("es-GT") +
             " " +
             insumoElegido.unidad_base_nombre,
-        modalidadNombre:
+        modalidadNombre: etiquetaDe(
           modalidades.opciones.find((m) => m.id === Number(modalidadEfectiva))
-            ?.nombre ?? "",
+            ?.nombre,
+        ),
       },
     ]);
     setInsumoId("");
-    setModalidadId("");
     setPresentacionId("");
     setCantidad("");
     setErrorLinea(undefined);

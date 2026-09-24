@@ -1,14 +1,8 @@
-import { useState } from "react";
 import Logotipo from "../marca/Logotipo";
-import { useAuth } from "../../auth/useAuth";
-import ModalCambiarPassword from "../../paginas/usuarios/ModalCambiarPassword";
+import MenuCuenta from "./MenuCuenta";
 import estilos from "./BarraSuperior.module.css";
-import { etiquetaDe } from "../../lib/etiquetas";
 
 function BarraSuperior() {
-  const { usuario, salir, saliendo } = useAuth();
-  const [cambiandoPassword, setCambiandoPassword] = useState(false);
-
   return (
     <header className={estilos.barra}>
       <div className={estilos.marca}>
@@ -17,36 +11,7 @@ function BarraSuperior() {
         <Logotipo alto={40} alt="" />
       </div>
 
-      <div className={estilos.usuario}>
-        <div className={estilos.identidad}>
-          <p className={estilos.nombre}>{usuario?.username}</p>
-          <p className={estilos.rol}>
-            {usuario ? etiquetaDe(usuario.rol) : null}
-          </p>
-          <button
-            type="button"
-            className={estilos.botonCuenta}
-            onClick={() => setCambiandoPassword(true)}
-          >
-            Cambiar contraseña
-          </button>
-        </div>
-        <button
-          type="button"
-          className={estilos.salir}
-          onClick={() => void salir()}
-          disabled={saliendo}
-        >
-          {saliendo ? "Cerrando…" : "Cerrar sesión"}
-        </button>
-      </div>
-
-      {cambiandoPassword && (
-        <ModalCambiarPassword
-          abierto
-          onCerrar={() => setCambiandoPassword(false)}
-        />
-      )}
+      <MenuCuenta />
     </header>
   );
 }

@@ -1,0 +1,144 @@
+/* Menú de cuenta de la barra superior: avatar con la inicial y panel
+   desplegable con los datos del usuario y las acciones de la cuenta. */
+
+.contenedor {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* 44 px de área táctil, como el resto de botones de la barra. La inicial va
+   en blanco y negrita a 18 px sobre Rosa 600: texto grande, 3:1 basta. */
+.disparador {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--color-surface);
+  background-color: var(--color-primary-dark);
+  color: var(--color-surface);
+  font: 600 18px / 1 var(--font-main);
+  cursor: pointer;
+  transition: background-color var(--transicion);
+}
+
+.disparador:hover,
+.disparador[aria-expanded="true"] {
+  /* El mismo oscurecido que usaba el botón de salir en :hover. */
+  background-color: #b21654;
+}
+
+.disparador:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: 50;
+  width: 300px;
+  max-width: calc(100vw - var(--space-3));
+  padding: var(--space-2);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-soft);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-main);
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-darker);
+  font: 600 20px / 1 var(--font-main);
+}
+
+.datos {
+  min-width: 0;
+}
+
+.nombre {
+  font: var(--texto-etiqueta);
+  overflow-wrap: anywhere;
+}
+
+.usuario {
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* El rol se escribe, no solo se deduce de las opciones disponibles. */
+.rol {
+  margin-top: 2px;
+  font: var(--texto-auxiliar);
+  font-weight: 600;
+  color: var(--color-primary-darker);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.programa {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-soft);
+  font: var(--texto-auxiliar);
+}
+
+.programaEtiqueta {
+  color: var(--color-text-muted);
+}
+
+.acciones {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-2);
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.accion {
+  min-height: 44px;
+  padding: 0 var(--space-1);
+  border: none;
+  border-radius: var(--radius-field);
+  background: none;
+  color: var(--color-text-main);
+  font: var(--texto-etiqueta);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transicion);
+}
+
+.accion:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+}
+
+.accion:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.accion:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.salir {
+  color: var(--color-danger);
+}
