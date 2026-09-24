@@ -12,12 +12,7 @@ import { mensajeDeError } from "../../lib/errores";
 import { tonoDeEstadoSolicitud } from "../../componentes/ui/tonos";
 import { listarListaEspera } from "../../api/donaciones";
 import estilos from "./Solicitudes.module.css";
-
-/** Nombre legible del estado, igual que en el listado principal. */
-const ETIQUETA_ESTADO: Record<string, string> = {
-  PENDIENTE_ADQUISICION: "Pendiente de adquisición",
-  PENDIENTE_ENTREGA_PARCIAL: "Pendiente de entrega (parcial)",
-};
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Líneas de solicitud esperando existencias: PENDIENTE_ADQUISICION o
@@ -119,7 +114,7 @@ function SeccionListaEspera({
                 </CeldaCantidad>
                 <td>
                   <Insignia tono={tonoDeEstadoSolicitud(linea.estado)}>
-                    {ETIQUETA_ESTADO[linea.estado] ?? linea.estado}
+                    {etiquetaDe(linea.estado)}
                   </Insignia>
                 </td>
                 <td className={estilos.diasEsperando}>

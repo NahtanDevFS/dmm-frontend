@@ -22,6 +22,7 @@ import {
   type Multa,
 } from "../../api/prestamos";
 import estilos from "./Prestamos.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /** Igual que el catálogo de solo lectura, pero con el monto sugerido que ese no trae. */
 interface TipoMulta extends ElementoCatalogo {
@@ -121,7 +122,7 @@ function SeccionMultas({
                     minimumFractionDigits: 2,
                   })}
                   {" — "}
-                  {m.tipo_multa_nombre}
+                  {etiquetaDe(m.tipo_multa_nombre)}
                 </p>
                 <p className={estilos.auxiliar}>
                   Aplicada el {formatearFecha(m.fecha_aplicacion)}
@@ -185,7 +186,7 @@ function SeccionMultas({
             >
               {tipos.opciones.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.nombre}
+                  {etiquetaDe(t.nombre)}
                 </option>
               ))}
             </CampoSelect>

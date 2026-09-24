@@ -27,6 +27,7 @@ import {
 import ModalFichaContrato from "./ModalFichaContrato";
 import ModalRegistrarPrestamo from "./ModalRegistrarPrestamo";
 import estilos from "./Prestamos.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 const VISTAS = [
   { id: "listado", etiqueta: "Contratos" },
@@ -343,7 +344,7 @@ function PaginaPrestamos() {
                       </CeldaCantidad>
                       <td className={estilos.celdaEstado}>
                         <Insignia tono={TONO_ESTADO[c.estado]}>
-                          {c.estado}
+                          {etiquetaDe(c.estado)}
                         </Insignia>
                         {c.multas_pendientes > 0 && (
                           <Insignia tono="informativa">

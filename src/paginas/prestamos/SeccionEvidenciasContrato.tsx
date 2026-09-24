@@ -16,6 +16,7 @@ import {
 } from "../../api/prestamos";
 import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Prestamos.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Evidencias del contrato de préstamo: el DPI de quien firma (frontal y
@@ -88,7 +89,8 @@ function SeccionEvidenciasContrato({
   });
 
   const nombreTipo = (tipoEvidenciaId: number) =>
-    tipos.opciones.find((t) => t.id === tipoEvidenciaId)?.nombre ?? "Evidencia";
+    etiquetaDe(tipos.opciones.find((t) => t.id === tipoEvidenciaId)?.nombre) ||
+    "Evidencia";
 
   const nombreDe = (evidencia: EvidenciaContrato) =>
     evidencia.observaciones ??
@@ -184,7 +186,7 @@ function SeccionEvidenciasContrato({
           >
             {tipos.opciones.map((tipo) => (
               <option key={tipo.id} value={tipo.id}>
-                {tipo.nombre}
+                {etiquetaDe(tipo.nombre)}
               </option>
             ))}
           </CampoSelect>

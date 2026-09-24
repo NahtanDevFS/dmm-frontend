@@ -20,6 +20,10 @@ export type ErroresPorCampo = Record<string, string[]>;
 interface CuerpoDeError {
   message?: string;
   errores?: ErroresPorCampo;
+  /** Identificador estable del caso, para reaccionar sin comparar textos. */
+  code?: string;
+  /** Lo mandan los endpoints con límite propio de intentos (mi-password). */
+  intentos_restantes?: number;
 }
 
 /** Respaldos por código. Solo se usan cuando el servidor no mandó mensaje. */
@@ -108,6 +112,27 @@ export function errorDeCampo(
   campo: string,
 ): string | undefined {
   return erroresPorCampo(error)?.[campo]?.[0];
+}
+
+/**
+ * Código del caso que manda el servidor en algunos errores (por ejemplo
+ * `CURRENT_PASSWORD_INVALID`). El mensaje puede cambiar de redacción; el
+ * código no, así que es lo que se compara.
+ */
+export function codigoDeError(error: unknown): string | undefined {
+  const codigo = cuerpoDe(error)?.code;
+  return typeof codigo === "string" ? codigo : undefined;
+}
+
+/**
+ * Intentos que le quedan a la persona según el cuerpo de la respuesta. A
+ * diferencia de `intentosRestantes` (lib/limitePeticiones), que lee la cabecera
+ * RateLimit, esto es el número del limitador propio del endpoint, sin mezclarse
+ * con el límite general de /api.
+ */
+export function intentosRestantesDelCuerpo(error: unknown): number | undefined {
+  const restantes = cuerpoDe(error)?.intentos_restantes;
+  return typeof restantes === "number" ? restantes : undefined;
 }
 
 /**

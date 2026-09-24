@@ -22,6 +22,7 @@ import {
 import ModalUsuario from "./ModalUsuario";
 import ModalResetearPassword from "./ModalResetearPassword";
 import estilos from "./Usuarios.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Gestión de usuarios. Exclusiva de ADMINISTRACION (DIRECTORA +
@@ -134,7 +135,7 @@ function PaginaUsuarios() {
           >
             {roles.data?.map((rol) => (
               <option key={rol.id} value={rol.id}>
-                {rol.nombre}
+                {etiquetaDe(rol.nombre)}
               </option>
             ))}
           </CampoSelect>
@@ -207,7 +208,7 @@ function PaginaUsuarios() {
                           se muestra el usuario para no dejar la celda vacía. */}
                       <td>{fila.nombre_completo ?? "—"}</td>
                       <td className={estilos.usuario}>{fila.username}</td>
-                      <td>{fila.rol_nombre}</td>
+                      <td>{etiquetaDe(fila.rol_nombre)}</td>
                       <td>{fila.programa_nombre ?? "—"}</td>
                       <td>{formatearFecha(fila.ultimo_login)}</td>
                       <td className={estilos.celdaEstado}>

@@ -29,6 +29,7 @@ import SeccionDocumentos from "./SeccionDocumentos";
 import { datosFaltantesDelEstudio } from "./datosFaltantes";
 import ModalEditar from "./ModalEditar";
 import estilos from "./Ficha.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 function Dato({
   titulo,
@@ -246,7 +247,7 @@ function ModalFicha({
               <Dato titulo="Edad">
                 {Number.isFinite(edad) ? edad + " años" : "—"}
               </Dato>
-              <Dato titulo="Género">{genero?.nombre ?? "—"}</Dato>
+              <Dato titulo="Género">{etiquetaDe(genero?.nombre) || "—"}</Dato>
               <Dato titulo="Comunidad">{comunidad?.nombre ?? "—"}</Dato>
               <Dato titulo="Teléfono">{persona.telefono ?? "—"}</Dato>
               <Dato titulo="Estado civil">{estadoCivil?.nombre ?? "—"}</Dato>

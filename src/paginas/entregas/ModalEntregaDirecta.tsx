@@ -27,6 +27,7 @@ import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import SeccionEvidencias from "./SeccionEvidencias";
 import PreviaLotes from "./PreviaLotes";
 import estilos from "./Entregas.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Entrega directa de medicina/comida sin solicitud previa
@@ -374,7 +375,7 @@ function ModalEntregaDirecta({
         >
           {parentescos.opciones.map((tipo) => (
             <option key={tipo.id} value={tipo.id}>
-              {tipo.nombre}
+              {etiquetaDe(tipo.nombre)}
             </option>
           ))}
         </CampoSelect>

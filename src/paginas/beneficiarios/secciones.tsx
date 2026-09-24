@@ -21,6 +21,7 @@ import {
 import type { ElementoCatalogo } from "../../types/api";
 import { normalizarTelefono, telefonoValido } from "../../lib/telefono";
 import estilos from "./Ficha.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Hook común de secciones (refresca ficha, avisa y traduce error)
@@ -206,7 +207,7 @@ export function SeccionEncargados({
                 <p className={estilos.elementoNombre}>
                   {e.nombres} {e.apellidos}
                 </p>
-                <p className={estilos.elementoDetalle}>{e.parentesco_nombre}</p>
+                <p className={estilos.elementoDetalle}>{etiquetaDe(e.parentesco_nombre)}</p>
               </div>
               <Boton
                 pequeno
@@ -260,7 +261,7 @@ export function SeccionEncargados({
         >
           {parentescos.opciones.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.nombre}
+              {etiquetaDe(p.nombre)}
             </option>
           ))}
         </CampoSelect>

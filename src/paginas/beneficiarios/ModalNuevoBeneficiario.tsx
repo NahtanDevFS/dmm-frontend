@@ -22,6 +22,7 @@ import { esquemaBeneficiario, type DatosBeneficiario } from "./esquema";
 import SelectorComunidad from "./SelectorComunidad";
 import SelectorMunicipio from "./SelectorMunicipio";
 import estilos from "./Formulario.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 const numeroOpcional = (valor: string | undefined) =>
   valor ? Number(valor) : null;
@@ -314,7 +315,7 @@ function ModalNuevoBeneficiario({
             >
               {generos.opciones.map((g) => (
                 <option key={g.id} value={g.id}>
-                  {g.nombre}
+                  {etiquetaDe(g.nombre)}
                 </option>
               ))}
             </CampoSelect>
@@ -509,7 +510,7 @@ function ModalNuevoBeneficiario({
               >
                 {parentescos.opciones.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.nombre}
+                    {etiquetaDe(p.nombre)}
                   </option>
                 ))}
               </CampoSelect>

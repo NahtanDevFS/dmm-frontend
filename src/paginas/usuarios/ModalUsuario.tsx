@@ -22,6 +22,7 @@ import {
   type Usuario,
 } from "../../api/usuarios";
 import estilos from "./Usuarios.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /** Mismo criterio que el backend: 8+ caracteres, con letra y número. */
 function passwordValida(v: string): boolean {
@@ -222,7 +223,7 @@ function ModalUsuario({
         >
           {roles.data?.map((rol) => (
             <option key={rol.id} value={rol.id}>
-              {rol.nombre}
+              {etiquetaDe(rol.nombre)}
             </option>
           ))}
         </CampoSelect>

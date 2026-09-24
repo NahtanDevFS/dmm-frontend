@@ -17,6 +17,7 @@ import {
 } from "../../api/formularios";
 import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Catalogos.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /** Valor del <select> de modalidad cuando el formulario aplica a todas. */
 const TODAS = "";
@@ -137,7 +138,7 @@ function SeccionFormulariosCategoria() {
                       <Insignia tono="neutra">Todas</Insignia>
                     ) : (
                       <Insignia tono="informativa">
-                        Solo {asignacion.modalidad_nombre.toLowerCase()}
+                        Solo {etiquetaDe(asignacion.modalidad_nombre).toLowerCase()}
                       </Insignia>
                     )}
                   </td>
@@ -225,7 +226,7 @@ function SeccionFormulariosCategoria() {
             <option value={TODAS}>Todas las modalidades</option>
             {modalidades.opciones.map((modalidad) => (
               <option key={modalidad.id} value={modalidad.id}>
-                Solo {modalidad.nombre.toLowerCase()}
+                Solo {etiquetaDe(modalidad.nombre).toLowerCase()}
               </option>
             ))}
           </CampoSelect>

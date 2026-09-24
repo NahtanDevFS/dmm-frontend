@@ -16,6 +16,7 @@ import {
 } from "../../api/entregas";
 import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Entregas.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Evidencias de entrega: la constancia de que el despacho ocurrió — firma,
@@ -86,7 +87,8 @@ function SeccionEvidencias({
   });
 
   const nombreTipo = (tipoEvidenciaId: number) =>
-    tipos.opciones.find((t) => t.id === tipoEvidenciaId)?.nombre ?? "Evidencia";
+    etiquetaDe(tipos.opciones.find((t) => t.id === tipoEvidenciaId)?.nombre) ||
+    "Evidencia";
 
   const nombreDe = (evidencia: EvidenciaEntrega) =>
     evidencia.observaciones ??
@@ -181,7 +183,7 @@ function SeccionEvidencias({
           >
             {tipos.opciones.map((tipo) => (
               <option key={tipo.id} value={tipo.id}>
-                {tipo.nombre}
+                {etiquetaDe(tipo.nombre)}
               </option>
             ))}
           </CampoSelect>

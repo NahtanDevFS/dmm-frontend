@@ -14,6 +14,7 @@ import type { Comunidad, ElementoCatalogo } from "../../types/api";
 import { telefonoValido } from "../../lib/telefono";
 import SelectorMunicipio from "./SelectorMunicipio";
 import estilos from "./Ficha.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /**
  * Edición de los datos generales.
@@ -183,7 +184,7 @@ function ModalEditar({
         >
           {generos.opciones.map((g) => (
             <option key={g.id} value={g.id}>
-              {g.nombre}
+              {etiquetaDe(g.nombre)}
             </option>
           ))}
         </CampoSelect>

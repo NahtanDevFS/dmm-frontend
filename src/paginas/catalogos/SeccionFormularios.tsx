@@ -27,24 +27,13 @@ import {
   type Formulario,
 } from "../../api/formularios";
 import estilos from "./Catalogos.module.css";
+import { etiquetaDe } from "../../lib/etiquetas";
 
 /** Tipos de campo que ofrecen opciones y por tanto necesitan de dónde sacarlas. */
 const TIPOS_CON_OPCIONES: string[] = [
   TIPO_DATO.SELECCION_UNICA,
   TIPO_DATO.SELECCION_MULTIPLE,
 ];
-
-/** Cómo se lee cada tipo de dato, en vez de su nombre técnico. */
-const NOMBRE_TIPO: Record<string, string> = {
-  TEXTO_CORTO: "Texto corto",
-  TEXTO_LARGO: "Texto largo",
-  NUMERO: "Número",
-  FECHA: "Fecha",
-  FECHA_NACIMIENTO: "Fecha de nacimiento (muestra la edad)",
-  SI_NO: "Sí / No",
-  SELECCION_UNICA: "Selección única",
-  SELECCION_MULTIPLE: "Selección múltiple",
-};
 
 /**
  * Administración de formularios y de sus campos.
@@ -391,8 +380,7 @@ function SeccionFormularios() {
                     <td>{campo.orden}</td>
                     <td>{campo.etiqueta}</td>
                     <td>
-                      {NOMBRE_TIPO[campo.tipo_dato_nombre] ??
-                        campo.tipo_dato_nombre}
+                      {etiquetaDe(campo.tipo_dato_nombre)}
                     </td>
                     <td>{campo.obligatorio ? "Sí" : "No"}</td>
                     <td>{campo.grupo_repetible ?? "—"}</td>
@@ -482,7 +470,7 @@ function SeccionFormularios() {
             >
               {tiposDato.data?.map((tipo) => (
                 <option key={tipo.id} value={tipo.id}>
-                  {NOMBRE_TIPO[tipo.nombre] ?? tipo.nombre}
+                  {etiquetaDe(tipo.nombre)}
                 </option>
               ))}
             </CampoSelect>
