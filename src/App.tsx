@@ -1,9 +1,17 @@
 import { useAuth } from "./auth/useAuth";
 import Rutas from "./rutas/Rutas";
 import PaginaAcceso from "./paginas/acceso/PaginaAcceso";
+import PantallaCierrePendiente from "./paginas/acceso/PantallaCierrePendiente";
 
 function App() {
-  const { usuario, comprobandoSesion } = useAuth();
+  const { usuario, comprobandoSesion, cierrePendiente } = useAuth();
+
+  /**
+   * Va antes que todo: con un cierre sin confirmar no se rescata la sesión ni
+   * se muestra el acceso como si nada, porque la sesión anterior podría seguir
+   * viva en el servidor.
+   */
+  if (cierrePendiente) return <PantallaCierrePendiente />;
 
   /**
    * Mientras se resuelve GET /auth/me no se decide nada. Mostrar la pantalla de
