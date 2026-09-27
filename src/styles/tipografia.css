@@ -26,6 +26,22 @@
   --texto-dato: 500 14px / 20px var(--font-mono);
 }
 
+/* Móvil: la misma escala de siete niveles, un escalón más compacta. Con los
+   tamaños de escritorio un título de página ocupaba dos líneas y cada pantalla
+   mostraba la mitad de contenido. El cuerpo no baja de 14 px ni el auxiliar de
+   12, para que se sigan leyendo cómodos a distancia de brazo. */
+@media (max-width: 768px) {
+  :root {
+    --texto-titulo-pagina: 700 22px / 28px var(--font-main);
+    --texto-titulo-tarjeta: 600 17px / 23px var(--font-main);
+    --texto-cuerpo: 400 14px / 21px var(--font-main);
+    --texto-etiqueta: 600 13px / 18px var(--font-main);
+    --texto-auxiliar: 400 12px / 17px var(--font-main);
+    --texto-encabezado-tabla: 600 11px / 15px var(--font-main);
+    --texto-dato: 500 13px / 18px var(--font-mono);
+  }
+}
+
 /* Título de página */
 h1,
 .texto-titulo-pagina {

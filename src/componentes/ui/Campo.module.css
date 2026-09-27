@@ -34,6 +34,14 @@
     box-shadow var(--transicion);
 }
 
+/* Móvil: menos relleno. La letra ya baja con --texto-cuerpo (14 px); el alto
+   mínimo se queda en 44 px, el área táctil que pide la sección 7. */
+@media (max-width: 768px) {
+  .control {
+    padding: 8px 10px;
+  }
+}
+
 .control:hover:not(:disabled):not(:read-only) {
   border-color: var(--color-primary-mid);
 }

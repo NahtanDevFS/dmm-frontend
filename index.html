@@ -3,6 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Safari de iPhone y iPad amplía la pantalla al enfocar un campo con
+         letra menor de 16 px, y no la vuelve a alejar. maximum-scale=1 lo
+         evita sin agrandar la letra de los campos, y desde iOS 10 Safari
+         sigue permitiendo el zoom con dos dedos. Solo en iOS: en Android ese
+         zoom automático no existe y maximum-scale sí bloquearía el zoom
+         manual, que hay que conservar por accesibilidad. -->
+    <script>
+      if (
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+      ) {
+        document
+          .querySelector('meta[name="viewport"]')
+          .setAttribute(
+            "content",
+            "width=device-width, initial-scale=1.0, maximum-scale=1.0",
+          );
+      }
+    </script>
 
     <title>Dirección Municipal de la Mujer - DMM </title>
     <meta

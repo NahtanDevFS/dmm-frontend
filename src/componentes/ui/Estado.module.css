@@ -55,6 +55,26 @@
   color: var(--color-text-main);
 }
 
+/* Móvil: dos indicadores por fila. Con la columna mínima de 250 px cada uno
+   ocupaba el ancho completo y los cuatro del inicio pedían tres pantallas de
+   desplazamiento solo para ver cuatro números. */
+@media (max-width: 768px) {
+  .rejilla {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .indicador {
+    padding: 12px;
+  }
+
+  .valor {
+    margin-top: 4px;
+    font-size: 26px;
+    line-height: 32px;
+  }
+}
+
 .detalle {
   margin-top: 4px;
   font: var(--texto-auxiliar);

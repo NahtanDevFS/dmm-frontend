@@ -51,3 +51,14 @@
   --font-display: "Source Serif 4", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
+
+/* Móvil: los dos espaciados grandes se compactan (24 -> 16 y 40 -> 24 px).
+   Rellenan tarjetas y separan secciones en toda la aplicación; con los valores
+   de escritorio, en una pantalla de 375 px la mitad del alto era margen. Los
+   pequeños (8 y 16 px) se quedan: separan etiqueta de campo y ya son mínimos. */
+@media (max-width: 768px) {
+  :root {
+    --space-3: 16px;
+    --space-4: 24px;
+  }
+}
