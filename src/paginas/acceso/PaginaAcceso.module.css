@@ -273,11 +273,12 @@
 /* Móvil */
 
 @media (max-width: 768px) {
-  /* El panel de marca se reduce a una banda superior de 120 px y el
-     formulario ocupa el ancho completo con 16 px de margen. */
+  /* El panel de marca se reduce a una banda superior tan alta como su
+     contenido (unos 72 px) y el formulario ocupa el ancho completo con 16 px
+     de margen. Antes la banda tenía 120 px fijos y era casi toda aire. */
   .pagina {
     grid-template-columns: 1fr;
-    grid-template-rows: 120px 1fr;
+    grid-template-rows: auto 1fr;
   }
 
   .panel {
@@ -286,25 +287,30 @@
     /* En la banda el logotipo y el título van uno junto a otro, así que el
        texto vuelve a alinearse a la izquierda. */
     text-align: left;
-    gap: var(--space-2);
-    padding: 0 var(--space-2);
+    gap: 12px;
+    padding: 14px var(--space-2);
   }
 
-  /* En móvil el panel pasa a fila y el logotipo se reduce. */
-  .marca {
+  /* En móvil el panel pasa a fila y el logotipo se reduce. El resguardo que
+     calcula el componente es el 8 % de su alto de escritorio (300 px, o sea
+     24 px por lado): pensado para el logotipo grande, en la banda solo
+     inflaba la altura. Aquí se recalcula para el tamaño real. Doble clase
+     para ganar a la regla del componente, que tiene la misma especificidad. */
+  .panel .marca {
     align-self: center;
+    padding: 3px;
   }
 
   /* Mismo criterio que el componente: manda el ancho, la altura se deduce.
-     44 px de alto x 1.45985 de proporción. */
+     56 px de ancho son unos 38 px de alto (proporción 1.45985). */
   .marca img {
-    width: 64px;
+    width: 56px;
     height: auto;
   }
 
   .panelTitulo {
-    font-size: 19px;
-    line-height: 26px;
+    font-size: 16px;
+    line-height: 22px;
   }
 
   .panelSubtitulo,

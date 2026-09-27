@@ -28,6 +28,29 @@
   vertical-align: middle;
 }
 
+/* Móvil: celdas de 13 px y menos relleno, para que quepan más columnas antes
+   de tener que desplazar la tabla. Se fija en la celda porque tipografía.css
+   aplica el cuerpo directamente a td (y a p): la letra de .tabla no llegaría.
+   Solo tamaño e interlínea, sin tocar la familia, para que las celdas con
+   letra monoespaciada (usuarios, CUI/DPI) la conserven. */
+@media (max-width: 768px) {
+  .tabla th {
+    padding: 8px 10px;
+  }
+
+  .tabla td {
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  /* Párrafos sin clase propia dentro de una celda: heredan de ella. */
+  .tabla td p:not([class]) {
+    font-size: inherit;
+    line-height: inherit;
+  }
+}
+
 /* Filas alternas en Rosa 50. */
 .tabla tbody tr:nth-child(even) td {
   background-color: var(--color-background);
