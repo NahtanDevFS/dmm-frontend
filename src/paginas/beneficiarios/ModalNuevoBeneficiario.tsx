@@ -10,6 +10,7 @@ import {
   CampoTexto,
   CampoSelect,
   CampoAreaTexto,
+  CampoTelefono,
 } from "../../componentes/ui/Campo";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
@@ -269,10 +270,8 @@ function ModalNuevoBeneficiario({
               error={errors.cui_dpi?.message}
               {...register("cui_dpi")}
             />
-            <CampoTexto
+            <CampoTelefono
               etiqueta="Teléfono de contacto"
-              type="tel"
-              placeholder="5512 3344"
               ayuda="8 dígitos."
               error={errors.telefono?.message}
               {...register("telefono")}
@@ -496,9 +495,9 @@ function ModalNuevoBeneficiario({
                 error={errors.encargado?.fecha_nacimiento?.message}
                 {...register("encargado.fecha_nacimiento")}
               />
-              <CampoTexto
+              <CampoTelefono
                 etiqueta="Teléfono del encargado"
-                type="tel"
+                ayuda="8 dígitos."
                 error={errors.encargado?.telefono?.message}
                 {...register("encargado.telefono")}
               />
@@ -542,11 +541,9 @@ function ModalNuevoBeneficiario({
                 error={errors.contactos?.[indice]?.nombre?.message}
                 {...register(`contactos.${indice}.nombre`)}
               />
-              <CampoTexto
+              <CampoTelefono
                 etiqueta="Teléfono"
                 obligatorio
-                type="tel"
-                placeholder="5512 3344"
                 ayuda="8 dígitos."
                 error={errors.contactos?.[indice]?.telefono?.message}
                 {...register(`contactos.${indice}.telefono`)}

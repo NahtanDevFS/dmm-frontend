@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizarTelefono } from "../../lib/telefono";
 
 /**
  * Espejo de crearPersonaSchema en el backend, con una regla añadida que allí
@@ -6,14 +7,9 @@ import { z } from "zod";
  */
 
 /**
- * Teléfono guatemalteco: ocho dígitos. Espejo de lib/telefono.ts en el
- * backend. Se aceptan espacios, guiones y el prefijo +502 al escribir —así se
- * dictan y así los copian de una libreta— y se normaliza a los ocho dígitos
- * solos, para que buscar un número no dependa de cómo lo escribieron.
+ * Teléfono guatemalteco: ocho dígitos, normalizado con la misma regla que el
+ * resto del frontend (ver lib/telefono.ts).
  */
-const normalizarTelefono = (v: string) =>
-  v.replace(/[\s()-]/g, "").replace(/^\+?502/, "");
-
 const telefonoOpcional = z
   .string()
   .trim()

@@ -5,6 +5,10 @@ import {
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from "react";
+import {
+  LARGO_MAXIMO_TELEFONO,
+  filtrarEntradaTelefono,
+} from "../../lib/telefono";
 import estilos from "./Campo.module.css";
 
 interface PropsBase {
@@ -61,7 +65,12 @@ function Envoltura({
   children: ReactNode;
 }) {
   return (
-    <div className={[estilos.campo, className ?? ""].filter(Boolean).join(" ")}>
+    <div
+      className={[estilos.campo, className ?? ""].filter(Boolean).join(" ")}
+      // Marca para .fila-campos (base.css): lo que no la lleve se alinea
+      // con el control, no con la etiqueta.
+      data-campo=""
+    >
       <label className={estilos.etiqueta} htmlFor={id}>
         {etiqueta}
         {obligatorio && (
@@ -144,6 +153,34 @@ export function CampoTexto({
         input
       )}
     </Envoltura>
+  );
+}
+
+/**
+ * Teléfono guatemalteco. Descarta al teclear lo que no puede ser parte de un
+ * número y corta en el largo máximo; la regla de los ocho dígitos se sigue
+ * validando en el esquema. Filtra sobre el mismo evento, así que funciona
+ * igual controlado que con register() de react-hook-form.
+ */
+export function CampoTelefono({
+  onChange,
+  placeholder = "5512 3344",
+  ...resto
+}: Omit<PropsTexto, "type">) {
+  return (
+    <CampoTexto
+      type="tel"
+      inputMode="tel"
+      autoComplete="tel"
+      maxLength={LARGO_MAXIMO_TELEFONO}
+      placeholder={placeholder}
+      onChange={(e) => {
+        const filtrado = filtrarEntradaTelefono(e.target.value);
+        if (filtrado !== e.target.value) e.target.value = filtrado;
+        onChange?.(e);
+      }}
+      {...resto}
+    />
   );
 }
 

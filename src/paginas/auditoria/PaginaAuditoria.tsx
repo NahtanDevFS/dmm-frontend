@@ -180,7 +180,6 @@ function PaginaAuditoria() {
           {hayFiltros && (
             <Boton
               variante="terciaria"
-              className={estilos.limpiarFiltros}
               onClick={limpiarFiltros}
             >
               Limpiar filtros
@@ -190,7 +189,6 @@ function PaginaAuditoria() {
           {tabla !== "" && registroId !== "" && (
             <Boton
               variante="secundaria"
-              className={estilos.limpiarFiltros}
               onClick={() =>
                 setVerHistorial({ tabla, registroId: Number(registroId) })
               }

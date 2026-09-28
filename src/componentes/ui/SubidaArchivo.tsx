@@ -230,7 +230,7 @@ function SubidaArchivo({
   }, []);
 
   return (
-    <div className={estilos.campo}>
+    <div className={estilos.campo} data-campo="">
       <span className={estilos.etiqueta} id={id + "-titulo"}>
         {etiqueta}
         {obligatorio && (

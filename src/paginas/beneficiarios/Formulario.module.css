@@ -123,10 +123,10 @@
 }
 
 .contacto {
+  composes: fila-campos from global;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--space-2);
-  align-items: end;
   padding: var(--space-2);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-field);
@@ -163,11 +163,11 @@
  * columna de 250 px se leería como un campo más del formulario, y no lo es.
  */
 .altaEnLinea {
+  composes: fila-campos from global;
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: 1fr auto auto;
   gap: var(--space-2);
-  align-items: end;
   padding: var(--space-2);
   border: 1px dashed var(--color-primary-soft);
   border-radius: var(--radius-field);

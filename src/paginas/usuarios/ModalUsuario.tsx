@@ -19,6 +19,8 @@ import {
   listarRoles,
   crearUsuario,
   editarUsuario,
+  desactivarUsuario,
+  reactivarUsuario,
   type Usuario,
 } from "../../api/usuarios";
 import estilos from "./Usuarios.module.css";
@@ -34,6 +36,11 @@ function passwordValida(v: string): boolean {
  * inicial); con `usuario`, es edición (username y rol, sin contraseña —
  * eso lo cubre «Restablecer contraseña» aparte).
  *
+ * En edición trae además la sección «Cuenta» (restablecer contraseña y
+ * desactivar/reactivar). Vive aquí y no en la fila de la tabla: tres botones
+ * por fila ensanchaban la tabla hasta hacerla incómoda en el teléfono, y
+ * desactivar queda un paso más lejos de un toque accidental.
+ *
  * Si se está editando la propia cuenta, el rol no se muestra editable: el
  * backend lo rechazaría igual («no puede cambiar su propio rol»), y
  * mostrarlo deshabilitado sin más solo invitaría a intentarlo.
@@ -42,14 +49,17 @@ function ModalUsuario({
   usuario,
   abierto,
   onCerrar,
+  onRestablecerPassword,
 }: {
   usuario?: Usuario;
   abierto: boolean;
   onCerrar: () => void;
+  /** Cierra este modal y abre el de restablecer contraseña. Solo en edición. */
+  onRestablecerPassword?: () => void;
 }) {
   const clienteQuery = useQueryClient();
   const { usuario: sesionActual } = useAuth();
-  const { avisar } = useAvisos();
+  const { avisar, confirmar } = useAvisos();
 
   const esEdicion = usuario !== undefined;
   const esUnoMismo = usuario?.id === sesionActual?.id;
@@ -130,6 +140,38 @@ function ModalUsuario({
     },
   });
 
+  // Ambas cierran el modal al terminar: el estado nuevo se ve en la tabla.
+  // Aquí llegan las guardas del backend ("no puede desactivar su propio
+  // usuario", "único administrador activo"); se muestran tal cual.
+  const cambioEstado = useMutation({
+    mutationFn: (activar: boolean) =>
+      activar ? reactivarUsuario(usuario!.id) : desactivarUsuario(usuario!.id),
+    onSuccess: async (_, activar) => {
+      await clienteQuery.invalidateQueries({ queryKey: [CLAVE_USUARIOS] });
+      avisar(
+        activar ? "Usuario reactivado." : "Usuario desactivado.",
+        "exito",
+      );
+      onCerrar();
+    },
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
+
+  const desactivar = async () => {
+    const ok = await confirmar({
+      titulo: "Desactivar usuario",
+      mensaje:
+        "Se cerrarán todas las sesiones abiertas de «" +
+        usuario!.username +
+        "». Podrá reactivarlo después.",
+      textoConfirmar: "Desactivar",
+      destructiva: true,
+    });
+    if (ok) cambioEstado.mutate(false);
+  };
+
+  const ocupado = mutacion.isPending || cambioEstado.isPending;
+
   const usernameValido = username.trim().length >= 3;
   const listoParaEnviar = esEdicion
     ? usernameValido && rolId !== "" && hayCambios
@@ -140,19 +182,19 @@ function ModalUsuario({
       abierto={abierto}
       onCerrar={cerrar}
       titulo={esEdicion ? "Editar usuario" : "Nuevo usuario"}
-      bloqueado={mutacion.isPending}
+      bloqueado={ocupado}
       pie={
         <GrupoBotones>
           <Boton
             variante="terciaria"
             onClick={cerrar}
-            disabled={mutacion.isPending}
+            disabled={ocupado}
           >
             Cancelar
           </Boton>
           <Boton
             variante="primaria"
-            disabled={!listoParaEnviar}
+            disabled={!listoParaEnviar || cambioEstado.isPending}
             cargando={mutacion.isPending}
             textoCargando="Guardando…"
             onClick={() => mutacion.mutate()}
@@ -250,6 +292,50 @@ function ModalUsuario({
           </option>
         ))}
       </CampoSelect>
+
+      {esEdicion && (
+        <section className={estilos.seccionCuenta} aria-labelledby="usu-cuenta">
+          <h3 id="usu-cuenta" className={estilos.tituloSeccion}>
+            Cuenta
+          </h3>
+          {/* Estas acciones cierran el modal; con cambios a medias se
+              perderían sin aviso, así que primero hay que resolverlos. */}
+          {hayCambios && (
+            <p className={estilos.auxiliar}>
+              Guarde o descarte los cambios de arriba para usar estas
+              acciones.
+            </p>
+          )}
+          <div className={estilos.accionesCuenta}>
+            <Boton
+              variante="secundaria"
+              disabled={hayCambios || ocupado}
+              onClick={onRestablecerPassword}
+            >
+              Restablecer contraseña
+            </Boton>
+            {usuario.activo ? (
+              <Boton
+                variante="terciaria"
+                disabled={hayCambios || mutacion.isPending}
+                cargando={cambioEstado.isPending}
+                onClick={desactivar}
+              >
+                Desactivar usuario
+              </Boton>
+            ) : (
+              <Boton
+                variante="secundaria"
+                disabled={hayCambios || mutacion.isPending}
+                cargando={cambioEstado.isPending}
+                onClick={() => cambioEstado.mutate(true)}
+              >
+                Reactivar usuario
+              </Boton>
+            )}
+          </div>
+        </section>
+      )}
     </Modal>
   );
 }

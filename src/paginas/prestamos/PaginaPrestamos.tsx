@@ -284,7 +284,6 @@ function PaginaPrestamos() {
             {hayFiltros && (
               <Boton
                 variante="terciaria"
-                className={estilos.limpiarFiltros}
                 onClick={limpiarFiltros}
               >
                 Limpiar filtros
@@ -342,15 +341,19 @@ function PaginaPrestamos() {
                       <CeldaCantidad>
                         {formatearFecha(c.fecha_devolucion_pactada)}
                       </CeldaCantidad>
-                      <td className={estilos.celdaEstado}>
-                        <Insignia tono={TONO_ESTADO[c.estado]}>
-                          {etiquetaDe(c.estado)}
-                        </Insignia>
-                        {c.multas_pendientes > 0 && (
-                          <Insignia tono="informativa">
-                            {c.multas_pendientes} multa(s) pendiente(s)
+                      {/* El flex va en un div: puesto en el td lo sacaba del
+                          modelo de tabla y la insignia quedaba arriba. */}
+                      <td>
+                        <div className={estilos.celdaEstado}>
+                          <Insignia tono={TONO_ESTADO[c.estado]}>
+                            {etiquetaDe(c.estado)}
                           </Insignia>
-                        )}
+                          {c.multas_pendientes > 0 && (
+                            <Insignia tono="informativa">
+                              {c.multas_pendientes} multa(s) pendiente(s)
+                            </Insignia>
+                          )}
+                        </div>
                       </td>
                       <CeldaAcciones>
                         <Boton

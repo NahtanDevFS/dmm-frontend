@@ -12,6 +12,7 @@ import { EstadoVacio, EsqueletoTabla } from "../../componentes/ui/Estado";
 import { useListadoPaginado } from "../../hooks/useListadoPaginado";
 import { formatearFecha, fechaDeHoy } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
+import { formatearCantidad } from "../../lib/cantidades";
 import { CLAVE_ENTREGAS, type EntregaListado } from "../../api/entregas";
 import ModalEntregaDirecta from "./ModalEntregaDirecta";
 import ModalFichaEntrega from "./ModalFichaEntrega";
@@ -150,7 +151,6 @@ function PaginaEntregas() {
           {hayFiltros && (
             <Boton
               variante="terciaria"
-              className={estilos.limpiarFiltros}
               onClick={limpiarFiltros}
             >
               Limpiar filtros
@@ -190,8 +190,7 @@ function PaginaEntregas() {
                   <th>Fecha</th>
                   <th>Persona</th>
                   <th>Recibió</th>
-                  <th>Insumos</th>
-                  <th>Cantidad</th>
+                  <th>Insumos entregados</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -213,15 +212,31 @@ function PaginaEntregas() {
                             : "")
                         : "La misma persona"}
                     </td>
-                    <td>{entrega.insumos || "—"}</td>
-                    <CeldaCantidad>
-                      {entrega.total_entregado.toLocaleString("es-GT")}
-                    </CeldaCantidad>
                     <td>
-                      {entrega.activo ? (
-                        <Insignia tono="aprobada">Vigente</Insignia>
+                      {entrega.renglones.length === 0 ? (
+                        "—"
                       ) : (
+                        <ul className={estilos.renglones}>
+                          {entrega.renglones.map((r) => (
+                            <li key={r.insumo}>
+                              {r.insumo}{" "}
+                              <span className={estilos.cantidadRenglon}>
+                                {formatearCantidad(r.cantidad, r.unidad)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </td>
+                    <td>
+                      {!entrega.activo ? (
                         <Insignia tono="rechazada">Anulada</Insignia>
+                      ) : entrega.renglones_anulados > 0 ? (
+                        <Insignia tono="pendiente">
+                          Anulada parcialmente
+                        </Insignia>
+                      ) : (
+                        <Insignia tono="aprobada">Entregada</Insignia>
                       )}
                     </td>
                     <CeldaAcciones>

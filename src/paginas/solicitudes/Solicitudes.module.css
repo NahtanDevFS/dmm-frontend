@@ -65,8 +65,8 @@
 }
 
 .filtros {
+  composes: fila-campos from global;
   display: flex;
-  align-items: flex-end;
   gap: var(--space-2);
   flex-wrap: wrap;
   margin-bottom: var(--space-3);
@@ -89,9 +89,6 @@
   cursor: pointer;
 }
 
-.limpiarFiltros {
-  align-self: flex-end;
-}
 
 .casilla {
   width: 18px;
@@ -165,6 +162,12 @@
   .filtros > * {
     width: 100%;
     max-width: none;
+  }
+
+  /* Apilados, cada elemento ocupa su propia línea: el desfase que los
+     alinea con los controles de al lado solo dejaría un hueco. */
+  .filtros.filtros > :not([data-campo]) {
+    margin-top: 0;
   }
 }
 

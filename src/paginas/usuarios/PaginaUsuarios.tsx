@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
 import { CampoSelect, CampoTexto } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
@@ -7,7 +7,6 @@ import Paginacion from "../../componentes/ui/Paginacion";
 import Tabla, { CeldaAcciones } from "../../componentes/ui/Tabla";
 import { EstadoVacio, EsqueletoTabla } from "../../componentes/ui/Estado";
 import { useAuth } from "../../auth/useAuth";
-import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useListadoPaginado } from "../../hooks/useListadoPaginado";
 import { formatearFecha } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
@@ -15,8 +14,6 @@ import {
   CLAVE_USUARIOS,
   CLAVE_ROLES,
   listarRoles,
-  desactivarUsuario,
-  reactivarUsuario,
   type Usuario,
 } from "../../api/usuarios";
 import ModalUsuario from "./ModalUsuario";
@@ -34,9 +31,7 @@ import { etiquetaDe } from "../../lib/etiquetas";
  * devuelve, no se duplica la regla.
  */
 function PaginaUsuarios() {
-  const clienteQuery = useQueryClient();
   const { usuario: sesionActual } = useAuth();
-  const { avisar, confirmar } = useAvisos();
 
   const [creando, setCreando] = useState(false);
   const [editando, setEditando] = useState<Usuario | null>(null);
@@ -63,30 +58,6 @@ function PaginaUsuarios() {
     clave: CLAVE_USUARIOS,
     ruta: "usuarios",
     filtros,
-  });
-
-  const refrescar = () =>
-    clienteQuery.invalidateQueries({ queryKey: [CLAVE_USUARIOS] });
-
-  const desactivacion = useMutation({
-    mutationFn: (id: number) => desactivarUsuario(id),
-    onSuccess: async () => {
-      await refrescar();
-      avisar("Usuario desactivado.", "exito");
-    },
-    // Aquí llegan las guardas del backend: "no puede desactivar su propio
-    // usuario" o "único administrador activo". El mensaje ya es el que se
-    // muestra, sin reinterpretarlo.
-    onError: (error) => avisar(mensajeDeError(error), "error"),
-  });
-
-  const reactivacion = useMutation({
-    mutationFn: (id: number) => reactivarUsuario(id),
-    onSuccess: async () => {
-      await refrescar();
-      avisar("Usuario reactivado.", "exito");
-    },
-    onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
   const hayFiltros = rolId !== "" || busqueda !== "" || incluirInactivos;
@@ -153,7 +124,6 @@ function PaginaUsuarios() {
           {hayFiltros && (
             <Boton
               variante="terciaria"
-              className={estilos.limpiarFiltros}
               onClick={limpiarFiltros}
             >
               Limpiar filtros
@@ -211,69 +181,30 @@ function PaginaUsuarios() {
                       <td>{etiquetaDe(fila.rol_nombre)}</td>
                       <td>{fila.programa_nombre ?? "—"}</td>
                       <td>{formatearFecha(fila.ultimo_login)}</td>
-                      <td className={estilos.celdaEstado}>
-                        {fila.activo ? (
-                          <Insignia tono="aprobada">Activo</Insignia>
-                        ) : (
-                          <Insignia tono="neutra">Inactivo</Insignia>
-                        )}
-                        {esUnoMismo && (
-                          <Insignia tono="informativa">Su cuenta</Insignia>
-                        )}
-                      </td>
-                      <CeldaAcciones>
-                        <div className={estilos.acciones}>
-                          <Boton
-                            pequeno
-                            variante="secundaria"
-                            onClick={() => setEditando(fila)}
-                          >
-                            Editar
-                          </Boton>
-                          <Boton
-                            pequeno
-                            variante="secundaria"
-                            onClick={() => setReseteando(fila)}
-                          >
-                            Restablecer contraseña
-                          </Boton>
+                      {/* El flex va en un div: puesto en el td lo sacaba del
+                          modelo de tabla y descuadraba la fila. */}
+                      <td>
+                        <div className={estilos.celdaEstado}>
                           {fila.activo ? (
-                            <Boton
-                              pequeno
-                              variante="terciaria"
-                              cargando={
-                                desactivacion.isPending &&
-                                desactivacion.variables === fila.id
-                              }
-                              onClick={async () => {
-                                const ok = await confirmar({
-                                  titulo: "Desactivar usuario",
-                                  mensaje:
-                                    "Se cerrarán todas las sesiones abiertas de «" +
-                                    fila.username +
-                                    "». Podrá reactivarlo después.",
-                                  textoConfirmar: "Desactivar",
-                                  destructiva: true,
-                                });
-                                if (ok) desactivacion.mutate(fila.id);
-                              }}
-                            >
-                              Desactivar
-                            </Boton>
+                            <Insignia tono="aprobada">Activo</Insignia>
                           ) : (
-                            <Boton
-                              pequeno
-                              variante="secundaria"
-                              cargando={
-                                reactivacion.isPending &&
-                                reactivacion.variables === fila.id
-                              }
-                              onClick={() => reactivacion.mutate(fila.id)}
-                            >
-                              Reactivar
-                            </Boton>
+                            <Insignia tono="neutra">Inactivo</Insignia>
+                          )}
+                          {esUnoMismo && (
+                            <Insignia tono="informativa">Su cuenta</Insignia>
                           )}
                         </div>
+                      </td>
+                      <CeldaAcciones>
+                        {/* Restablecer contraseña y desactivar viven en el
+                            modal: una sola acción mantiene la tabla angosta. */}
+                        <Boton
+                          pequeno
+                          variante="secundaria"
+                          onClick={() => setEditando(fila)}
+                        >
+                          Editar
+                        </Boton>
                       </CeldaAcciones>
                     </tr>
                   );
@@ -306,6 +237,10 @@ function PaginaUsuarios() {
           usuario={editando}
           abierto
           onCerrar={() => setEditando(null)}
+          onRestablecerPassword={() => {
+            setReseteando(editando);
+            setEditando(null);
+          }}
         />
       )}
 
