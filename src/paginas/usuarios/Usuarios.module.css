@@ -35,8 +35,8 @@
 }
 
 .filtros {
+  composes: fila-campos from global;
   display: flex;
-  align-items: flex-end;
   gap: var(--space-2);
   flex-wrap: wrap;
   margin-bottom: var(--space-3);
@@ -59,9 +59,6 @@
   cursor: pointer;
 }
 
-.limpiarFiltros {
-  align-self: flex-end;
-}
 
 .casilla {
   width: 18px;
@@ -81,10 +78,25 @@
   align-items: center;
 }
 
-.acciones {
+/* Sección «Cuenta» del modal de edición: aparte de los datos, porque sus
+   acciones se ejecutan al momento y no con «Guardar cambios». */
+.seccionCuenta {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.tituloSeccion {
+  margin-bottom: var(--space-1);
+  font: var(--texto-etiqueta);
+  color: var(--color-primary-darker);
+}
+
+.accionesCuenta {
   display: flex;
-  gap: var(--space-2);
   flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .auxiliar {
@@ -111,6 +123,12 @@
   .filtros > * {
     width: 100%;
     max-width: none;
+  }
+
+  /* Apilados, cada elemento ocupa su propia línea: el desfase que los
+     alinea con los controles de al lado solo dejaría un hueco. */
+  .filtros.filtros > :not([data-campo]) {
+    margin-top: 0;
   }
 }
 

@@ -6,7 +6,7 @@ import {
   CampoSelect,
   CampoAreaTexto,
 } from "../../componentes/ui/Campo";
-import Insignia from "../../componentes/ui/Insignia";
+import Nota from "../../componentes/ui/Nota";
 import Modal from "../../componentes/ui/Modal";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
@@ -172,10 +172,10 @@ function ModalEntregaDirecta({
           </GrupoBotones>
         }
       >
-        <Insignia tono="aprobada">
+        <Nota tono="exito">
           Entrega registrada. El inventario ya se descontó: no vuelva a
           registrarla aunque cierre esta ventana.
-        </Insignia>
+        </Nota>
 
         <div className={estilos.listaLotes}>
           <div className={estilos.lote}>
@@ -239,10 +239,10 @@ function ModalEntregaDirecta({
         </GrupoBotones>
       }
     >
-      <Insignia tono="informativa">
+      <Nota>
         El equipo (sillas de ruedas, muletas) no se entrega por aquí: requiere
         solicitud, formularios y aprobación de Dirección.
-      </Insignia>
+      </Nota>
 
       <BuscadorPersona
         etiqueta="Persona beneficiaria"

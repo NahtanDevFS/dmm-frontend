@@ -23,8 +23,8 @@
 }
 
 .filtros {
+  composes: fila-campos from global;
   display: flex;
-  align-items: flex-end;
   gap: var(--space-2);
   flex-wrap: wrap;
   margin-bottom: var(--space-3);
@@ -67,6 +67,12 @@
 
   .filtros > * {
     width: 100%;
+  }
+
+  /* Apilados, cada elemento ocupa su propia línea: el desfase que los
+     alinea con los controles de al lado solo dejaría un hueco. */
+  .filtros.filtros > :not([data-campo]) {
+    margin-top: 0;
   }
 }
 
@@ -215,10 +221,10 @@
 }
 
 .formularioEnLinea {
+  composes: fila-campos from global;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--space-2);
-  align-items: end;
   margin-top: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px dashed var(--color-border);

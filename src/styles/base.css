@@ -137,3 +137,18 @@ ol {
   white-space: nowrap;
   border: 0;
 }
+
+/* Fila de campos con acciones (filtros, altas en línea).
+   Se alinea por arriba: todas las etiquetas miden lo mismo, así que los
+   controles quedan parejos aunque uno tenga ayuda o error debajo. Alinear
+   por abajo hacía subir el control del campo que traía texto de ayuda.
+   Lo que no es un campo (botones, casillas sueltas) no tiene etiqueta y se
+   baja el alto de una, para quedar a la altura de los controles.
+   Se aplica desde los módulos con `composes: fila-campos from global`. */
+.fila-campos {
+  align-items: start;
+}
+
+.fila-campos > :not([data-campo]) {
+  margin-top: calc(var(--alto-etiqueta) + var(--space-1));
+}

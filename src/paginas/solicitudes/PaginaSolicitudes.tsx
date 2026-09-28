@@ -232,7 +232,6 @@ function PaginaSolicitudes() {
             {hayFiltros && (
               <Boton
                 variante="terciaria"
-                className={estilos.limpiarFiltros}
                 onClick={limpiarFiltros}
               >
                 Limpiar filtros
@@ -303,19 +302,23 @@ function PaginaSolicitudes() {
                         {" / "}
                         {linea.cantidad_requerida.toLocaleString("es-GT")}
                       </CeldaCantidad>
-                      <td className={estilos.celdaEstado}>
-                        <Insignia
-                          tono={tonoDeEstadoSolicitud(linea.estado_linea)}
-                        >
-                          {OPCIONES_ESTADO.find(
-                            (o) => o.valor === linea.estado_linea,
-                          )?.etiqueta ?? etiquetaDe(linea.estado_linea)}
-                        </Insignia>
-                        {linea.requiere_aprobacion && !linea.aprobada && (
-                          <Insignia tono="informativa">
-                            Requiere aprobación
+                      {/* El flex va en un div: puesto en el td lo sacaba del
+                          modelo de tabla y la insignia quedaba arriba. */}
+                      <td>
+                        <div className={estilos.celdaEstado}>
+                          <Insignia
+                            tono={tonoDeEstadoSolicitud(linea.estado_linea)}
+                          >
+                            {OPCIONES_ESTADO.find(
+                              (o) => o.valor === linea.estado_linea,
+                            )?.etiqueta ?? etiquetaDe(linea.estado_linea)}
                           </Insignia>
-                        )}
+                          {linea.requiere_aprobacion && !linea.aprobada && (
+                            <Insignia tono="informativa">
+                              Requiere aprobación
+                            </Insignia>
+                          )}
+                        </div>
                       </td>
                       <CeldaAcciones>
                         <Boton

@@ -58,15 +58,22 @@
 }
 
 .filaGrupo {
+  composes: fila-campos from global;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
   gap: var(--space-2);
-  align-items: end;
   padding: var(--space-2);
   margin-bottom: var(--space-2);
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-field);
   background-color: var(--color-background);
+}
+
+/* El botón «Quitar» es pequeño (36 px) frente a controles de 44 px: se baja
+   4 px más para quedar centrado con ellos. Doble clase para ganarle a la
+   regla general de .fila-campos. */
+.filaGrupo.filaGrupo > :not([data-campo]) {
+  margin-top: calc(var(--alto-etiqueta) + var(--space-1) + 4px);
 }
 
 .accionGrupo {

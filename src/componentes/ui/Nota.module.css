@@ -1,0 +1,26 @@
+/* Nota en bloque: franja de color a la izquierda y fondo tenue del mismo
+   tono, como los avisos de registro inactivo. El texto se parte en líneas;
+   el color acompaña al texto, nunca lo sustituye (sección 7). */
+.nota {
+  padding: var(--space-2);
+  border-left: 3px solid var(--tono);
+  border-radius: var(--radius-field);
+  background-color: color-mix(in srgb, var(--tono) 8%, #fff);
+  font: var(--texto-auxiliar);
+  color: var(--color-text-main);
+  overflow-wrap: anywhere;
+  /* El cuerpo del modal no separa a sus hijos: la nota trae su propio aire. */
+  margin-bottom: var(--space-2);
+}
+
+.informativa {
+  --tono: var(--color-info);
+}
+
+.exito {
+  --tono: var(--color-success);
+}
+
+.advertencia {
+  --tono: var(--color-warning);
+}

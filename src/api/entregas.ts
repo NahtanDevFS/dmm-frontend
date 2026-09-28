@@ -38,6 +38,8 @@ export interface DetalleEntrega {
   id: number;
   insumo_id: number;
   insumo_nombre: string;
+  /** Unidad base del insumo: en ella se expresa cantidad_entregada. */
+  unidad_nombre: string;
   detalle_solicitud_id: number | null;
   solicitud_id: number | null;
   cantidad_entregada: number;
@@ -67,6 +69,14 @@ export interface EntregaDetalle extends Entrega {
   evidencias: EvidenciaEntrega[];
 }
 
+/** Un insumo dentro de una fila del listado. */
+export interface RenglonListado {
+  insumo: string;
+  cantidad: number;
+  /** Unidad base del insumo (Tableta, Caja de 100…), en singular. */
+  unidad: string;
+}
+
 /** Fila del listado, con nombres ya resueltos (no hay vista; los arma el backend). */
 export interface EntregaListado {
   id: number;
@@ -79,7 +89,8 @@ export interface EntregaListado {
   entregado_por: string;
   observaciones: string | null;
   activo: boolean;
-  total_entregado: number;
+  /** Renglones no anulados, cada uno en la unidad base de su insumo. */
+  renglones: RenglonListado[];
   /** Nombres de los insumos entregados, separados por coma. */
   insumos: string;
   /** Solicitud de la que salió, o null si fue una entrega directa. */

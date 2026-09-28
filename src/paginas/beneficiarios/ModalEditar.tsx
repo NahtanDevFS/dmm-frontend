@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
-import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
+import {
+  CampoTexto,
+  CampoSelect,
+  CampoTelefono,
+} from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
@@ -145,10 +149,8 @@ function ModalEditar({
           onChange={cambiar("cui_dpi")}
           error={errorCui}
         />
-        <CampoTexto
+        <CampoTelefono
           etiqueta="Teléfono"
-          type="tel"
-          placeholder="5512 3344"
           ayuda="8 dígitos. Puede dejarse en blanco."
           value={datos.telefono}
           onChange={cambiar("telefono")}

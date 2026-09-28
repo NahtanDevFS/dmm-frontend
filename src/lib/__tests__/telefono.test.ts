@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { normalizarTelefono, telefonoValido } from "../telefono";
+import {
+  LARGO_MAXIMO_TELEFONO,
+  filtrarEntradaTelefono,
+  normalizarTelefono,
+  telefonoValido,
+} from "../telefono";
 
 describe("normalizarTelefono", () => {
   it("deja igual un número ya limpio de ocho dígitos", () => {
@@ -59,5 +64,23 @@ describe("telefonoValido", () => {
 
   it("rechaza letras", () => {
     expect(telefonoValido("5512abcd")).toBe(false);
+  });
+});
+
+describe("filtrarEntradaTelefono", () => {
+  it("deja pasar dígitos, espacios, guiones, paréntesis y +", () => {
+    expect(filtrarEntradaTelefono("+502 5512-3344")).toBe("+502 5512-3344");
+    expect(filtrarEntradaTelefono("(5512) 3344")).toBe("(5512) 3344");
+    expect(filtrarEntradaTelefono("5512 3344")).toBe("5512 3344");
+  });
+
+  it("descarta letras y otros signos", () => {
+    expect(filtrarEntradaTelefono("55a12.33b44")).toBe("55123344");
+  });
+
+  it("corta en el largo máximo", () => {
+    expect(filtrarEntradaTelefono("1".repeat(30))).toHaveLength(
+      LARGO_MAXIMO_TELEFONO,
+    );
   });
 });

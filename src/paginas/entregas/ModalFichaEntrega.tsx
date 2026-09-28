@@ -10,6 +10,7 @@ import { useAuth } from "../../auth/useAuth";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { formatearFecha } from "../../lib/fechas";
+import { formatearCantidad } from "../../lib/cantidades";
 import { mensajeDeError } from "../../lib/errores";
 import { DIRECCION, tieneRol, type ElementoCatalogo } from "../../types/api";
 import {
@@ -123,7 +124,7 @@ function ModalFichaEntrega({
       });
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_ENTREGAS] });
       avisar(
-        "Insumo anulado. Su inventario volvió a los lotes de origen; el resto de la entrega sigue vigente.",
+        "Insumo anulado. Su inventario volvió a los lotes de origen; el resto de la entrega se mantiene.",
         "exito",
       );
       setAnulandoDetalle(null);
@@ -213,10 +214,12 @@ function ModalFichaEntrega({
                       : "—"}
                 </Dato>
                 <Dato titulo="Estado">
-                  {entrega.activo ? (
-                    <Insignia tono="aprobada">Vigente</Insignia>
-                  ) : (
+                  {!entrega.activo ? (
                     <Insignia tono="rechazada">Anulada</Insignia>
+                  ) : entrega.detalles.some((d) => !d.activo) ? (
+                    <Insignia tono="pendiente">Anulada parcialmente</Insignia>
+                  ) : (
+                    <Insignia tono="aprobada">Entregada</Insignia>
                   )}
                 </Dato>
                 <Dato titulo="Observaciones">
@@ -249,8 +252,10 @@ function ModalFichaEntrega({
                             {detalle.insumo_nombre}
                           </p>
                           <p className={estilos.auxiliar}>
-                            {detalle.cantidad_entregada.toLocaleString("es-GT")}{" "}
-                            unidades
+                            {formatearCantidad(
+                              detalle.cantidad_entregada,
+                              detalle.unidad_nombre,
+                            )}
                             {detalle.solicitud_id !== null &&
                               " · de la solicitud #" + detalle.solicitud_id}
                           </p>
@@ -299,8 +304,10 @@ function ModalFichaEntrega({
                             lote.codigo_lote &&
                             " · envío " + lote.codigo_lote}
                           {" · "}
-                          {lote.cantidad_entregada.toLocaleString("es-GT")}{" "}
-                          unidades
+                          {formatearCantidad(
+                            lote.cantidad_entregada,
+                            detalle.unidad_nombre,
+                          )}
                           {lote.fecha_caducidad &&
                             " · caduca el " +
                               formatearFecha(lote.fecha_caducidad)}

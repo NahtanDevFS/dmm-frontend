@@ -22,3 +22,15 @@ export function normalizarTelefono(valor: string): string {
 export function telefonoValido(valor: string): boolean {
   return /^\d{8}$/.test(normalizarTelefono(valor));
 }
+
+/**
+ * Lo más largo que se escribe en la práctica: "+502 5512-3344". El límite
+ * corta a tiempo lo que no puede terminar siendo un teléfono, en vez de
+ * dejarlo escribir entero para rechazarlo al guardar.
+ */
+export const LARGO_MAXIMO_TELEFONO = 14;
+
+/** Descarta al teclear lo que no pertenece a un teléfono (letras, puntos…). */
+export function filtrarEntradaTelefono(valor: string): string {
+  return valor.replace(/[^\d\s()+-]/g, "").slice(0, LARGO_MAXIMO_TELEFONO);
+}

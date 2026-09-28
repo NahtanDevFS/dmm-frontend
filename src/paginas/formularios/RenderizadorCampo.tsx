@@ -235,7 +235,7 @@ function RenderizadorCampo({
     case TIPO_DATO.SELECCION_MULTIPLE: {
       const elegidos = valoresSeleccionMultiple(valor);
       return (
-        <fieldset className={estilos.grupoCasillas}>
+        <fieldset className={estilos.grupoCasillas} data-campo="">
           <legend className={estilos.leyendaCasillas}>
             {campo.etiqueta}
             {campo.obligatorio && (

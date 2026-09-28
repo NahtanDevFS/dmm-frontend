@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Boton from "../../componentes/ui/Boton";
 import Insignia from "../../componentes/ui/Insignia";
-import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
+import {
+  CampoTexto,
+  CampoSelect,
+  CampoTelefono,
+} from "../../componentes/ui/Campo";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { mensajeDeError } from "../../lib/errores";
@@ -362,11 +366,9 @@ export function SeccionContactos({
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
-        <CampoTexto
+        <CampoTelefono
           etiqueta="Teléfono"
           obligatorio
-          type="tel"
-          placeholder="5512 3344"
           ayuda="8 dígitos."
           value={telefono}
           onChange={(e) => setTelefono(e.target.value)}
