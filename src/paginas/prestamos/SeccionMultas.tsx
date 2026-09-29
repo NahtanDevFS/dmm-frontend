@@ -33,15 +33,20 @@ interface TipoMulta extends ElementoCatalogo {
  * Multas del contrato. Aplicar, editar, pagar y anular son de DIRECCION —
  * decisión económica, no operación diaria — mientras que consultarlas es
  * de cualquiera de OPERACION, igual que el resto de la ficha.
+ *
+ * `admiteMultas` es falso solo para un préstamo anulado. Un préstamo devuelto
+ * sí se multa: el atraso o el daño se descubren justamente al recibir el
+ * equipo, así que esconder el formulario tras la devolución dejaba sin forma
+ * de cobrarlos. El backend aplica la misma regla.
  */
 function SeccionMultas({
   contratoId,
   multas,
-  contratoActivo,
+  admiteMultas,
 }: {
   contratoId: number;
   multas: Multa[];
-  contratoActivo: boolean;
+  admiteMultas: boolean;
 }) {
   const clienteQuery = useQueryClient();
   const { usuario } = useAuth();
@@ -176,7 +181,7 @@ function SeccionMultas({
         </div>
       )}
 
-      {puedeGestionar && contratoActivo && (
+      {puedeGestionar && admiteMultas && (
         <div className={estilos.formularioLote}>
           <div className={estilos.rejillaLote}>
             <CampoSelect

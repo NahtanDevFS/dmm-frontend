@@ -486,8 +486,9 @@ function SeccionLotes({
             <p className={estilos.promocionTexto}>
               Al entrar «{promocion.insumo}» al inventario, la base resolvió la
               lista de espera por orden de llegada y pasó esas líneas de
-              «pendiente de adquisición» a «pendiente de entrega». Todavía hay
-              que despacharlas desde Entregas: aquí solo quedaron reservadas.
+              «pendiente de adquisición» a «pendiente de entrega». Aquí solo
+              quedaron reservadas: todavía hay que despachar cada una desde su
+              solicitud, con «Despachar».
             </p>
           </div>
           <Boton

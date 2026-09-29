@@ -131,6 +131,14 @@ function BuscadorPersona({
             Cambiar
           </Boton>
         </div>
+        {/* Un error sobre la persona ya elegida (por ejemplo, que no puede
+            ser su propio encargado) tiene que verse aquí también: sin él, el
+            botón de enviar quedaba deshabilitado sin explicación. */}
+        {error && (
+          <p className={estiloCampo.error} role="alert">
+            {error}
+          </p>
+        )}
       </div>
     );
   }

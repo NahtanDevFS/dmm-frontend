@@ -22,7 +22,8 @@ import {
   type DiscapacidadDePersona,
   type EncargadoDePersona,
 } from "../../api/personas";
-import type { ElementoCatalogo } from "../../types/api";
+import type { ElementoCatalogo, Persona } from "../../types/api";
+import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import { normalizarTelefono, telefonoValido } from "../../lib/telefono";
 import estilos from "./Ficha.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
@@ -182,11 +183,21 @@ export function SeccionEncargados({
 }) {
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
   const { ejecutar, confirmar } = useAccionFicha(personaId);
-  const [idEncargado, setIdEncargado] = useState("");
+  const [elegida, setElegida] = useState<Persona | null>(null);
   const [parentesco, setParentesco] = useState("");
   const mutacion = useMutation({
     mutationFn: async (f: () => Promise<unknown>) => f(),
   });
+
+  // Se avisa antes de enviar: la base lo rechazaría igual, pero con un
+  // mensaje genérico que no dice qué corregir.
+  const errorElegida = !elegida
+    ? undefined
+    : elegida.id === personaId
+      ? "Una persona no puede ser su propio encargado."
+      : encargados.some((e) => e.encargado_id === elegida.id)
+        ? "Esta persona ya es encargado de este beneficiario."
+        : undefined;
 
   return (
     <section className={estilos.tarjeta} aria-labelledby="f-encargados">
@@ -245,18 +256,19 @@ export function SeccionEncargados({
       )}
 
       {/*
-        Se vincula una persona ya registrada, por su identificador. Crear un
-        encargado nuevo se hace desde el alta del beneficiario, donde entra en
-        la misma transacción; aquí sería una persona suelta si algo fallara.
+        Se vincula una persona ya registrada, buscándola por nombre o CUI/DPI.
+        Antes se pedía su identificador interno, que no aparece en ninguna
+        pantalla. Crear un encargado nuevo se hace desde el alta del
+        beneficiario, donde entra en la misma transacción; aquí sería una
+        persona suelta si algo fallara.
       */}
       <div className={estilos.formularioEnLinea}>
-        <CampoTexto
+        <BuscadorPersona
           etiqueta="Vincular persona registrada"
-          inputMode="numeric"
-          placeholder="Id de la persona"
-          ayuda="Búsquela en el listado y copie su identificador."
-          value={idEncargado}
-          onChange={(e) => setIdEncargado(e.target.value)}
+          personaElegida={elegida}
+          onElegir={setElegida}
+          error={errorElegida}
+          flotante={false}
         />
         <CampoSelect
           etiqueta="Parentesco"
@@ -271,22 +283,23 @@ export function SeccionEncargados({
         </CampoSelect>
         <Boton
           variante="secundaria"
-          disabled={!idEncargado || !parentesco}
+          disabled={!elegida || !!errorElegida || !parentesco}
           cargando={mutacion.isPending}
           onClick={async () => {
+            if (!elegida) return;
             const ok = await mutacion.mutateAsync(() =>
               ejecutar(
                 () =>
                   vincularEncargado(personaId, {
                     tipo: "existente",
-                    personaId: Number(idEncargado),
+                    personaId: elegida.id,
                     tipoParentescoId: Number(parentesco),
                   }),
                 "Encargado vinculado.",
               ),
             );
             if (ok) {
-              setIdEncargado("");
+              setElegida(null);
               setParentesco("");
             }
           }}

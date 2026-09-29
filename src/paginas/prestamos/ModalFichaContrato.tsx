@@ -441,9 +441,7 @@ function ModalFichaContrato({
           <SeccionMultas
             contratoId={contrato.id}
             multas={contrato.multas}
-            contratoActivo={
-              contrato.activo && contrato.fecha_devolucion_real === null
-            }
+            admiteMultas={contrato.activo}
           />
         </div>
       )}
