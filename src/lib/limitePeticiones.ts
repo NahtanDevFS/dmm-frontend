@@ -10,7 +10,7 @@ import axios from "axios";
  * dos limitadores encadenados:
  *
  *     RateLimit: "300-in-1min"; r=299; t=60      ← límite general de /api
- *     RateLimit: "10-in-15min"; r=9;   t=900     ← límite de login
+ *     RateLimit: "5-in-15min"; r=4;    t=900     ← límite de login
  *
  * El navegador une las cabeceras repetidas en una sola cadena separada por
  * comas, de modo que quedarse con la primera coincidencia daría 299: el

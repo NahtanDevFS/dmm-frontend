@@ -149,7 +149,7 @@ export function esSinPermiso(error: unknown): boolean {
   return estadoDe(error) === 403;
 }
 
-/** Límite de peticiones excedido: 300 por minuto por IP, o 10 logins fallidos. */
+/** Límite de peticiones excedido: 300 por minuto por IP, o 5 logins fallidos. */
 export function esLimiteExcedido(error: unknown): boolean {
   return estadoDe(error) === 429;
 }
