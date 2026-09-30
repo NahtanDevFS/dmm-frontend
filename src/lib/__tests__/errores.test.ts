@@ -11,11 +11,9 @@ import {
   mensajeDeError,
 } from "../errores";
 
-/**
- * Construye un objeto que `axios.isAxiosError` reconoce como AxiosError.
- * axios lo detecta por la marca `isAxiosError: true`, no por `instanceof`,
- * así que no hace falta lanzar una petición real para simular una respuesta.
- */
+/* Construye un objeto que `axios.isAxiosError` reconoce como AxiosError.
+   axios lo detecta por la marca `isAxiosError: true`, no por `instanceof`,
+   así que no hace falta lanzar una petición real para simular una respuesta. */
 function errorAxios(opciones: {
   status?: number;
   data?: unknown;

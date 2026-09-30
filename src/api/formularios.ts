@@ -1,9 +1,7 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Gestión de formularios dinámicos, sus campos y respuestas
- * Administra asignaciones por categoría y soporte para grupos repetibles
- */
+/* Gestión de formularios dinámicos, sus campos y respuestas
+   Administra asignaciones por categoría y soporte para grupos repetibles */
 
 /* Tipos del módulo */
 
@@ -12,7 +10,7 @@ export const TIPO_DATO = {
   TEXTO_LARGO: "TEXTO_LARGO",
   NUMERO: "NUMERO",
   FECHA: "FECHA",
-  /** Fecha para calcular edad dinámicamente al visualizar (se almacena como FECHA) */
+  // Fecha para calcular edad dinámicamente al visualizar (se almacena como FECHA)
   FECHA_NACIMIENTO: "FECHA_NACIMIENTO",
   SI_NO: "SI_NO",
   SELECCION_UNICA: "SELECCION_UNICA",
@@ -69,12 +67,12 @@ export interface FormularioCampoOpcion {
   activo: boolean;
 }
 
-/** Un formulario con sus campos ya resueltos, tal como lo devuelve GET /formularios/:id. */
+// Un formulario con sus campos ya resueltos, tal como lo devuelve GET /formularios/:id.
 export interface FormularioConCampos extends Formulario {
   campos: FormularioCampo[];
 }
 
-/** Un formulario exigido por la categoría del insumo de una línea, con su avance. */
+// Un formulario exigido por la categoría del insumo de una línea, con su avance.
 export interface FormularioDeLinea extends Formulario {
   detalle_solicitud_formulario_id: number | null;
   completado: boolean | null;
@@ -145,7 +143,7 @@ export async function listarFormularios(): Promise<Formulario[]> {
 
 export async function obtenerFormulario(
   id: number,
-  /** Incluir inactivos (solo útil para edición en administración) */
+  // Incluir inactivos (solo útil para edición en administración)
   incluirInactivos = false,
 ): Promise<FormularioConCampos> {
   const { data } = await axiosClient.get<FormularioConCampos>(
@@ -205,10 +203,8 @@ export async function agregarCampoFormulario(
   return data;
 }
 
-/**
- * Mueve un campo un lugar arriba/abajo
- * Evita conflictos de ordenamiento manual delegando en la base de datos
- */
+/* Mueve un campo un lugar arriba/abajo
+   Evita conflictos de ordenamiento manual delegando en la base de datos */
 export async function moverCampoFormulario(
   campoId: number,
   direccion: "arriba" | "abajo",
@@ -231,10 +227,8 @@ export async function editarCampoFormulario(
   await axiosClient.patch("formularios/campos/" + campoId, datos);
 }
 
-/**
- * Asignación administrable de categoría a formulario
- * modalidad_solicitud_id en null aplica a cualquier modalidad
- */
+/* Asignación administrable de categoría a formulario
+   modalidad_solicitud_id en null aplica a cualquier modalidad */
 export interface AsignacionFormulario {
   id: number;
   categoria_insumo_id: number;
@@ -257,10 +251,8 @@ export async function listarAsignacionesFormulario(
   return data;
 }
 
-/**
- * Formularios exigidos por insumo y modalidad (previo a crear línea)
- * Permite recabar datos presenciales (ej. estudio socioeconómico) oportunamente
- */
+/* Formularios exigidos por insumo y modalidad (previo a crear línea)
+   Permite recabar datos presenciales (ej. estudio socioeconómico) oportunamente */
 export async function listarFormulariosDeInsumo(
   insumoId: number,
   modalidadId?: number,
@@ -276,7 +268,7 @@ export async function asignarFormularioACategoria(datos: {
   categoria_insumo_id: number;
   formulario_id: number;
   orden?: number;
-  /** null o ausente = aplica a todas las modalidades. */
+  // null o ausente = aplica a todas las modalidades.
   modalidad_solicitud_id?: number | null;
 }): Promise<AsignacionFormulario> {
   const { data } = await axiosClient.post<AsignacionFormulario>(
@@ -297,7 +289,7 @@ export async function quitarFormularioDeCategoria(
 
 /* Respuestas de una línea de solicitud */
 
-/** Formularios exigidos por la línea (según la categoría de su insumo), con su avance. */
+// Formularios exigidos por la línea (según la categoría de su insumo), con su avance.
 export async function listarFormulariosDeLinea(
   detalleSolicitudId: number,
 ): Promise<FormularioDeLinea[]> {

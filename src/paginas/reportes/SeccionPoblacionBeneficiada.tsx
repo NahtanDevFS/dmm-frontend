@@ -34,11 +34,9 @@ const OPCIONES_GRUPO_ETARIO: { valor: GrupoEtario; etiqueta: string }[] = [
 
 const FILTROS_VACIOS: FiltrosPoblacionBeneficiada = {};
 
-/**
- * Alcance geográfico y demográfico del trabajo de la DMM, agrupado por mes:
- * cuántas personas únicas y cuántas entregas totales, por comunidad,
- * programa, género y grupo etario.
- */
+/* Alcance geográfico y demográfico del trabajo de la DMM, agrupado por mes:
+   cuántas personas únicas y cuántas entregas totales, por comunidad,
+   programa, género y grupo etario. */
 function SeccionPoblacionBeneficiada() {
   const { avisar } = useAvisos();
 

@@ -16,15 +16,13 @@ const VISTAS = [
 
 type Vista = (typeof VISTAS)[number]["clave"];
 
-/**
- * Inventario y anfitrión de sus modales.
- *
- * La ficha de un insumo se abre encima de la vista en la que estaba el
- * usuario, sea el catálogo o el semáforo. La ruta /inventario/insumos/:id
- * sigue existiendo para los enlaces guardados y abre la ficha al entrar, pero
- * desde las tablas no se navega: hacerlo obligaba a recuperar el filtro y la
- * vista cada vez que se consultaba un insumo.
- */
+/* Inventario y anfitrión de sus modales.
+   
+   La ficha de un insumo se abre encima de la vista en la que estaba el
+   usuario, sea el catálogo o el semáforo. La ruta /inventario/insumos/:id
+   sigue existiendo para los enlaces guardados y abre la ficha al entrar, pero
+   desde las tablas no se navega: hacerlo obligaba a recuperar el filtro y la
+   vista cada vez que se consultaba un insumo. */
 function PaginaInventario() {
   const { usuario } = useAuth();
   const navegar = useNavigate();
@@ -35,17 +33,15 @@ function PaginaInventario() {
   const [creando, setCreando] = useState(false);
   const [fichaId, setFichaId] = useState<number | null>(rutaId);
 
-  /** Devuelve la barra de direcciones al módulo si se entró por la ruta profunda. */
+  // Devuelve la barra de direcciones al módulo si se entró por la ruta profunda.
   const limpiarRuta = () => {
     if (id) navegar("/inventario", { replace: true });
   };
 
-  /**
-   * Consultar el inventario es de OPERACION, pero el insumo es dato maestro y
-   * darlo de alta queda con dirección, igual que el resto de catálogos. Espejo
-   * del requireRole(DIRECCION) de POST /insumos: ofrecer el botón a quien va a
-   * recibir un 403 solo enseña una puerta cerrada.
-   */
+  /* Consultar el inventario es de OPERACION, pero el insumo es dato maestro y
+     darlo de alta queda con dirección, igual que el resto de catálogos. Espejo
+     del requireRole(DIRECCION) de POST /insumos: ofrecer el botón a quien va a
+     recibir un 403 solo enseña una puerta cerrada. */
   const puedeGestionar = tieneRol(usuario?.rol, DIRECCION);
 
   return (

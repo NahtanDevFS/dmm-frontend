@@ -18,13 +18,11 @@ import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Prestamos.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Evidencias del contrato de préstamo: el DPI de quien firma (frontal y
- * reverso, normalmente), aparte del documento firmado en sí, que tiene su
- * propia sección. Un préstamo no exige formularios de estudio
- * socioeconómico -- eso es solo para donación definitiva -- así que estas
- * dos piezas (contrato firmado + DPI) son toda la evidencia que necesita.
- */
+/* Evidencias del contrato de préstamo: el DPI de quien firma (frontal y
+   reverso, normalmente), aparte del documento firmado en sí, que tiene su
+   propia sección. Un préstamo no exige formularios de estudio
+   socioeconómico -- eso es solo para donación definitiva -- así que estas
+   dos piezas (contrato firmado + DPI) son toda la evidencia que necesita. */
 function SeccionEvidenciasContrato({
   contratoId,
   evidencias,
@@ -32,7 +30,7 @@ function SeccionEvidenciasContrato({
 }: {
   contratoId: number;
   evidencias: EvidenciaContrato[];
-  /** Avisa a la ficha de si hay un adjunto elegido y todavía sin subir. */
+  // Avisa a la ficha de si hay un adjunto elegido y todavía sin subir.
   onBorrador?: (hay: boolean) => void;
 }) {
   const clienteQuery = useQueryClient();

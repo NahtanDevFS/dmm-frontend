@@ -20,14 +20,12 @@ import SelectorMunicipio from "./SelectorMunicipio";
 import estilos from "./Ficha.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Edición de los datos generales.
- *
- * Solo cubre lo que acepta PATCH /personas/:id. Discapacidades, encargados,
- * contactos y documentos se editan cada uno en su sección, contra su propio
- * sub-recurso: meterlos aquí obligaría a orquestar cinco llamadas y dejaría la
- * ficha a medias si una fallara.
- */
+/* Edición de los datos generales.
+   
+   Solo cubre lo que acepta PATCH /personas/:id. Discapacidades, encargados,
+   contactos y documentos se editan cada uno en su sección, contra su propio
+   sub-recurso: meterlos aquí obligaría a orquestar cinco llamadas y dejaría la
+   ficha a medias si una fallara. */
 function ModalEditar({
   persona,
   abierto,

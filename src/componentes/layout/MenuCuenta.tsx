@@ -4,21 +4,19 @@ import { etiquetaDe } from "../../lib/etiquetas";
 import ModalCambiarPassword from "../../paginas/usuarios/ModalCambiarPassword";
 import estilos from "./MenuCuenta.module.css";
 
-/** Primera letra para el avatar. Con el nombre completo si lo hay: "María" da "M", no la del usuario de acceso. */
+// Primera letra para el avatar. Con el nombre completo si lo hay: "María" da "M", no la del usuario de acceso.
 function inicialDe(texto: string): string {
   const primera = texto.trim().charAt(0);
   return primera ? primera.toLocaleUpperCase("es") : "?";
 }
 
-/**
- * Cuenta de quien tiene la sesión: un botón con su inicial que despliega sus
- * datos y las acciones de la cuenta.
- *
- * Es un disclosure (botón con aria-expanded que muestra un panel), no un
- * role="menu": el panel mezcla información y acciones, y un menú de ARIA
- * obligaría a navegar con flechas en vez de con Tab. Se cierra con Escape
- * (devolviendo el foco al botón), al pulsar fuera o al elegir una acción.
- */
+/* Cuenta de quien tiene la sesión: un botón con su inicial que despliega sus
+   datos y las acciones de la cuenta.
+   
+   Es un disclosure (botón con aria-expanded que muestra un panel), no un
+   role="menu": el panel mezcla información y acciones, y un menú de ARIA
+   obligaría a navegar con flechas en vez de con Tab. Se cierra con Escape
+   (devolviendo el foco al botón), al pulsar fuera o al elegir una acción. */
 function MenuCuenta() {
   const { usuario, salir, saliendo } = useAuth();
   const [abierto, setAbierto] = useState(false);

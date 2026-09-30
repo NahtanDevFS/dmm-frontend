@@ -17,11 +17,9 @@ function passwordValida(v: string): boolean {
   return v.length >= 8 && /[a-zA-Z]/.test(v) && /\d/.test(v);
 }
 
-/**
- * Cambio de la propia contraseña. A diferencia del restablecimiento por un
- * administrador, exige la contraseña actual y conserva la sesión desde la
- * que se pide: solo se cierran las demás.
- */
+/* Cambio de la propia contraseña. A diferencia del restablecimiento por un
+   administrador, exige la contraseña actual y conserva la sesión desde la
+   que se pide: solo se cierran las demás. */
 function ModalCambiarPassword({
   abierto,
   onCerrar,
@@ -32,11 +30,9 @@ function ModalCambiarPassword({
   const { avisar } = useAvisos();
   const [passwordActual, setPasswordActual] = useState("");
   const [passwordNueva, setPasswordNueva] = useState("");
-  /**
-   * Error de la contraseña actual, fijo bajo su campo. El servidor limita los
-   * intentos (5 cada 15 minutos) y su mensaje ya dice cuántos quedan; un aviso
-   * que desaparece solo no deja volver a leerlo antes del siguiente intento.
-   */
+  /* Error de la contraseña actual, fijo bajo su campo. El servidor limita los
+     intentos (5 cada 15 minutos) y su mensaje ya dice cuántos quedan; un aviso
+     que desaparece solo no deja volver a leerlo antes del siguiente intento. */
   const [errorActual, setErrorActual] = useState<string>();
   const [bloqueado, setBloqueado] = useState(false);
 

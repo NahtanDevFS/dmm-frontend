@@ -1,27 +1,25 @@
 import { useAvisos } from "./avisos/useAvisos";
 
-/**
- * Cierre de un modal que puede llevar datos sin guardar.
- *
- * Un modal se cierra por tres caminos —la aspa, la tecla Esc y el clic fuera—
- * y los tres pasan por `onCerrar`. Por eso basta con envolver esa función:
- * envolviéndola quedan cubiertos los tres, incluido el clic fuera, que es el
- * que se hace sin querer.
- *
- * Solo pregunta cuando de verdad hay algo que perder. Un modal que se abrió y
- * no se tocó se cierra sin más: convertir cada cierre en una pregunta enseña a
- * confirmar sin leer, y entonces el aviso deja de proteger el caso que
- * importa.
- */
+/* Cierre de un modal que puede llevar datos sin guardar.
+   
+   Un modal se cierra por tres caminos —la aspa, la tecla Esc y el clic fuera—
+   y los tres pasan por `onCerrar`. Por eso basta con envolver esa función:
+   envolviéndola quedan cubiertos los tres, incluido el clic fuera, que es el
+   que se hace sin querer.
+   
+   Solo pregunta cuando de verdad hay algo que perder. Un modal que se abrió y
+   no se tocó se cierra sin más: convertir cada cierre en una pregunta enseña a
+   confirmar sin leer, y entonces el aviso deja de proteger el caso que
+   importa. */
 export function useCierreSeguro({
   hayCambios,
   onCerrar,
   mensaje,
 }: {
-  /** Si el formulario tiene algo escrito que todavía no se ha guardado. */
+  // Si el formulario tiene algo escrito que todavía no se ha guardado.
   hayCambios: boolean;
   onCerrar: () => void;
-  /** Texto propio cuando el genérico no describe bien lo que se pierde. */
+  // Texto propio cuando el genérico no describe bien lo que se pierde.
   mensaje?: string;
 }) {
   const { confirmar } = useAvisos();

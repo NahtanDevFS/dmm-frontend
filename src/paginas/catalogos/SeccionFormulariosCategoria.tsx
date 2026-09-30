@@ -19,13 +19,11 @@ import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Catalogos.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/** Valor del <select> de modalidad cuando el formulario aplica a todas. */
+// Valor del <select> de modalidad cuando el formulario aplica a todas.
 const TODAS = "";
 
-/**
- * Qué formularios exige cada categoría de insumo y bajo qué modalidad
- * No administra campos del formulario, solo asignaciones
- */
+/* Qué formularios exige cada categoría de insumo y bajo qué modalidad
+   No administra campos del formulario, solo asignaciones */
 function SeccionFormulariosCategoria() {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();

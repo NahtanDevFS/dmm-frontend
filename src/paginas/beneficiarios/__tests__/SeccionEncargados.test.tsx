@@ -7,13 +7,11 @@ import {
 } from "../../../test/reactQuery";
 import { ProveedorAvisos } from "../../../componentes/ui/avisos/ProveedorAvisos";
 
-/**
- * Vincular un encargado ya registrado.
- *
- * Regresión: la ficha pedía el identificador interno de la persona, que no
- * aparece en ninguna pantalla, así que en la práctica no se podía vincular a
- * nadie. Ahora se busca por nombre o CUI/DPI, igual que en solicitudes.
- */
+/* Vincular un encargado ya registrado.
+   
+   Regresión: la ficha pedía el identificador interno de la persona, que no
+   aparece en ninguna pantalla, así que en la práctica no se podía vincular a
+   nadie. Ahora se busca por nombre o CUI/DPI, igual que en solicitudes. */
 vi.mock("../../../api/axiosClient", () => ({
   default: { get: vi.fn(), post: vi.fn() },
 }));

@@ -3,15 +3,13 @@ import Logotipo from "../../componentes/marca/Logotipo";
 import { useAuth } from "../../auth/useAuth";
 import estilos from "./PaginaAcceso.module.css";
 
-/**
- * Se muestra cuando «Cerrar sesión» no llegó a confirmarse en el servidor.
- *
- * Los datos ya se borraron de la pantalla, pero la cookie y la sesión pueden
- * seguir vivas. Decir «sesión cerrada» aquí sería falso: en una computadora
- * compartida, quien se va creyendo que cerró deja la puerta abierta a quien
- * se siente después. Por eso se dice lo que pasó y se ofrece reintentar; el
- * proveedor también reintenta solo al recargar y al volver la conexión.
- */
+/* Se muestra cuando «Cerrar sesión» no llegó a confirmarse en el servidor.
+   
+   Los datos ya se borraron de la pantalla, pero la cookie y la sesión pueden
+   seguir vivas. Decir «sesión cerrada» aquí sería falso: en una computadora
+   compartida, quien se va creyendo que cerró deja la puerta abierta a quien
+   se siente después. Por eso se dice lo que pasó y se ofrece reintentar; el
+   proveedor también reintenta solo al recargar y al volver la conexión. */
 function PantallaCierrePendiente() {
   const { salir, saliendo } = useAuth();
   const [reintentado, setReintentado] = useState(false);

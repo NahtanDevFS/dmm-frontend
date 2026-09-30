@@ -20,10 +20,8 @@ import ModalRecepcion from "./ModalRecepcion";
 import ModalFichaRecepcion from "./ModalFichaRecepcion";
 import estilos from "./Donaciones.module.css";
 
-/**
- * Listado de recepciones de donación (cabeceras de envío)
- * Los lotes individuales de cada envío se ven dentro de su respectiva ficha
- */
+/* Listado de recepciones de donación (cabeceras de envío)
+   Los lotes individuales de cada envío se ven dentro de su respectiva ficha */
 function PaginaDonaciones() {
   const navegar = useNavigate();
   const { id } = useParams();
@@ -34,7 +32,7 @@ function PaginaDonaciones() {
   const [institucionId, setInstitucionId] = useState("");
   const [incluirInactivas, setIncluirInactivas] = useState(false);
 
-  /** Con inactivas: una recepción puede apuntar a una institución dada de baja */
+  // Con inactivas: una recepción puede apuntar a una institución dada de baja
   const instituciones = useCatalogo<InstitucionDonante>(
     "instituciones-donantes",
     { incluirInactivos: true },
@@ -57,7 +55,7 @@ function PaginaDonaciones() {
   const nombreInstitucion = (idInstitucion: number) =>
     instituciones.opciones.find((i) => i.id === idInstitucion)?.nombre ?? "—";
 
-  /** Devuelve la barra de direcciones al módulo si se entró por la ruta profunda */
+  // Devuelve la barra de direcciones al módulo si se entró por la ruta profunda
   const limpiarRuta = () => {
     if (rutaId !== null) navegar("/donaciones", { replace: true });
   };

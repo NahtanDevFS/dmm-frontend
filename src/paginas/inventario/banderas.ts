@@ -1,9 +1,7 @@
 import type { Insumo } from "../../api/inventario";
 
-/**
- * Definición centralizada de banderas de insumo (etiquetas y explicaciones)
- * Asignadas por insumo, no por categoría, para admitir variaciones internas
- */
+/* Definición centralizada de banderas de insumo (etiquetas y explicaciones)
+   Asignadas por insumo, no por categoría, para admitir variaciones internas */
 export interface DefinicionBandera {
   clave: keyof Pick<
     Insumo,
@@ -11,11 +9,11 @@ export interface DefinicionBandera {
     | "requiere_codigo_fabricante"
     | "bloquea_solicitud_sin_stock"
   >;
-  /** Texto de la insignia en el listado. Cabe en una celda. */
+  // Texto de la insignia en el listado. Cabe en una celda.
   etiqueta: string;
-  /** Texto de la casilla del formulario. */
+  // Texto de la casilla del formulario.
   nombre: string;
-  /** Qué hace cumplir la base cuando está marcada. */
+  // Qué hace cumplir la base cuando está marcada.
   ayuda: string;
 }
 

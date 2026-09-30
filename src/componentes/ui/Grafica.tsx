@@ -12,10 +12,8 @@ import {
   YAxis,
 } from "recharts";
 
-/**
- * Gráficas del panel con Recharts
- * Colores explícitos según tokens.css (manual de marca)
- */
+/* Gráficas del panel con Recharts
+   Colores explícitos según tokens.css (manual de marca) */
 
 const COLOR_LINEA = "var(--color-primary-dark)";
 const COLOR_AREA = "var(--color-primary-mid)";
@@ -85,11 +83,11 @@ export function GraficaLinea({
 export interface BarraDato {
   etiqueta: string;
   valor: number;
-  /** Marca la barra como la que exige atención (p.ej. lotes vencidos > 0). */
+  // Marca la barra como la que exige atención (p.ej. lotes vencidos > 0).
   resaltada?: boolean;
 }
 
-/** Barras horizontales: los nombres de categoría/programa suelen ser largos. */
+// Barras horizontales: los nombres de categoría/programa suelen ser largos.
 export function GraficaBarras({
   datos,
   etiquetaVacio = "Sin datos para mostrar",
@@ -150,7 +148,7 @@ export function GraficaBarras({
 export interface PorcionPastel {
   etiqueta: string;
   valor: number;
-  /** Color explícito para esta porción (token de tokens.css). Si se omite, usa la escala por defecto en orden. */
+  // Color explícito para esta porción (token de tokens.css). Si se omite, usa la escala por defecto en orden.
   color?: string;
 }
 
@@ -162,10 +160,8 @@ const ESCALA_PASTEL_DEFECTO = [
   "var(--color-text-muted)",
 ];
 
-/**
- * Pastel genérico (muestra porciones en 0 si hay datos en el total)
- * Leyenda HTML propia para permitir wrap de etiquetas largas
- */
+/* Pastel genérico (muestra porciones en 0 si hay datos en el total)
+   Leyenda HTML propia para permitir wrap de etiquetas largas */
 export function GraficaPastel({
   datos,
   etiquetaVacio = "Sin datos para mostrar",

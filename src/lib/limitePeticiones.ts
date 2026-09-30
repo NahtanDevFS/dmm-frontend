@@ -1,28 +1,26 @@
 import axios from "axios";
 
-/**
- * Lectura del límite de peticiones que anuncia el servidor.
- *
- * El backend configura express-rate-limit con `standardHeaders: "draft-8"` y
- * expone `RateLimit` por CORS, así que el navegador puede leerla.
- *
- * La respuesta del login trae **dos** políticas, porque la petición atraviesa
- * dos limitadores encadenados:
- *
- *     RateLimit: "300-in-1min"; r=299; t=60      ← límite general de /api
- *     RateLimit: "5-in-15min"; r=4;    t=900     ← límite de login
- *
- * El navegador une las cabeceras repetidas en una sola cadena separada por
- * comas, de modo que quedarse con la primera coincidencia daría 299: el
- * presupuesto general, no los intentos de acceso. Por eso se leen todas y se
- * devuelve la **más restrictiva**, que es la que de verdad va a bloquear al
- * usuario. Tomar el mínimo, en lugar de buscar la política por nombre, sigue
- * siendo correcto si mañana cambian los cupos o se añade otro limitador.
- *
- * La alternativa —contar los fallos en el cliente— se descartó por mentirosa:
- * el límite se lleva en el servidor por IP y usuario, así que una recarga, otra
- * pestaña o cambiar de nombre de usuario darían una cuenta distinta a la real.
- */
+/* Lectura del límite de peticiones que anuncia el servidor.
+   
+   El backend configura express-rate-limit con `standardHeaders: "draft-8"` y
+   expone `RateLimit` por CORS, así que el navegador puede leerla.
+   
+   La respuesta del login trae **dos** políticas, porque la petición atraviesa
+   dos limitadores encadenados:
+   
+       RateLimit: "300-in-1min"; r=299; t=60      ← límite general de /api
+       RateLimit: "5-in-15min"; r=4;    t=900     ← límite de login
+   
+   El navegador une las cabeceras repetidas en una sola cadena separada por
+   comas, de modo que quedarse con la primera coincidencia daría 299: el
+   presupuesto general, no los intentos de acceso. Por eso se leen todas y se
+   devuelve la **más restrictiva**, que es la que de verdad va a bloquear al
+   usuario. Tomar el mínimo, en lugar de buscar la política por nombre, sigue
+   siendo correcto si mañana cambian los cupos o se añade otro limitador.
+   
+   La alternativa —contar los fallos en el cliente— se descartó por mentirosa:
+   el límite se lleva en el servidor por IP y usuario, así que una recarga, otra
+   pestaña o cambiar de nombre de usuario darían una cuenta distinta a la real. */
 export function intentosRestantes(error: unknown): number | null {
   if (!axios.isAxiosError(error)) return null;
 

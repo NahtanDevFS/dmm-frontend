@@ -7,12 +7,10 @@ export function RejillaIndicadores({ children }: { children: ReactNode }) {
   return <div className={estilos.rejilla}>{children}</div>;
 }
 
-/**
- * Tarjeta indicadora del panel de inicio.
- *
- * `tono` no decora: marca los indicadores que exigen atención, como el stock
- * por vencer. Los semánticos solo comunican estado (sección 2).
- */
+/* Tarjeta indicadora del panel de inicio.
+   
+   `tono` no decora: marca los indicadores que exigen atención, como el stock
+   por vencer. Los semánticos solo comunican estado (sección 2). */
 export function TarjetaIndicador({
   titulo,
   valor,
@@ -20,11 +18,9 @@ export function TarjetaIndicador({
   tono = "marca",
 }: {
   titulo: string;
-  /**
-   * Admite ReactNode además de número para que el panel pueda pasar un
-   * esqueleto mientras el conteo llega, sin que la tarjeta tenga que conocer
-   * los estados de carga de cada consulta.
-   */
+  /* Admite ReactNode además de número para que el panel pueda pasar un
+     esqueleto mientras el conteo llega, sin que la tarjeta tenga que conocer
+     los estados de carga de cada consulta. */
   valor: number | string | ReactNode;
   detalle?: string;
   tono?: "marca" | "advertencia" | "peligro";
@@ -50,13 +46,11 @@ export function TarjetaIndicador({
 
 /* Estado vacío */
 
-/**
- * Qué se ve cuando no hay nada que ver.
- *
- * `titulo` dice qué falta y `texto` qué hacer al respecto. Una tabla vacía sin
- * explicación deja al usuario sin saber si no hay registros, si el filtro los
- * escondió o si algo falló.
- */
+/* Qué se ve cuando no hay nada que ver.
+   
+   `titulo` dice qué falta y `texto` qué hacer al respecto. Una tabla vacía sin
+   explicación deja al usuario sin saber si no hay registros, si el filtro los
+   escondió o si algo falló. */
 export function EstadoVacio({
   titulo,
   texto,
@@ -77,7 +71,7 @@ export function EstadoVacio({
 
 /* Esqueletos */
 
-/** Bloque de carga. Se dimensiona desde fuera para imitar lo que sustituye. */
+// Bloque de carga. Se dimensiona desde fuera para imitar lo que sustituye.
 export function Esqueleto({
   ancho = "100%",
   alto = 16,
@@ -94,12 +88,10 @@ export function Esqueleto({
   );
 }
 
-/**
- * Esqueleto de una tabla mientras llega la primera página.
- *
- * Lleva role de estado con texto oculto: las barras grises no dicen nada a un
- * lector de pantalla, que sin esto anunciaría una tabla vacía.
- */
+/* Esqueleto de una tabla mientras llega la primera página.
+   
+   Lleva role de estado con texto oculto: las barras grises no dicen nada a un
+   lector de pantalla, que sin esto anunciaría una tabla vacía. */
 export function EsqueletoTabla({
   filas = 5,
   columnas = 4,

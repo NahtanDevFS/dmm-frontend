@@ -30,10 +30,8 @@ function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
   );
 }
 
-/**
- * Ficha de recepción en modal sobre el listado
- * Muestra el envío y los lotes que contiene
- */
+/* Ficha de recepción en modal sobre el listado
+   Muestra el envío y los lotes que contiene */
 function ModalFichaRecepcion({
   recepcionId,
   abierto,
@@ -46,7 +44,7 @@ function ModalFichaRecepcion({
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
   const [editando, setEditando] = useState(false);
-  /** Evita perder datos no guardados al cerrar el modal si hay borradores */
+  // Evita perder datos no guardados al cerrar el modal si hay borradores
   const [borradores, setBorradores] = useState({
     lotes: false,
     documentos: false,

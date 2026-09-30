@@ -4,27 +4,23 @@ import { formatearFecha } from "../../lib/fechas";
 import { CLAVE_ENTREGAS, listarLotesFifo } from "../../api/entregas";
 import estilos from "./Entregas.module.css";
 
-/**
- * Vista previa del orden en que la base va a consumir los lotes de un insumo
- * (FEFO con respaldo FIFO).
- *
- * Es solo lectura y orientativa: sp_agregar_insumo_entrega decide de verdad
- * al registrar, con el stock real de ese momento. Si algo cambió entre la
- * previsualización y el envío, la base manda.
- *
- * Vive aparte porque los dos caminos hacia una entrega la necesitan igual, y
- * tenerla duplicada garantizaba que un arreglo se aplicara solo en uno.
- */
+/* Vista previa del orden en que la base va a consumir los lotes de un insumo
+   (FEFO con respaldo FIFO).
+   
+   Es solo lectura y orientativa: sp_agregar_insumo_entrega decide de verdad
+   al registrar, con el stock real de ese momento. Si algo cambió entre la
+   previsualización y el envío, la base manda.
+   
+   Vive aparte porque los dos caminos hacia una entrega la necesitan igual, y
+   tenerla duplicada garantizaba que un arreglo se aplicara solo en uno. */
 function PreviaLotes({
   insumoId,
   cantidadPedida,
 }: {
   insumoId: number;
-  /**
-   * Lo que se pretende entregar, para avisar antes de enviar si no alcanza.
-   * En el despacho de una línea el tope ya lo impone la línea, así que ahí
-   * puede omitirse.
-   */
+  /* Lo que se pretende entregar, para avisar antes de enviar si no alcanza.
+     En el despacho de una línea el tope ya lo impone la línea, así que ahí
+     puede omitirse. */
   cantidadPedida?: number;
 }) {
   const fifo = useQuery({

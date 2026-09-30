@@ -7,13 +7,11 @@ import {
 } from "../../../test/reactQuery";
 import { ProveedorAvisos } from "../../../componentes/ui/avisos/ProveedorAvisos";
 
-/**
- * Resumen del paso 2 al prestar equipo con número de serie.
- *
- * Regresión: la serie se buscaba en la lista de unidades disponibles después
- * de registrar el préstamo. Esa lista se recarga al registrarlo y la unidad
- * prestada ya no está disponible, así que el resumen decía "serie" en blanco.
- */
+/* Resumen del paso 2 al prestar equipo con número de serie.
+   
+   Regresión: la serie se buscaba en la lista de unidades disponibles después
+   de registrar el préstamo. Esa lista se recarga al registrarlo y la unidad
+   prestada ya no está disponible, así que el resumen decía "serie" en blanco. */
 vi.mock("../../../api/axiosClient", () => ({
   default: { get: vi.fn(), post: vi.fn() },
 }));

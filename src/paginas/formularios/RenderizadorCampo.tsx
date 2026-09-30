@@ -17,11 +17,9 @@ import { valoresSeleccionMultiple } from "./utilFormulario";
 import estilos from "./Formularios.module.css";
 
 interface PropsRenderizadorCampo {
-  /**
-   * Texto calculado a partir de lo ya respondido, que se muestra debajo del
-   * campo junto a su ayuda. Es una sugerencia, no un valor: quien llena
-   * decide. Ver sugerencias.ts.
-   */
+  /* Texto calculado a partir de lo ya respondido, que se muestra debajo del
+     campo junto a su ayuda. Es una sugerencia, no un valor: quien llena
+     decide. Ver sugerencias.ts. */
   sugerencia?: string;
   campo: FormularioCampo;
   valor: string | null;
@@ -30,12 +28,10 @@ interface PropsRenderizadorCampo {
   deshabilitado?: boolean;
 }
 
-/**
- * Renderiza el control correcto según campo.tipo_dato_nombre. Las opciones
- * de SELECCION_UNICA/MULTIPLE vienen de exactamente un lugar —catalogo_id o
- * formulario_campo_opcion, nunca ambos— así que solo una de las dos
- * consultas de abajo llega a estar habilitada para un campo dado.
- */
+/* Renderiza el control correcto según campo.tipo_dato_nombre. Las opciones
+   de SELECCION_UNICA/MULTIPLE vienen de exactamente un lugar —catalogo_id o
+   formulario_campo_opcion, nunca ambos— así que solo una de las dos
+   consultas de abajo llega a estar habilitada para un campo dado. */
 function RenderizadorCampo({
   campo,
   valor,
@@ -44,11 +40,9 @@ function RenderizadorCampo({
   deshabilitado,
   sugerencia,
 }: PropsRenderizadorCampo) {
-  /**
-   * Mientras el campo numérico está enfocado se edita crudo; al salir se
-   * muestra con separadores de miles. No se puede formatear siempre porque
-   * un <input type="number"> rechaza las comas.
-   */
+  /* Mientras el campo numérico está enfocado se edita crudo; al salir se
+     muestra con separadores de miles. No se puede formatear siempre porque
+     un <input type="number"> rechaza las comas. */
   const [enfocado, setEnfocado] = useState(false);
   const tieneDecimales = typeof valor === "string" && valor.includes(".");
 
@@ -72,20 +66,16 @@ function RenderizadorCampo({
     ? (valoresCatalogo.data ?? [])
     : (opcionesPropias.data ?? []);
 
-  /**
-   * Solo cuenta la consulta que este campo realmente usa, y se mira
-   * `isLoading` y no `isPending`.
-   *
-   * Las dos consultas están siempre declaradas pero solo una se habilita
-   * según el campo tenga catálogo o no. Una consulta deshabilitada se queda
-   * en `isPending` para siempre, porque nunca llega a tener datos: mirar las
-   * dos dejaba el selector diciendo 'Cargando…' aunque ya hubiera cargado.
-   * `isLoading` es pendiente Y en vuelo, que es lo que aquí interesa.
-   */
-  /**
-   * La sugerencia se suma a la ayuda en vez de reemplazarla: la ayuda
-   * explica cómo responder y la sugerencia dice qué sale de lo respondido.
-   */
+  /* Solo cuenta la consulta que este campo realmente usa, y se mira
+     `isLoading` y no `isPending`.
+     
+     Las dos consultas están siempre declaradas pero solo una se habilita
+     según el campo tenga catálogo o no. Una consulta deshabilitada se queda
+     en `isPending` para siempre, porque nunca llega a tener datos: mirar las
+     dos dejaba el selector diciendo 'Cargando…' aunque ya hubiera cargado.
+     `isLoading` es pendiente Y en vuelo, que es lo que aquí interesa. */
+  /* La sugerencia se suma a la ayuda en vez de reemplazarla: la ayuda
+     explica cómo responder y la sugerencia dice qué sale de lo respondido. */
   const ayudaCampo = [campo.ayuda ?? undefined, sugerencia]
     .filter(Boolean)
     .join(" ");

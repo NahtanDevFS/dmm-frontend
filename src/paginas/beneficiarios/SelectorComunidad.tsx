@@ -16,25 +16,23 @@ import {
 } from "../../types/api";
 import estilos from "./Formulario.module.css";
 
-/**
- * Departamento → municipio → comunidad.
- *
- * De los tres, **el único que se guarda es la comunidad**: `persona` tiene
- * `comunidad_id` y nada más, porque el municipio y el departamento ya cuelgan
- * de ella en la base y repetirlos en la persona permitiría que se
- * contradijeran. Los dos primeros selectores existen para acotar el tercero:
- * con 340 municipios sembrados, un desplegable plano de comunidades sería
- * inmanejable en cuanto el catálogo crezca.
- *
- * Por eso tampoco hacen falta en la ficha ni en la edición: el departamento y
- * el municipio de un beneficiario se leen siguiendo su comunidad.
- */
+/* Departamento → municipio → comunidad.
+   
+   De los tres, **el único que se guarda es la comunidad**: `persona` tiene
+   `comunidad_id` y nada más, porque el municipio y el departamento ya cuelgan
+   de ella en la base y repetirlos en la persona permitiría que se
+   contradijeran. Los dos primeros selectores existen para acotar el tercero:
+   con 340 municipios sembrados, un desplegable plano de comunidades sería
+   inmanejable en cuanto el catálogo crezca.
+   
+   Por eso tampoco hacen falta en la ficha ni en la edición: el departamento y
+   el municipio de un beneficiario se leen siguiendo su comunidad. */
 function SelectorComunidad({
   value,
   onChange,
   error,
 }: {
-  /** Id de la comunidad, como texto porque viene de un <select>. */
+  // Id de la comunidad, como texto porque viene de un <select>.
   value: string;
   onChange: (comunidadId: string) => void;
   error?: string;
@@ -48,12 +46,10 @@ function SelectorComunidad({
   const [creando, setCreando] = useState(false);
   const [nombreNuevo, setNombreNuevo] = useState("");
 
-  /**
-   * Crear comunidades es de dirección: POST /comunidades lleva
-   * requireRole(DIRECCION). A un empleado no se le ofrece el botón, se le dice
-   * a quién pedírselo; enseñarle un atajo que termina en 403 es peor que no
-   * enseñarle ninguno.
-   */
+  /* Crear comunidades es de dirección: POST /comunidades lleva
+     requireRole(DIRECCION). A un empleado no se le ofrece el botón, se le dice
+     a quién pedírselo; enseñarle un atajo que termina en 403 es peor que no
+     enseñarle ninguno. */
   const puedeCrear = tieneRol(usuario?.rol, DIRECCION);
 
   const departamentos = useCatalogo<Departamento>("departamentos");

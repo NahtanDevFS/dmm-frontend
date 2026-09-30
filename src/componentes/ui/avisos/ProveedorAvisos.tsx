@@ -10,7 +10,7 @@ import {
 } from "./contexto";
 import estilos from "./Avisos.module.css";
 
-/** Palabra que acompaña al color. El color nunca es la única señal. */
+// Palabra que acompaña al color. El color nunca es la única señal.
 const PALABRA: Record<TonoAviso, string> = {
   exito: "Listo",
   error: "Error",
@@ -18,7 +18,7 @@ const PALABRA: Record<TonoAviso, string> = {
   info: "Aviso",
 };
 
-/** Un error se lee más despacio y suele necesitar copiarse o releerse. */
+// Un error se lee más despacio y suele necesitar copiarse o releerse.
 const DURACION: Record<TonoAviso, number> = {
   exito: 4000,
   info: 5000,
@@ -74,12 +74,10 @@ export function ProveedorAvisos({ children }: { children: ReactNode }) {
     <ContextoAvisos value={valor}>
       {children}
 
-      {/**
-       * aria-live polite: el aviso se anuncia al terminar lo que el lector esté
-       * leyendo, en vez de interrumpir a media frase. Los errores del
-       * formulario, que sí exigen atención inmediata, usan role de alerta en su
-       * propio campo.
-       */}
+      {/* aria-live polite: el aviso se anuncia al terminar lo que el lector esté
+      {   leyendo, en vez de interrumpir a media frase. Los errores del
+      {   formulario, que sí exigen atención inmediata, usan role de alerta en su
+      {   propio campo. */}
       <div className={estilos.pila} aria-live="polite" aria-atomic="false">
         {avisos.map((aviso) => (
           <div key={aviso.id} className={estilos.aviso + " " + estilos[aviso.tono]}>

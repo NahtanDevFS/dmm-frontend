@@ -35,7 +35,7 @@ export interface DocumentoDePersona {
   activo: boolean;
 }
 
-/** Lo que devuelve GET /personas/:id: la persona con sus sub-recursos. */
+// Lo que devuelve GET /personas/:id: la persona con sus sub-recursos.
 export interface PersonaDetalle extends Persona {
   discapacidades: DiscapacidadDePersona[];
   encargados: EncargadoDePersona[];
@@ -50,7 +50,7 @@ export interface DatosBasePersona {
   genero_id?: number | null;
   comunidad_id?: number | null;
   telefono?: string | null;
-  /** Datos socioeconómicos centralizados para evitar discrepancias */
+  // Datos socioeconómicos centralizados para evitar discrepancias
   estado_civil_id?: number | null;
   grado_academico_id?: number | null;
   ocupacion_id?: number | null;
@@ -68,10 +68,8 @@ export interface ContactoNuevo {
   observaciones?: string | null;
 }
 
-/**
- * Alta completa transaccional (persona, discapacidades, encargados, contactos)
- * Evita datos parciales si falla alguna inserción dependiente
- */
+/* Alta completa transaccional (persona, discapacidades, encargados, contactos)
+   Evita datos parciales si falla alguna inserción dependiente */
 export interface CrearPersona extends DatosBasePersona {
   discapacidadIds?: number[];
   encargados?: EncargadoNuevo[];
@@ -196,10 +194,8 @@ export async function listarDocumentos(
   return data;
 }
 
-/**
- * Sube un documento. Va como multipart y el archivo viaja en el campo
- * `archivo`, que es el nombre que espera el middleware del backend.
- */
+/* Sube un documento. Va como multipart y el archivo viaja en el campo
+   `archivo`, que es el nombre que espera el middleware del backend. */
 export async function subirDocumento(
   personaId: number,
   datos: {

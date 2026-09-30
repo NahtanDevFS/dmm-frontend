@@ -12,7 +12,7 @@ const TONO_ACCION: Record<string, "aprobada" | "pendiente" | "rechazada"> = {
   DELETE: "rechazada",
 };
 
-/** Fecha y hora completas en formato guatemalteco: no basta con el día para auditoría. */
+// Fecha y hora completas en formato guatemalteco: no basta con el día para auditoría.
 function formatearFechaHora(valor: string): string {
   const fecha = new Date(valor);
   if (Number.isNaN(fecha.getTime())) return "—";
@@ -25,10 +25,8 @@ function formatearFechaHora(valor: string): string {
   });
 }
 
-/**
- * Un solo registro de auditoría: qué cambió, quién y cuándo. Nunca editable
- * — es una bitácora, así que este modal solo tiene botón de Cerrar.
- */
+/* Un solo registro de auditoría: qué cambió, quién y cuándo. Nunca editable
+   — es una bitácora, así que este modal solo tiene botón de Cerrar. */
 function ModalDetalleAuditoria({
   registro,
   abierto,

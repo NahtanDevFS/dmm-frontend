@@ -19,16 +19,14 @@ import ModalNuevoBeneficiario from "./ModalNuevoBeneficiario";
 import ModalFicha from "./ModalFicha";
 import estilos from "./Beneficiarios.module.css";
 
-/**
- * Listado de beneficiarios y anfitrión de sus dos modales.
- *
- * El alta y la ficha se abren encima de esta tabla en lugar de sustituirla.
- * Las rutas /beneficiarios/nuevo y /beneficiarios/:id siguen existiendo y
- * abren el modal correspondiente al entrar, así que los enlaces guardados de
- * antes siguen llevando a donde llevaban; lo que cambia es que ya no se
- * navega para abrirlos desde la propia tabla, y por eso el filtro y la página
- * sobreviven a la consulta.
- */
+/* Listado de beneficiarios y anfitrión de sus dos modales.
+   
+   El alta y la ficha se abren encima de esta tabla en lugar de sustituirla.
+   Las rutas /beneficiarios/nuevo y /beneficiarios/:id siguen existiendo y
+   abren el modal correspondiente al entrar, así que los enlaces guardados de
+   antes siguen llevando a donde llevaban; lo que cambia es que ya no se
+   navega para abrirlos desde la propia tabla, y por eso el filtro y la página
+   sobreviven a la consulta. */
 function PaginaBeneficiarios() {
   const navegar = useNavigate();
   const { id } = useParams();
@@ -41,17 +39,15 @@ function PaginaBeneficiarios() {
   */
   const rutaEsAlta = pathname === "/beneficiarios/nuevo";
   const rutaId = id && /^\d+$/.test(id) ? Number(id) : null;
-  /** Se llegó por una ruta profunda y hay que devolver la barra al listado. */
+  // Se llegó por una ruta profunda y hay que devolver la barra al listado.
   const rutaProfunda = rutaEsAlta || rutaId !== null;
 
   const [creando, setCreando] = useState(rutaEsAlta);
   const [fichaId, setFichaId] = useState<number | null>(rutaId);
 
-  /**
-   * Al cerrar, la barra de direcciones vuelve a /beneficiarios. Si se quedara
-   * apuntando a la ficha, recargar la reabriría sola y el usuario no podría
-   * salir de ella sin editar la URL a mano.
-   */
+  /* Al cerrar, la barra de direcciones vuelve a /beneficiarios. Si se quedara
+     apuntando a la ficha, recargar la reabriría sola y el usuario no podría
+     salir de ella sin editar la URL a mano. */
   const limpiarRuta = () => {
     if (rutaProfunda) navegar("/beneficiarios", { replace: true });
   };

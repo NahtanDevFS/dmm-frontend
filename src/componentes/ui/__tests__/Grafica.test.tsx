@@ -2,18 +2,16 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { GraficaBarras, GraficaLinea, GraficaPastel } from "../Grafica";
 
-/**
- * Recharts dibuja su SVG a partir del tamaño real del contenedor
- * (ResizeObserver + getBoundingClientRect), y jsdom siempre reporta 0×0. Por
- * eso estos tests no verifican barras, puntos ni arcos dibujados —no hay
- * forma fiable de hacerlo aquí sin mockear las dimensiones a mano, lo que
- * terminaría probando el mock y no el componente.
- *
- * Lo que sí es fiable y vale la pena cubrir: los estados vacíos (son texto
- * plano, sin Recharts de por medio), que el componente monte sin lanzar
- * cuando sí hay datos, y la leyenda del pastel, que es HTML propio y no
- * depende de que Recharts mida nada.
- */
+/* Recharts dibuja su SVG a partir del tamaño real del contenedor
+   (ResizeObserver + getBoundingClientRect), y jsdom siempre reporta 0×0. Por
+   eso estos tests no verifican barras, puntos ni arcos dibujados —no hay
+   forma fiable de hacerlo aquí sin mockear las dimensiones a mano, lo que
+   terminaría probando el mock y no el componente.
+   
+   Lo que sí es fiable y vale la pena cubrir: los estados vacíos (son texto
+   plano, sin Recharts de por medio), que el componente monte sin lanzar
+   cuando sí hay datos, y la leyenda del pastel, que es HTML propio y no
+   depende de que Recharts mida nada. */
 
 describe("GraficaLinea — estado vacío", () => {
   it("muestra el mensaje por defecto con un arreglo vacío", () => {

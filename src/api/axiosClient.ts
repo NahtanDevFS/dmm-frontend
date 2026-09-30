@@ -8,16 +8,14 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
-/**
- * Rutas donde un 401 es una respuesta normal del flujo, no una sesión caída:
- *
- * - `auth/login`: 401 significa usuario o contraseña incorrectos. Tratarlo como
- *   expiración provocaría una redirección en bucle sobre la propia pantalla de
- *   acceso, y el usuario nunca llegaría a leer el mensaje de error.
- * - `auth/me`: se llama al arrancar justo para averiguar si hay sesión. Un 401
- *   aquí es la respuesta esperada de «no ha entrado nadie».
- * - `auth/logout`: cerrar una sesión ya vencida es exactamente lo que se pedía.
- */
+/* Rutas donde un 401 es una respuesta normal del flujo, no una sesión caída:
+   
+   - `auth/login`: 401 significa usuario o contraseña incorrectos. Tratarlo como
+     expiración provocaría una redirección en bucle sobre la propia pantalla de
+     acceso, y el usuario nunca llegaría a leer el mensaje de error.
+   - `auth/me`: se llama al arrancar justo para averiguar si hay sesión. Un 401
+     aquí es la respuesta esperada de «no ha entrado nadie».
+   - `auth/logout`: cerrar una sesión ya vencida es exactamente lo que se pedía. */
 const AUTENTICACION_ESPERADA = ["auth/login", "auth/me", "auth/logout"];
 
 export function esFlujoDeAutenticacion(url: string | undefined): boolean {

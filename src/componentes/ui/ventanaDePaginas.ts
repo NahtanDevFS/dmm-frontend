@@ -1,15 +1,13 @@
-/**
- * Ventana de páginas alrededor de la actual.
- *
- * Con 240 registros y 50 por página son cinco botones y caben todos, pero la
- * auditoría crece sin techo y ahí serían cientos. La ventana mantiene la
- * paginación en una sola línea sea cual sea el volumen.
- *
- * Vive en su propio archivo, separada del componente Paginacion, porque
- * react-refresh exige que un archivo de componente solo exporte
- * componentes: exportar aquí también esta función rompía el fast refresh
- * en desarrollo.
- */
+/* Ventana de páginas alrededor de la actual.
+   
+   Con 240 registros y 50 por página son cinco botones y caben todos, pero la
+   auditoría crece sin techo y ahí serían cientos. La ventana mantiene la
+   paginación en una sola línea sea cual sea el volumen.
+   
+   Vive en su propio archivo, separada del componente Paginacion, porque
+   react-refresh exige que un archivo de componente solo exporte
+   componentes: exportar aquí también esta función rompía el fast refresh
+   en desarrollo. */
 export function ventanaDePaginas(
   actual: number,
   total: number,

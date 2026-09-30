@@ -44,15 +44,13 @@ function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
   );
 }
 
-/**
- * Ficha de un contrato de préstamo: datos generales, la cadena completa de
- * renovaciones (una sola línea, nunca un árbol), evidencias (documento
- * firmado, DPI, foto de recepción — todo vive en el mismo lugar, ver
- * SeccionEvidenciasContrato) y multas. Renovar y registrar devolución solo
- * tienen sentido en el ÚLTIMO contrato de la cadena (sin devolución real y
- * sin renovación posterior); el backend ya lo valida, esto solo evita
- * ofrecer el botón cuando ya se sabe que va a fallar.
- */
+/* Ficha de un contrato de préstamo: datos generales, la cadena completa de
+   renovaciones (una sola línea, nunca un árbol), evidencias (documento
+   firmado, DPI, foto de recepción — todo vive en el mismo lugar, ver
+   SeccionEvidenciasContrato) y multas. Renovar y registrar devolución solo
+   tienen sentido en el ÚLTIMO contrato de la cadena (sin devolución real y
+   sin renovación posterior); el backend ya lo valida, esto solo evita
+   ofrecer el botón cuando ya se sabe que va a fallar. */
 function ModalFichaContrato({
   contratoId,
   abierto,
@@ -105,12 +103,10 @@ function ModalFichaContrato({
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
-  /**
-   * Cuál de los dos cierres se está redactando, y su motivo.
-   *
-   * El motivo es obligatorio en ambos: dentro de un año, un contrato anulado
-   * sin explicación no se distingue de un error del sistema.
-   */
+  /* Cuál de los dos cierres se está redactando, y su motivo.
+     
+     El motivo es obligatorio en ambos: dentro de un año, un contrato anulado
+     sin explicación no se distingue de un error del sistema. */
   const [cerrandoMal, setCerrandoMal] = useState<
     "anular" | "no-devuelto" | null
   >(null);
@@ -157,18 +153,16 @@ function ModalFichaContrato({
 
   const puedeDevolver = puedeRenovar; // mismas condiciones
 
-  /**
-   * Dos finales que no hay que confundir.
-   *
-   * Anular es para "me equivoqué al capturar": deshace el contrato y la
-   * entrega, y el equipo vuelve al inventario. Solo lo ofrece Dirección y
-   * solo mientras el préstamo no tuvo movimientos; el backend además lo
-   * rechaza si hubo devolución o multas pagadas.
-   *
-   * No devuelto es para "la persona no lo trajo": cierra el contrato SIN
-   * restituir el stock, porque el equipo no está. Decir que hay una silla
-   * disponible que nadie tiene sería mentir sobre el inventario.
-   */
+  /* Dos finales que no hay que confundir.
+     
+     Anular es para "me equivoqué al capturar": deshace el contrato y la
+     entrega, y el equipo vuelve al inventario. Solo lo ofrece Dirección y
+     solo mientras el préstamo no tuvo movimientos; el backend además lo
+     rechaza si hubo devolución o multas pagadas.
+     
+     No devuelto es para "la persona no lo trajo": cierra el contrato SIN
+     restituir el stock, porque el equipo no está. Decir que hay una silla
+     disponible que nadie tiene sería mentir sobre el inventario. */
   const puedeCerrarMal = puedeDevolver && tieneRol(usuario?.rol, DIRECCION);
 
   return (

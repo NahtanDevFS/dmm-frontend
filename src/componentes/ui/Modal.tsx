@@ -6,26 +6,22 @@ interface PropsModal {
   onCerrar: () => void;
   titulo: string;
   descripcion?: string;
-  /** Pie de acciones. Normalmente un GrupoBotones. */
+  // Pie de acciones. Normalmente un GrupoBotones.
   pie?: ReactNode;
-  /**
-   * Impide cerrar con Esc o clic fuera. Se usa mientras una operación está en
-   * curso: cerrar a media escritura dejaría al usuario sin saber si se guardó.
-   */
+  /* Impide cerrar con Esc o clic fuera. Se usa mientras una operación está en
+     curso: cerrar a media escritura dejaría al usuario sin saber si se guardó. */
   bloqueado?: boolean;
-  /** `amplio` para las fichas, que traen varias regiones y no un solo formulario. */
+  // `amplio` para las fichas, que traen varias regiones y no un solo formulario.
   tamano?: "normal" | "amplio";
   children: ReactNode;
 }
 
-/**
- * Modal del sistema, sobre el elemento nativo `dialog`.
- *
- * Se apoya en `showModal()` en lugar de reimplementar el comportamiento: el
- * navegador ya aporta la trampa de foco, el cierre con Esc, el retorno del
- * foco al elemento que lo abrió y la inercia del fondo. Una trampa de foco
- * escrita a mano es de las cosas que más fácilmente quedan a medias.
- */
+/* Modal del sistema, sobre el elemento nativo `dialog`.
+   
+   Se apoya en `showModal()` en lugar de reimplementar el comportamiento: el
+   navegador ya aporta la trampa de foco, el cierre con Esc, el retorno del
+   foco al elemento que lo abrió y la inercia del fondo. Una trampa de foco
+   escrita a mano es de las cosas que más fácilmente quedan a medias. */
 function Modal({
   abierto,
   onCerrar,
@@ -57,13 +53,11 @@ function Modal({
     // DOM, que es lo que ocurre si el navegador cierra el diálogo por su
     // cuenta mientras `abierto` sigue en true.
     const alCancelar = (evento: Event) => {
-      /**
-       * Solo el Esc del propio diálogo. `cancel` no es exclusivo de `dialog`:
-       * un `input[type=file]` lo dispara —y burbujea— cuando el usuario cierra
-       * el selector de archivos sin elegir nada. Sin esta comprobación, abrir
-       * el selector y arrepentirse cerraba el modal entero y se perdía el
-       * formulario, que es justo lo contrario de lo que quería el usuario.
-       */
+      /* Solo el Esc del propio diálogo. `cancel` no es exclusivo de `dialog`:
+         un `input[type=file]` lo dispara —y burbujea— cuando el usuario cierra
+         el selector de archivos sin elegir nada. Sin esta comprobación, abrir
+         el selector y arrepentirse cerraba el modal entero y se perdía el
+         formulario, que es justo lo contrario de lo que quería el usuario. */
       if (evento.target !== dialogo) return;
       evento.preventDefault();
       if (!bloqueado) onCerrar();
@@ -72,11 +66,9 @@ function Modal({
     return () => dialogo.removeEventListener("cancel", alCancelar);
   }, [onCerrar, bloqueado]);
 
-  /**
-   * Clic en el velo. El backdrop no es un elemento propio, así que un clic
-   * sobre él llega al `dialog`; se compara con el rectángulo del diálogo para
-   * distinguirlo de un clic dentro del contenido.
-   */
+  /* Clic en el velo. El backdrop no es un elemento propio, así que un clic
+     sobre él llega al `dialog`; se compara con el rectángulo del diálogo para
+     distinguirlo de un clic dentro del contenido. */
   const alPulsar = (evento: React.MouseEvent<HTMLDialogElement>) => {
     if (bloqueado || evento.target !== referencia.current) return;
     const caja = referencia.current.getBoundingClientRect();

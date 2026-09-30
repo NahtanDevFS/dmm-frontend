@@ -27,11 +27,9 @@ const OPCIONES_GENERO: { valor: Genero; etiqueta: string }[] = [
 
 const FILTROS_VACIOS: FiltrosPersonasAtendidas = {};
 
-/**
- * Quién recibió qué, cuándo y dónde: una fila por entrega, con la persona,
- * su edad al momento de la entrega (no la de hoy — el backend ya resuelve
- * esa diferencia) y sus discapacidades si las tiene.
- */
+/* Quién recibió qué, cuándo y dónde: una fila por entrega, con la persona,
+   su edad al momento de la entrega (no la de hoy — el backend ya resuelve
+   esa diferencia) y sus discapacidades si las tiene. */
 function SeccionPersonasAtendidas() {
   const { avisar } = useAvisos();
 

@@ -22,22 +22,20 @@ import type { ElementoCatalogo } from "../../types/api";
 import { BANDERAS } from "./banderas";
 import estilos from "./Inventario.module.css";
 
-/**
- * Alta y edición de un insumo.
- *
- * Los dos casos comparten formulario porque comparten campos exactos; lo único
- * que cambia es qué se envía. En la edición se manda solo lo que el usuario
- * tocó, y no el objeto entero: el backend valida que la categoría y la unidad
- * estén activas *solo cuando vienen en el cuerpo*, así que reenviar sin
- * cambios la categoría de un insumo cuya categoría se dio de baja después
- * haría fallar una edición que no tenía nada que ver con ella.
- */
+/* Alta y edición de un insumo.
+   
+   Los dos casos comparten formulario porque comparten campos exactos; lo único
+   que cambia es qué se envía. En la edición se manda solo lo que el usuario
+   tocó, y no el objeto entero: el backend valida que la categoría y la unidad
+   estén activas *solo cuando vienen en el cuerpo*, así que reenviar sin
+   cambios la categoría de un insumo cuya categoría se dio de baja después
+   haría fallar una edición que no tenía nada que ver con ella. */
 function ModalInsumo({
   insumo,
   abierto,
   onCerrar,
 }: {
-  /** Sin insumo, el modal da de alta. */
+  // Sin insumo, el modal da de alta.
   insumo?: Insumo;
   abierto: boolean;
   onCerrar: () => void;
@@ -90,7 +88,7 @@ function ModalInsumo({
   const alternar = (clave: (typeof BANDERAS)[number]["clave"]) =>
     setDatos((previos) => ({ ...previos, [clave]: !previos[clave] }));
 
-  /** Cuerpo del PATCH: solo los campos que cambiaron. */
+  // Cuerpo del PATCH: solo los campos que cambiaron.
   const soloCambios = (): Partial<DatosInsumo> => {
     if (!insumo) return {};
     const cambios: Partial<DatosInsumo> = {};

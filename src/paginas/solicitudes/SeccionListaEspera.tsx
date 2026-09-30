@@ -14,18 +14,16 @@ import { listarListaEspera } from "../../api/donaciones";
 import estilos from "./Solicitudes.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Líneas de solicitud esperando existencias: PENDIENTE_ADQUISICION o
- * PENDIENTE_ENTREGA_PARCIAL, ordenadas por lo que la propia vista devuelve.
- *
- * Es lo que le dice a Trabajo Social qué insumo conviene priorizar en la
- * próxima gestión de donación, y a quien recibe una donación cuánta gente
- * destraba al registrar un lote de un insumo concreto.
- */
+/* Líneas de solicitud esperando existencias: PENDIENTE_ADQUISICION o
+   PENDIENTE_ENTREGA_PARCIAL, ordenadas por lo que la propia vista devuelve.
+   
+   Es lo que le dice a Trabajo Social qué insumo conviene priorizar en la
+   próxima gestión de donación, y a quien recibe una donación cuánta gente
+   destraba al registrar un lote de un insumo concreto. */
 function SeccionListaEspera({
   onVerSolicitud,
 }: {
-  /** Abre la ficha de la solicitud dueña de la línea, en el mismo modal del listado. */
+  // Abre la ficha de la solicitud dueña de la línea, en el mismo modal del listado.
   onVerSolicitud: (solicitudId: number) => void;
 }) {
   const [insumo, setInsumo] = useState("");

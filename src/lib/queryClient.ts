@@ -1,11 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
-/**
- * Códigos en los que reintentar no tiene sentido: la respuesta no va a cambiar
- * por insistir. Un 409 del backend suele venir de un trigger de la base
- * («ya fue entregado», «sin stock»), así que tampoco se reintenta.
- */
+/* Códigos en los que reintentar no tiene sentido: la respuesta no va a cambiar
+   por insistir. Un 409 del backend suele venir de un trigger de la base
+   («ya fue entregado», «sin stock»), así que tampoco se reintenta. */
 const SIN_REINTENTO = new Set([400, 401, 403, 404, 409, 422]);
 
 export function convieneReintentar(error: unknown): boolean {
@@ -23,11 +21,9 @@ export const queryClient = new QueryClient({
       // ratos, pero encadenar reintentos solo alarga la espera del usuario.
       retry: (intentos, error) => convieneReintentar(error) && intentos < 1,
       staleTime: 30_000,
-      /**
-       * El personal deja la pantalla abierta mientras atiende a la persona en
-       * ventanilla. Refrescar cada vez que la ventana recupera el foco haría
-       * que un listado se reordene bajo el cursor mientras alguien lee.
-       */
+      /* El personal deja la pantalla abierta mientras atiende a la persona en
+         ventanilla. Refrescar cada vez que la ventana recupera el foco haría
+         que un listado se reordene bajo el cursor mientras alguien lee. */
       refetchOnWindowFocus: false,
     },
     mutations: {

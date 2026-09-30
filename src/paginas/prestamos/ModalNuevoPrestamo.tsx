@@ -9,12 +9,10 @@ import { fechaDeHoy } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
 import { CLAVE_CONTRATOS, crearContrato } from "../../api/prestamos";
 
-/**
- * Registrar un contrato de préstamo sobre un renglón de entrega ya
- * existente. Se abre desde la ficha de la entrega («Registrar préstamo»),
- * nunca desde un formulario que pida el id a mano: el detalleEntregaId ya
- * viene fijado por el renglón concreto que se está mirando.
- */
+/* Registrar un contrato de préstamo sobre un renglón de entrega ya
+   existente. Se abre desde la ficha de la entrega («Registrar préstamo»),
+   nunca desde un formulario que pida el id a mano: el detalleEntregaId ya
+   viene fijado por el renglón concreto que se está mirando. */
 function ModalNuevoPrestamo({
   detalleEntregaId,
   insumoNombre,

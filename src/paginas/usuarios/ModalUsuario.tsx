@@ -26,25 +26,23 @@ import {
 import estilos from "./Usuarios.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/** Mismo criterio que el backend: 8+ caracteres, con letra y número. */
+// Mismo criterio que el backend: 8+ caracteres, con letra y número.
 function passwordValida(v: string): boolean {
   return v.length >= 8 && /[a-zA-Z]/.test(v) && /\d/.test(v);
 }
 
-/**
- * Alta o edición de un usuario. Sin `usuario`, es alta (pide contraseña
- * inicial); con `usuario`, es edición (username y rol, sin contraseña —
- * eso lo cubre «Restablecer contraseña» aparte).
- *
- * En edición trae además la sección «Cuenta» (restablecer contraseña y
- * desactivar/reactivar). Vive aquí y no en la fila de la tabla: tres botones
- * por fila ensanchaban la tabla hasta hacerla incómoda en el teléfono, y
- * desactivar queda un paso más lejos de un toque accidental.
- *
- * Si se está editando la propia cuenta, el rol no se muestra editable: el
- * backend lo rechazaría igual («no puede cambiar su propio rol»), y
- * mostrarlo deshabilitado sin más solo invitaría a intentarlo.
- */
+/* Alta o edición de un usuario. Sin `usuario`, es alta (pide contraseña
+   inicial); con `usuario`, es edición (username y rol, sin contraseña —
+   eso lo cubre «Restablecer contraseña» aparte).
+   
+   En edición trae además la sección «Cuenta» (restablecer contraseña y
+   desactivar/reactivar). Vive aquí y no en la fila de la tabla: tres botones
+   por fila ensanchaban la tabla hasta hacerla incómoda en el teléfono, y
+   desactivar queda un paso más lejos de un toque accidental.
+   
+   Si se está editando la propia cuenta, el rol no se muestra editable: el
+   backend lo rechazaría igual («no puede cambiar su propio rol»), y
+   mostrarlo deshabilitado sin más solo invitaría a intentarlo. */
 function ModalUsuario({
   usuario,
   abierto,
@@ -54,7 +52,7 @@ function ModalUsuario({
   usuario?: Usuario;
   abierto: boolean;
   onCerrar: () => void;
-  /** Cierra este modal y abre el de restablecer contraseña. Solo en edición. */
+  // Cierra este modal y abre el de restablecer contraseña. Solo en edición.
   onRestablecerPassword?: () => void;
 }) {
   const clienteQuery = useQueryClient();

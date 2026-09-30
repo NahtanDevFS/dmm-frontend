@@ -7,11 +7,9 @@ import {
   envolverConQueryClient,
 } from "../../test/reactQuery";
 
-/**
- * QA-16: si el POST /auth/logout no llega al servidor, la sesión (y su cookie
- * HttpOnly) siguen vivas. Antes se limpiaba el estado igual y se mostraba el
- * acceso como si se hubiera cerrado; al recargar, /auth/me la recuperaba sola.
- */
+/* QA-16: si el POST /auth/logout no llega al servidor, la sesión (y su cookie
+   HttpOnly) siguen vivas. Antes se limpiaba el estado igual y se mostraba el
+   acceso como si se hubiera cerrado; al recargar, /auth/me la recuperaba sola. */
 vi.mock("../../api/auth", () => ({
   obtenerSesion: vi.fn(),
   iniciarSesion: vi.fn(),
@@ -40,7 +38,7 @@ function errorHttp(status: number) {
 }
 const sinRed = () => new AxiosError("Network Error", "ERR_NETWORK");
 
-/** Réplica mínima de App: cierre pendiente > comprobando > acceso > app */
+// Réplica mínima de App: cierre pendiente > comprobando > acceso > app
 function Consumidor() {
   const { usuario, comprobandoSesion, cierrePendiente, salir } = useAuth();
   if (cierrePendiente) return <PantallaCierrePendiente />;

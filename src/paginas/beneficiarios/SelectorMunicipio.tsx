@@ -4,28 +4,26 @@ import { useCatalogo } from "../../hooks/useCatalogo";
 import type { Departamento, Municipio } from "../../types/api";
 import estilos from "./Formulario.module.css";
 
-/**
- * Departamento → municipio, para el lugar de nacimiento.
- *
- * De los dos, **el único que se guarda es el municipio**: el departamento ya
- * cuelga de él en la base y repetirlo en la persona permitiría que se
- * contradijeran. El primer selector existe solo para acotar el segundo: con
- * 340 municipios sembrados, un desplegable plano es inmanejable.
- *
- * Es la misma idea que SelectorComunidad pero sin el tercer nivel: dónde
- * nació alguien es un municipio, no una comunidad, y pedir tanto detalle de
- * un dato que casi nunca se verifica sería exigir de más.
- *
- * Al abrir con un municipio ya elegido no se sabe su departamento sin
- * consultarlo, así que se deduce de la lista de municipios en cuanto llega.
- */
+/* Departamento → municipio, para el lugar de nacimiento.
+   
+   De los dos, **el único que se guarda es el municipio**: el departamento ya
+   cuelga de él en la base y repetirlo en la persona permitiría que se
+   contradijeran. El primer selector existe solo para acotar el segundo: con
+   340 municipios sembrados, un desplegable plano es inmanejable.
+   
+   Es la misma idea que SelectorComunidad pero sin el tercer nivel: dónde
+   nació alguien es un municipio, no una comunidad, y pedir tanto detalle de
+   un dato que casi nunca se verifica sería exigir de más.
+   
+   Al abrir con un municipio ya elegido no se sabe su departamento sin
+   consultarlo, así que se deduce de la lista de municipios en cuanto llega. */
 function SelectorMunicipio({
   value,
   onChange,
   etiqueta = "Municipio de nacimiento",
   ayuda,
 }: {
-  /** Id del municipio, como texto porque viene de un <select>. */
+  // Id del municipio, como texto porque viene de un <select>.
   value: string;
   onChange: (municipioId: string) => void;
   etiqueta?: string;

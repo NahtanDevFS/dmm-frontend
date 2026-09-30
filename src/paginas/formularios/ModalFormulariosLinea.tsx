@@ -13,11 +13,9 @@ import {
 import ModalFormulario from "./ModalFormulario";
 import estilos from "./Formularios.module.css";
 
-/**
- * Lista los formularios que la categoría del insumo de una línea exige
- * antes de aprobar (equipo, típicamente), con el avance de cada uno. Desde
- * aquí se abre el formulario concreto a llenar.
- */
+/* Lista los formularios que la categoría del insumo de una línea exige
+   antes de aprobar (equipo, típicamente), con el avance de cada uno. Desde
+   aquí se abre el formulario concreto a llenar. */
 function ModalFormulariosLinea({
   detalleSolicitudId,
   insumoNombre,

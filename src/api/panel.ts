@@ -1,12 +1,10 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Datos agregados para las gráficas de Inicio.
- *
- * No es el módulo de Reportes: no hay filtros ni exportación, y a diferencia
- * de /reportes esto sí lo puede pedir EMPLEADO_DMM (mismo rol que ve el
- * resto del panel). Ver panel.routes.ts en el backend.
- */
+/* Datos agregados para las gráficas de Inicio.
+   
+   No es el módulo de Reportes: no hay filtros ni exportación, y a diferencia
+   de /reportes esto sí lo puede pedir EMPLEADO_DMM (mismo rol que ve el
+   resto del panel). Ver panel.routes.ts en el backend. */
 
 export interface PuntoEntregasPorMes {
   mes: string; // YYYY-MM-DD, primer día del mes

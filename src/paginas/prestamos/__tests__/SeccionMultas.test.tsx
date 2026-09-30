@@ -6,14 +6,12 @@ import {
 } from "../../../test/reactQuery";
 import { ProveedorAvisos } from "../../../componentes/ui/avisos/ProveedorAvisos";
 
-/**
- * Cuándo se ofrece aplicar una multa.
- *
- * Regresión: el formulario se escondía en cuanto el préstamo tenía devolución
- * registrada. El atraso o el daño se descubren justamente al recibir el
- * equipo, así que registrar la devolución dejaba sin forma de cobrarlos. Solo
- * un préstamo anulado no admite multas.
- */
+/* Cuándo se ofrece aplicar una multa.
+   
+   Regresión: el formulario se escondía en cuanto el préstamo tenía devolución
+   registrada. El atraso o el daño se descubren justamente al recibir el
+   equipo, así que registrar la devolución dejaba sin forma de cobrarlos. Solo
+   un préstamo anulado no admite multas. */
 vi.mock("../../../api/axiosClient", () => ({
   default: { get: vi.fn(), post: vi.fn() },
 }));

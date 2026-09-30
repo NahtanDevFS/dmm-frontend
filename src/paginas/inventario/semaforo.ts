@@ -1,14 +1,12 @@
 import type { TonoInsignia } from "../../componentes/ui/tonos";
 import { SEMAFORO, type Semaforo } from "../../types/api";
 
-/**
- * Semáforo de caducidad: etiqueta y tono por nivel (calculado en backend)
- * Cada nivel exige etiqueta de texto por accesibilidad (sección 7 del manual)
- */
+/* Semáforo de caducidad: etiqueta y tono por nivel (calculado en backend)
+   Cada nivel exige etiqueta de texto por accesibilidad (sección 7 del manual) */
 export interface NivelSemaforo {
-  /** Texto de la insignia. */
+  // Texto de la insignia.
   etiqueta: string;
-  /** Qué significa, para el resumen y las descripciones. */
+  // Qué significa, para el resumen y las descripciones.
   detalle: string;
   tono: TonoInsignia;
 }
@@ -41,7 +39,7 @@ export const NIVELES: Record<Semaforo, NivelSemaforo> = {
   },
 };
 
-/** Orden de lectura: primero lo que exige actuar hoy. */
+// Orden de lectura: primero lo que exige actuar hoy.
 export const ORDEN_SEMAFORO: readonly Semaforo[] = [
   SEMAFORO.VENCIDO,
   SEMAFORO.ROJO,
@@ -50,10 +48,8 @@ export const ORDEN_SEMAFORO: readonly Semaforo[] = [
   SEMAFORO.GRIS,
 ];
 
-/**
- * Devuelve nivel de semáforo o null si no aplica
- * Distingue insumos inactivos de aquellos sin existencias que llegan como GRIS
- */
+/* Devuelve nivel de semáforo o null si no aplica
+   Distingue insumos inactivos de aquellos sin existencias que llegan como GRIS */
 export function nivelDe(
   valor: Semaforo | string | null,
   sinExistencias = false,

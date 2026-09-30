@@ -48,14 +48,12 @@ const VACIO = {
   observaciones: "",
 };
 
-/**
- * Lotes de inventario de una recepción: lo que trajo el envío.
- *
- * Cada lote es un insumo concreto en una presentación concreta. Un mismo envío
- * puede traer el mismo insumo en dos lotes distintos —con caducidades
- * distintas— y son dos filas, porque lo que vence es el lote.
- */
-/** Verdadero si el formulario de alta tiene algo escrito. */
+/* Lotes de inventario de una recepción: lo que trajo el envío.
+   
+   Cada lote es un insumo concreto en una presentación concreta. Un mismo envío
+   puede traer el mismo insumo en dos lotes distintos —con caducidades
+   distintas— y son dos filas, porque lo que vence es el lote. */
+// Verdadero si el formulario de alta tiene algo escrito.
 function esBorrador(datos: typeof VACIO): boolean {
   return JSON.stringify(datos) !== JSON.stringify(VACIO);
 }
@@ -67,12 +65,10 @@ function SeccionLotes({
 }: {
   recepcionId: number;
   recepcionActiva: boolean;
-  /**
-   * Avisa a la ficha de si queda algo a medio escribir, para que pueda
-   * preguntar antes de cerrarse. Se llama desde los manejadores de cambio y no
-   * desde un efecto: derivarlo en un efecto duplicaria el estado y encadenaria
-   * renders, que es el fallo que ya costo una correccion en este proyecto.
-   */
+  /* Avisa a la ficha de si queda algo a medio escribir, para que pueda
+     preguntar antes de cerrarse. Se llama desde los manejadores de cambio y no
+     desde un efecto: derivarlo en un efecto duplicaria el estado y encadenaria
+     renders, que es el fallo que ya costo una correccion en este proyecto. */
   onBorrador?: (hay: boolean) => void;
 }) {
   const clienteQuery = useQueryClient();
@@ -81,7 +77,7 @@ function SeccionLotes({
   const [errores, setErrores] = useState<Record<string, string | undefined>>(
     {},
   );
-  /** Efecto del último lote sobre la lista de espera, si se pudo medir. */
+  // Efecto del último lote sobre la lista de espera, si se pudo medir.
   const [promocion, setPromocion] = useState<{
     insumo: string;
     lineas: number;
@@ -89,13 +85,11 @@ function SeccionLotes({
 
   const [dandoBaja, setDandoBaja] = useState<LoteRecepcion | null>(null);
 
-  /**
-   * Los lotes se piden aquí, con los dados de baja incluidos, en vez de usar
-   * los que trae GET /recepciones/:id —que los omite—. Un lote descartado
-   * sigue siendo parte de lo que pasó con el envío: si desapareciera al darlo
-   * de baja, quien corrigió un renglón mal capturado no tendría forma de
-   * comprobar que la corrección quedó registrada.
-   */
+  /* Los lotes se piden aquí, con los dados de baja incluidos, en vez de usar
+     los que trae GET /recepciones/:id —que los omite—. Un lote descartado
+     sigue siendo parte de lo que pasó con el envío: si desapareciera al darlo
+     de baja, quien corrigió un renglón mal capturado no tendría forma de
+     comprobar que la corrección quedó registrada. */
   const consulta = useQuery({
     queryKey: [CLAVE_RECEPCIONES, recepcionId, "lotes"],
     queryFn: () => listarLotes(recepcionId, true),
@@ -123,16 +117,14 @@ function SeccionLotes({
     incluirInactivos: true,
   });
 
-  /**
-   * Presentación efectiva: la elegida, o la predeterminada del insumo mientras
-   * nadie elija otra. Es la que la DMM usa habitualmente para ese producto, y
-   * proponerla ahorra un clic por cada renglón del camión.
-   *
-   * Se deriva en vez de copiarse al estado desde un efecto. Duplicar en
-   * useState un valor que ya vive en la query encadena renders y, además, deja
-   * el select en blanco durante el primer pintado; derivarlo no tiene ninguno
-   * de los dos problemas.
-   */
+  /* Presentación efectiva: la elegida, o la predeterminada del insumo mientras
+     nadie elija otra. Es la que la DMM usa habitualmente para ese producto, y
+     proponerla ahorra un clic por cada renglón del camión.
+     
+     Se deriva en vez de copiarse al estado desde un efecto. Duplicar en
+     useState un valor que ya vive en la query encadena renders y, además, deja
+     el select en blanco durante el primer pintado; derivarlo no tiene ninguno
+     de los dos problemas. */
   const presentacionPorDefecto = presentaciones.data?.find((p) => p.es_default);
   const presentacionElegida =
     datos.presentacion_recepcion_id ||
@@ -157,14 +149,12 @@ function SeccionLotes({
   const cambiarInsumo = (valor: string) =>
     aplicar({ ...datos, insumo_id: valor, presentacion_recepcion_id: "" });
 
-  /**
-   * Equipo con número de serie: cada unidad es una pieza identificable y se
-   * registra por separado. En vez de cantidad y un código para todo el lote,
-   * se piden las series, una por línea.
-   *
-   * Sin esto, cinco sillas quedaban como un lote de cinco con la serie de una
-   * sola, y al prestar no había forma de saber cuál se llevó la persona.
-   */
+  /* Equipo con número de serie: cada unidad es una pieza identificable y se
+     registra por separado. En vez de cantidad y un código para todo el lote,
+     se piden las series, una por línea.
+     
+     Sin esto, cinco sillas quedaban como un lote de cinco con la serie de una
+     sola, y al prestar no había forma de saber cuál se llevó la persona. */
   const porSeries = insumo?.serie_por_unidad === true;
 
   const seriesEscritas = datos.series
@@ -193,14 +183,12 @@ function SeccionLotes({
   const nombreUnidad = (id: number | undefined) =>
     unidades.opciones.find((u) => u.id === id)?.nombre ?? "unidad base";
 
-  /**
-   * Las dos unidades que intervienen en el lote, con su nombre real.
-   *
-   * Son distintas y es justo lo que se presta a error: se recibe en una
-   * —«Caja»— y se cuenta en otra —«Blíster»—. Mientras los campos se llamaran
-   * «cantidad» y «unidades por presentación» a secas, no había forma de saber
-   * cuál iba en cuál sin reconstruir mentalmente el modelo de datos.
-   */
+  /* Las dos unidades que intervienen en el lote, con su nombre real.
+     
+     Son distintas y es justo lo que se presta a error: se recibe en una
+     —«Caja»— y se cuenta en otra —«Blíster»—. Mientras los campos se llamaran
+     «cantidad» y «unidades por presentación» a secas, no había forma de saber
+     cuál iba en cuál sin reconstruir mentalmente el modelo de datos. */
   const presentacionActual = presentaciones.data?.find(
     (p) => String(p.id) === presentacionElegida,
   );
@@ -210,23 +198,21 @@ function SeccionLotes({
   const unidadContada = insumo
     ? nombreUnidad(insumo.unidad_medida_base_id)
     : null;
-  /** Verdadero cuando ya se sabe en qué unidad llega y en cuál se cuenta. */
+  // Verdadero cuando ya se sabe en qué unidad llega y en cuál se cuenta.
   const equivalenciaLista = unidadRecibida !== null && unidadContada !== null;
 
   const alta = useMutation({
-    /**
-     * Registrar el lote y medir a cuántas personas destrabó.
-     *
-     * El backend llama a sp_procesar_donacion_pendientes dentro de la misma
-     * transacción que crea el lote, pero la respuesta del POST solo devuelve el
-     * lote: no dice cuántas líneas de solicitud pasaron de esperar existencias
-     * a estar listas para entrega. Se deduce contando la lista de espera de ese
-     * insumo antes y después.
-     *
-     * Los dos conteos son opcionales y no pueden hacer fallar el alta: si
-     * alguno no llega, el lote está registrado igual y lo único que se pierde
-     * es el aviso.
-     */
+    /* Registrar el lote y medir a cuántas personas destrabó.
+       
+       El backend llama a sp_procesar_donacion_pendientes dentro de la misma
+       transacción que crea el lote, pero la respuesta del POST solo devuelve el
+       lote: no dice cuántas líneas de solicitud pasaron de esperar existencias
+       a estar listas para entrega. Se deduce contando la lista de espera de ese
+       insumo antes y después.
+       
+       Los dos conteos son opcionales y no pueden hacer fallar el alta: si
+       alguno no llega, el lote está registrado igual y lo único que se pierde
+       es el aviso. */
     mutationFn: async () => {
       const nombre = insumo?.nombre;
       const antes = nombre ? await contarEnEsperaDe(nombre) : null;
@@ -304,16 +290,14 @@ function SeccionLotes({
   const nombreInsumo = (id: number) =>
     insumos.data?.find((i) => i.id === id)?.nombre ?? "—";
 
-  /**
-   * Resumen de lo que se va a guardar, para confirmarlo antes de registrar.
-   *
-   * Enseña el **resultado** y no lo tecleado. El campo calculado del
-   * formulario ya muestra la cantidad final, pero se lee de pasada mientras se
-   * escribe; el error que motiva todo esto —transponer dígitos, 2.5 donde iban
-   * 25— solo se ve al leer el total en unidad base, y para eso hay que
-   * detenerse. Un lote mal registrado no se puede editar: la única salida es
-   * darlo de baja y volver a capturarlo, así que el momento de mirar es este.
-   */
+  /* Resumen de lo que se va a guardar, para confirmarlo antes de registrar.
+     
+     Enseña el **resultado** y no lo tecleado. El campo calculado del
+     formulario ya muestra la cantidad final, pero se lee de pasada mientras se
+     escribe; el error que motiva todo esto —transponer dígitos, 2.5 donde iban
+     25— solo se ve al leer el total en unidad base, y para eso hay que
+     detenerse. Un lote mal registrado no se puede editar: la única salida es
+     darlo de baja y volver a capturarlo, así que el momento de mirar es este. */
   const resumenParaConfirmar = () => {
     const presentacion = presentaciones.data?.find(
       (p) => String(p.id) === presentacionElegida,

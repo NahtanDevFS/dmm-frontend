@@ -29,20 +29,18 @@ function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
   );
 }
 
-/**
- * Ficha de un insumo: qué es, cuánto hay y en qué presentaciones se recibe.
- *
- * Va en modal sobre el inventario por lo mismo que la del beneficiario:
- * mirar cuánto queda de un insumo es una consulta dentro de otra tarea
- * —revisar el semáforo, preparar una entrega—, y llevarse al usuario a otra
- * pantalla le costaba el filtro y la posición en la tabla. Desde el semáforo
- * se abre encima de la lista de lotes, que es donde surgió la pregunta.
- *
- * Las existencias se piden aparte del insumo porque son dos preguntas
- * distintas contra dos endpoints distintos —el insumo es dato maestro y el
- * stock una agregación de lotes—, y porque así una tarda en llegar sin que la
- * otra se quede esperando.
- */
+/* Ficha de un insumo: qué es, cuánto hay y en qué presentaciones se recibe.
+   
+   Va en modal sobre el inventario por lo mismo que la del beneficiario:
+   mirar cuánto queda de un insumo es una consulta dentro de otra tarea
+   —revisar el semáforo, preparar una entrega—, y llevarse al usuario a otra
+   pantalla le costaba el filtro y la posición en la tabla. Desde el semáforo
+   se abre encima de la lista de lotes, que es donde surgió la pregunta.
+   
+   Las existencias se piden aparte del insumo porque son dos preguntas
+   distintas contra dos endpoints distintos —el insumo es dato maestro y el
+   stock una agregación de lotes—, y porque así una tarda en llegar sin que la
+   otra se quede esperando. */
 function ModalInsumoFicha({
   insumoId,
   abierto,

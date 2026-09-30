@@ -24,12 +24,10 @@ interface Elemento {
   [clave: string]: unknown;
 }
 
-/**
- * Pantalla de un catálogo administrable.
- *
- * Sirve a los seis porque comparten contrato; lo único que cambia son los
- * campos propios que trae la definición.
- */
+/* Pantalla de un catálogo administrable.
+   
+   Sirve a los seis porque comparten contrato; lo único que cambia son los
+   campos propios que trae la definición. */
 function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
@@ -37,7 +35,7 @@ function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
   // excepción y mezclarlo con lo vigente obliga a leer estado en cada fila.
   const [incluirInactivos, setIncluirInactivos] = useState(false);
   const [nuevo, setNuevo] = useState<Record<string, string>>({});
-  /** Detalle del último 409, para explicarlo en su propia región. */
+  // Detalle del último 409, para explicarlo en su propia región.
   const [conflicto, setConflicto] = useState<string | null>(null);
 
   const consulta = useCatalogo<Elemento>(definicion.ruta, { incluirInactivos });
@@ -82,12 +80,10 @@ function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
       );
     },
     onError: (error) => {
-      /**
-       * Un 409 aquí no es un fallo del sistema: el catálogo está en uso y el
-       * servidor dice exactamente qué registros dependen de él. Ese detalle se
-       * muestra entero y aparte, porque es lo único que le indica al usuario
-       * qué tiene que resolver antes de volver a intentarlo.
-       */
+      /* Un 409 aquí no es un fallo del sistema: el catálogo está en uso y el
+         servidor dice exactamente qué registros dependen de él. Ese detalle se
+         muestra entero y aparte, porque es lo único que le indica al usuario
+         qué tiene que resolver antes de volver a intentarlo. */
       if (esConflicto(error)) setConflicto(mensajeDeError(error));
       else avisar(mensajeDeError(error), "error");
     },

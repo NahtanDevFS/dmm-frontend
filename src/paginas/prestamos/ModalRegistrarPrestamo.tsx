@@ -29,10 +29,8 @@ import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import SeccionEvidenciasContrato from "./SeccionEvidenciasContrato";
 import estilos from "./Prestamos.module.css";
 
-/**
- * Registro de préstamo (entrega y contrato) sin solicitud previa
- * Flujo de dos pasos ininterrumpido exclusivo para equipo prestable
- */
+/* Registro de préstamo (entrega y contrato) sin solicitud previa
+   Flujo de dos pasos ininterrumpido exclusivo para equipo prestable */
 function ModalRegistrarPrestamo({
   abierto,
   onCerrar,
@@ -44,7 +42,7 @@ function ModalRegistrarPrestamo({
   const { avisar } = useAvisos();
 
   const [contratoCreado, setContratoCreado] = useState<number | null>(null);
-  /** Lo que se prestó, fijado al registrar para el resumen del paso 2 */
+  // Lo que se prestó, fijado al registrar para el resumen del paso 2
   const [prestado, setPrestado] = useState<{
     insumo: string;
     serie: string | null;
@@ -62,7 +60,7 @@ function ModalRegistrarPrestamo({
     queryFn: () => listarStockInsumos(),
   });
 
-  /** Equipo prestable agrupado por categoría con existencias visibles */
+  // Equipo prestable agrupado por categoría con existencias visibles
   const porCategoria = useMemo(() => {
     const grupos = new Map<string, StockInsumoListado[]>();
     for (const fila of stock.data ?? []) {
@@ -78,7 +76,7 @@ function ModalRegistrarPrestamo({
     (i) => i.insumo_id === Number(insumoId),
   );
 
-  /** Unidades con serie del equipo elegido (irrelevante para equipo general) */
+  // Unidades con serie del equipo elegido (irrelevante para equipo general)
   const unidades = useQuery({
     queryKey: [CLAVE_INSUMOS, insumoId, "unidades"],
     queryFn: () => listarUnidadesDisponibles(Number(insumoId)),

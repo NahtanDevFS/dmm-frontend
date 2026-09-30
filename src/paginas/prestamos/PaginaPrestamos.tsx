@@ -55,11 +55,9 @@ const TONO_ESTADO: Record<
   NO_DEVUELTO: "vencida",
 };
 
-/**
- * Préstamos de equipo. El alta de un contrato nace de la ficha de la
- * entrega («Registrar préstamo»); este módulo es de consulta, renovación,
- * devolución y multas sobre contratos ya existentes.
- */
+/* Préstamos de equipo. El alta de un contrato nace de la ficha de la
+   entrega («Registrar préstamo»); este módulo es de consulta, renovación,
+   devolución y multas sobre contratos ya existentes. */
 function PaginaPrestamos() {
   const navegar = useNavigate();
   const { id } = useParams();

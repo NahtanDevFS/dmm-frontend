@@ -7,15 +7,13 @@ import {
 } from "../../../test/reactQuery";
 import { ProveedorAvisos } from "../../../componentes/ui/avisos/ProveedorAvisos";
 
-/**
- * Agregar un insumo a una solicitud nueva.
- *
- * Regresión: cuando la categoría del insumo admitía préstamo (la silla de
- * ruedas), la modalidad se tomaba de un selector que se había quitado de la
- * pantalla. Quedaba vacía y el formulario respondía "Elija la modalidad:
- * donación o préstamo." sin forma de elegirla. Las solicitudes son siempre
- * donaciones, sin importar la categoría.
- */
+/* Agregar un insumo a una solicitud nueva.
+   
+   Regresión: cuando la categoría del insumo admitía préstamo (la silla de
+   ruedas), la modalidad se tomaba de un selector que se había quitado de la
+   pantalla. Quedaba vacía y el formulario respondía "Elija la modalidad:
+   donación o préstamo." sin forma de elegirla. Las solicitudes son siempre
+   donaciones, sin importar la categoría. */
 vi.mock("../../../api/axiosClient", () => ({
   default: { get: vi.fn(), post: vi.fn() },
 }));

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Persona } from "../../../types/api";
 import { datosFaltantesDelEstudio } from "../datosFaltantes";
 
-/** Ficha completa: base para modificar solo el campo que cada test necesita. */
+// Ficha completa: base para modificar solo el campo que cada test necesita.
 function personaCompleta(): Persona {
   return {
     id: 1,

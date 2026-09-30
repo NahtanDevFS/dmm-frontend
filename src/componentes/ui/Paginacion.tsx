@@ -2,7 +2,7 @@ import estilos from "./Paginacion.module.css";
 import { ventanaDePaginas } from "./ventanaDePaginas";
 
 interface PropsPaginacion {
-  /** Datos tal como los devuelve useListadoPaginado. */
+  // Datos tal como los devuelve useListadoPaginado.
   total: number;
   limite: number;
   desplazamiento: number;
@@ -11,17 +11,15 @@ interface PropsPaginacion {
   irAPagina: (pagina: number) => void;
   anterior: () => void;
   siguiente: () => void;
-  /** Bloquea los controles mientras se trae la página siguiente. */
+  // Bloquea los controles mientras se trae la página siguiente.
   cargando?: boolean;
 }
 
-/**
- * Paginación conectada al sobre del API.
- *
- * Recibe los valores ya calculados por useListadoPaginado en vez de repetir
- * aquí la aritmética de `limite` y `desplazamiento`, que es donde suelen
- * aparecer los desfases de una página.
- */
+/* Paginación conectada al sobre del API.
+   
+   Recibe los valores ya calculados por useListadoPaginado en vez de repetir
+   aquí la aritmética de `limite` y `desplazamiento`, que es donde suelen
+   aparecer los desfases de una página. */
 function Paginacion({
   total,
   limite,

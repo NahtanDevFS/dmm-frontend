@@ -1,25 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "../api/axiosClient";
 
-/**
- * Catálogos de selección: los que no paginan y devuelven el arreglo completo.
- *
- * El backend los deja sin paginar a propósito. Están acotados por naturaleza
- * —decenas de filas— y su único consumidor es un <select>, que necesita la
- * lista entera para poder mostrar el valor ya guardado de un registro. Paginar
- * un desplegable solo agregaría fricción.
- *
- * Se cachean con staleTime largo: un municipio o un tipo de parentesco no
- * cambian durante una jornada, y volver a pedirlos en cada pantalla sumaría
- * decenas de peticiones contra el límite de 300 por minuto.
- */
+/* Catálogos de selección: los que no paginan y devuelven el arreglo completo.
+   
+   El backend los deja sin paginar a propósito. Están acotados por naturaleza
+   —decenas de filas— y su único consumidor es un <select>, que necesita la
+   lista entera para poder mostrar el valor ya guardado de un registro. Paginar
+   un desplegable solo agregaría fricción.
+   
+   Se cachean con staleTime largo: un municipio o un tipo de parentesco no
+   cambian durante una jornada, y volver a pedirlos en cada pantalla sumaría
+   decenas de peticiones contra el límite de 300 por minuto. */
 
-/** Media jornada. Un catálogo editado se invalida a mano desde su pantalla. */
+// Media jornada. Un catálogo editado se invalida a mano desde su pantalla.
 const VIGENCIA_CATALOGO = 1000 * 60 * 60 * 4;
 
 export const CLAVE_CATALOGO = "catalogo";
 
-/** Rutas de catálogo administrable (CRUD genérico de DIRECTORA/ADMINISTRADOR). */
+// Rutas de catálogo administrable (CRUD genérico de DIRECTORA/ADMINISTRADOR).
 export const CATALOGOS_ADMINISTRABLES = [
   "discapacidades",
   "grados-academicos",
@@ -31,7 +29,7 @@ export const CATALOGOS_ADMINISTRABLES = [
   "instituciones-donantes",
 ] as const;
 
-/** Catálogos de solo lectura. No tienen pantalla de gestión. */
+// Catálogos de solo lectura. No tienen pantalla de gestión.
 export const CATALOGOS_LECTURA = [
   "departamentos",
   "municipios",
@@ -57,13 +55,11 @@ export type RutaCatalogo =
   | "comunidades";
 
 interface OpcionesCatalogo {
-  /** Filtros de acotación: `?municipioId=`, `?departamentoId=`. */
+  // Filtros de acotación: `?municipioId=`, `?departamentoId=`.
   parametros?: Record<string, string | number | undefined>;
-  /**
-   * Incluir los desactivados. Se necesita al editar un registro que apunta a
-   * un catálogo dado de baja después: sin esto el <select> no encontraría el
-   * valor guardado y lo mostraría vacío, como si nunca se hubiera elegido.
-   */
+  /* Incluir los desactivados. Se necesita al editar un registro que apunta a
+     un catálogo dado de baja después: sin esto el <select> no encontraría el
+     valor guardado y lo mostraría vacío, como si nunca se hubiera elegido. */
   incluirInactivos?: boolean;
   habilitado?: boolean;
 }
@@ -79,11 +75,9 @@ function limpiar(
   return limpios;
 }
 
-/**
- * Lee un catálogo completo. `T` lo fija quien llama, según la ruta:
- * ElementoCatalogo para la mayoría, Programa, InstitucionDonante,
- * Comunidad o Municipio para los que traen campos propios.
- */
+/* Lee un catálogo completo. `T` lo fija quien llama, según la ruta:
+   ElementoCatalogo para la mayoría, Programa, InstitucionDonante,
+   Comunidad o Municipio para los que traen campos propios. */
 export function useCatalogo<T>(
   ruta: RutaCatalogo,
   {
@@ -113,15 +107,13 @@ export function useCatalogo<T>(
 
   return {
     ...consulta,
-    /** Nunca `undefined`: un <select> mapea sobre esto sin ramificar. */
+    // Nunca `undefined`: un <select> mapea sobre esto sin ramificar.
     opciones: consulta.data ?? [],
   };
 }
 
-/**
- * Clave para invalidar catálogos tras crear, editar o desactivar uno.
- * Sin ruta invalida todos; con ruta, solo ese.
- */
+/* Clave para invalidar catálogos tras crear, editar o desactivar uno.
+   Sin ruta invalida todos; con ruta, solo ese. */
 export function claveCatalogo(ruta?: RutaCatalogo) {
   return ruta ? [CLAVE_CATALOGO, ruta] : [CLAVE_CATALOGO];
 }

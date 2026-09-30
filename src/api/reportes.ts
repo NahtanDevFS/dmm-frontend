@@ -1,9 +1,7 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Reportes descargables o tabulares para perfiles como ALCALDE (solo lectura)
- * Permite formatos json/xlsx/pdf
- */
+/* Reportes descargables o tabulares para perfiles como ALCALDE (solo lectura)
+   Permite formatos json/xlsx/pdf */
 
 /* Tipos del módulo */
 
@@ -19,7 +17,7 @@ export interface ColumnaReporte {
   ancho: number;
 }
 
-/** Lo que devuelve cualquier reporte en formato json. Las filas quedan sin tipar: cada reporte trae columnas propias. */
+// Lo que devuelve cualquier reporte en formato json. Las filas quedan sin tipar: cada reporte trae columnas propias.
 export interface RespuestaReporte {
   titulo: string;
   generado_en: string;
@@ -61,7 +59,7 @@ export interface FiltrosPoblacionBeneficiada {
 
 export const CLAVE_REPORTES = "reportes";
 
-/** Convierte los filtros del frontend a query params, quitando los que están vacíos. */
+// Convierte los filtros del frontend a query params, quitando los que están vacíos.
 function aParams(filtros: object): Record<string, string> {
   const params: Record<string, string> = {};
   for (const [clave, valor] of Object.entries(filtros)) {
@@ -81,7 +79,7 @@ async function obtenerReporte(
   return data;
 }
 
-/** Descarga directa (maneja fallback si se recibe JSON indicando error en vez de Blob) */
+// Descarga directa (maneja fallback si se recibe JSON indicando error en vez de Blob)
 async function descargarReporte(
   ruta: string,
   filtros: object,

@@ -19,10 +19,8 @@ import ModalEntregaDirecta from "./ModalEntregaDirecta";
 import ModalFichaEntrega from "./ModalFichaEntrega";
 import estilos from "./Entregas.module.css";
 
-/**
- * Listado de entregas y punto de entrada para entregas directas
- * El despacho por solicitud se hace desde la ficha de solicitud respectiva
- */
+/* Listado de entregas y punto de entrada para entregas directas
+   El despacho por solicitud se hace desde la ficha de solicitud respectiva */
 function PaginaEntregas() {
   const navegar = useNavigate();
   const { id } = useParams();
@@ -64,7 +62,7 @@ function PaginaEntregas() {
     return coincidePersona && coincideInsumo;
   });
 
-  /** Devuelve la barra de direcciones al módulo si se entró por la ruta profunda. */
+  // Devuelve la barra de direcciones al módulo si se entró por la ruta profunda.
   const limpiarRuta = () => {
     if (rutaId !== null) navegar("/entregas", { replace: true });
   };

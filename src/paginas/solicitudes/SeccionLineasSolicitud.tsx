@@ -27,14 +27,14 @@ import ModalFormulariosLinea from "../formularios/ModalFormulariosLinea";
 import estilos from "./Solicitudes.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/** Estados en los que una línea todavía admite cancelarse desde aquí. */
+// Estados en los que una línea todavía admite cancelarse desde aquí.
 const ESTADOS_CANCELABLES = new Set([
   "PENDIENTE_ADQUISICION",
   "PENDIENTE_ENTREGA",
   "PENDIENTE_ENTREGA_PARCIAL",
 ]);
 
-/** Estados en los que ya hay algo que despachar: la base ya asignó stock. */
+// Estados en los que ya hay algo que despachar: la base ya asignó stock.
 const ESTADOS_DESPACHABLES = new Set([
   "PENDIENTE_ENTREGA",
   "PENDIENTE_ENTREGA_PARCIAL",
@@ -48,10 +48,10 @@ function SeccionLineasSolicitud({
   onBorrador,
 }: {
   solicitudId: number;
-  /** Necesaria para el despacho: la entrega se registra a nombre de esta persona. */
+  // Necesaria para el despacho: la entrega se registra a nombre de esta persona.
   personaId: number;
   lineas: LineaSolicitud[];
-  /** Una solicitud cancelada o inactiva no admite líneas nuevas. */
+  // Una solicitud cancelada o inactiva no admite líneas nuevas.
   solicitudActiva: boolean;
   onBorrador?: (hay: boolean) => void;
 }) {

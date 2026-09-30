@@ -1,9 +1,7 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Gestión de usuarios y contraseñas reservada para ADMINISTRACION
- * Reglas de negocio validadas en backend para evitar manipulación de propios accesos
- */
+/* Gestión de usuarios y contraseñas reservada para ADMINISTRACION
+   Reglas de negocio validadas en backend para evitar manipulación de propios accesos */
 
 /* Tipos del módulo */
 
@@ -13,16 +11,16 @@ export interface Rol {
   descripcion: string | null;
 }
 
-/** password_hash nunca sale del backend, ni siquiera hacia un ADMINISTRADOR. */
+// password_hash nunca sale del backend, ni siquiera hacia un ADMINISTRADOR.
 export interface Usuario {
   id: number;
-  /** Identificador de acceso: ASCII, sin tildes ni espacios. */
+  // Identificador de acceso: ASCII, sin tildes ni espacios.
   username: string;
-  /** Nombre completo, nulo en cuentas antiguas (interfaz usa username como fallback) */
+  // Nombre completo, nulo en cuentas antiguas (interfaz usa username como fallback)
   nombre_completo: string | null;
   rol_id: number;
   rol_nombre: string;
-  /** Programa a su cargo, si lleva alguno. */
+  // Programa a su cargo, si lleva alguno.
   programa_id: number | null;
   programa_nombre: string | null;
   ultimo_login: string | null;
@@ -92,7 +90,7 @@ export async function reactivarUsuario(id: number): Promise<Usuario> {
   return data;
 }
 
-/** Reseteo por administrador: cierra todas las sesiones del usuario afectado. */
+// Reseteo por administrador: cierra todas las sesiones del usuario afectado.
 export async function resetearPassword(
   id: number,
   passwordNueva: string,
@@ -104,7 +102,7 @@ export async function resetearPassword(
   return data;
 }
 
-/** Cambio propio: exige la contraseña actual; conserva la sesión desde la que se pide. */
+// Cambio propio: exige la contraseña actual; conserva la sesión desde la que se pide.
 export async function cambiarPasswordPropia(datos: {
   password_actual: string;
   password_nueva: string;
