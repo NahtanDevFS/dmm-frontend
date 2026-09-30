@@ -215,7 +215,7 @@ function ModalEditar({
           etiqueta="Grado académico"
           value={datos.grado_academico_id}
           onChange={cambiar("grado_academico_id")}
-          ayuda="«Ninguno» es distinto de dejarlo vacío."
+          ayuda="'Ninguno' es distinto de dejarlo vacío."
         >
           {gradosAcademicos.opciones.map((g) => (
             <option key={g.id} value={g.id}>

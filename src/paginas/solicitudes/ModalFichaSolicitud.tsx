@@ -88,6 +88,25 @@ function ModalFichaSolicitud({
   const programas = useCatalogo<Programa>("programas", {
     incluirInactivos: true,
   });
+  const estados = useCatalogo<{ id: number; nombre: string }>(
+    "estados-solicitud",
+  );
+
+  /* Cancelar la solicitud completa cancela sus líneas pendientes: la cabecera
+     sigue activa, así que `activo` no dice si todavía hay algo que cancelar.
+     Es la misma regla de sp_cancelar_solicitud_completa (alguna línea activa
+     que no esté entregada ni cancelada); con todas cerradas el botón solo
+     llevaría a un error. Mientras el catálogo carga no se ofrece. */
+  const cerradas = new Set(
+    estados.opciones
+      .filter((e) => e.nombre === "ENTREGADA" || e.nombre === "CANCELADA")
+      .map((e) => e.id),
+  );
+  const tieneLineasPorCancelar =
+    estados.opciones.length > 0 &&
+    (solicitud?.lineas ?? []).some(
+      (l) => l.activo && !cerradas.has(l.estado_id),
+    );
 
   // La persona no viaja resuelta en la solicitud, solo su id: se busca por
   // separado, igual que la ficha de recepción resuelve la institución.
@@ -173,7 +192,7 @@ function ModalFichaSolicitud({
               Exportar expediente
             </Boton>
           )}
-          {solicitud?.activo && (
+          {solicitud?.activo && tieneLineasPorCancelar && (
             <Boton
               variante="terciaria"
               cargando={cancelacionCompleta.isPending}

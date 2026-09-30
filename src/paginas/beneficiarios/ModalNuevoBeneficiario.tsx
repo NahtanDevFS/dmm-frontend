@@ -351,7 +351,7 @@ function ModalNuevoBeneficiario({
               etiqueta="Grado académico"
               error={errors.grado_academico_id?.message}
               {...register("grado_academico_id")}
-              ayuda="«Ninguno» es distinto de dejarlo vacío: uno dice que no estudió, el otro que no se preguntó."
+              ayuda="'Ninguno' es distinto de dejarlo vacío: uno dice que no estudió, el otro que no se preguntó."
             >
               {gradosAcademicos.opciones.map((g) => (
                 <option key={g.id} value={g.id}>
