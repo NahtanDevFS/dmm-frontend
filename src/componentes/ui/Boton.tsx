@@ -12,25 +12,21 @@ type PropsBoton = ButtonHTMLAttributes<HTMLButtonElement> & {
   variante?: VarianteBoton;
   pequeno?: boolean;
   anchoCompleto?: boolean;
-  /**
-   * Deshabilita el botón y muestra `textoCargando`. Se separa de `disabled`
-   * para que la pantalla no tenga que sincronizar dos props a mano y arriesgue
-   * dejar activo un botón que ya disparó su petición.
-   */
+  /* Deshabilita el botón y muestra `textoCargando`. Se separa de `disabled`
+     para que la pantalla no tenga que sincronizar dos props a mano y arriesgue
+     dejar activo un botón que ya disparó su petición. */
   cargando?: boolean;
   textoCargando?: string;
   children: ReactNode;
 };
 
-/**
- * Botón del sistema.
- *
- * Una sola acción primaria por pantalla, siempre a la derecha del grupo
- * (sección 5). Aprobar y rechazar existen como variantes propias porque son
- * decisiones irreversibles, no porque estén por encima en la jerarquía.
- *
- * No admite icono: la sección 9 prohíbe iconos decorativos en botones.
- */
+/* Botón del sistema.
+   
+   Una sola acción primaria por pantalla, siempre a la derecha del grupo
+   (sección 5). Aprobar y rechazar existen como variantes propias porque son
+   decisiones irreversibles, no porque estén por encima en la jerarquía.
+   
+   No admite icono: la sección 9 prohíbe iconos decorativos en botones. */
 function Boton({
   variante = "terciaria",
   pequeno = false,
@@ -68,10 +64,8 @@ function Boton({
   );
 }
 
-/**
- * Pie de acciones. Alinea a la derecha y separa con la línea que cierra la
- * región, de modo que ninguna pantalla tenga que recordar dónde va la primaria.
- */
+/* Pie de acciones. Alinea a la derecha y separa con la línea que cierra la
+   región, de modo que ninguna pantalla tenga que recordar dónde va la primaria. */
 export function GrupoBotones({
   children,
   className,

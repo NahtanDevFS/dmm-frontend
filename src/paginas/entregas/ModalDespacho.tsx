@@ -18,10 +18,8 @@ import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import PreviaLotes from "./PreviaLotes";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Despacho de una línea específica de solicitud
- * Registra cuánto se entrega y quién recibe (camino alterno a entrega directa)
- */
+/* Despacho de una línea específica de solicitud
+   Registra cuánto se entrega y quién recibe (camino alterno a entrega directa) */
 function ModalDespacho({
   solicitudId,
   lineaId,
@@ -37,7 +35,7 @@ function ModalDespacho({
   personaId: number;
   insumoId: number;
   insumoNombre: string;
-  /** Lo que queda por entregar de esta línea (cantidad_requerida - cantidad_entregada) */
+  // Lo que queda por entregar de esta línea (cantidad_requerida - cantidad_entregada)
   pendiente: number;
   abierto: boolean;
   onCerrar: () => void;

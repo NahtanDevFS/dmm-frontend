@@ -21,15 +21,13 @@ import ModalResetearPassword from "./ModalResetearPassword";
 import estilos from "./Usuarios.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Gestión de usuarios. Exclusiva de ADMINISTRACION (DIRECTORA +
- * ADMINISTRADOR) — la ruta ya lo exige en Rutas.tsx.
- *
- * Las guardas contra dejar el sistema sin acceso (no desactivarse a sí
- * mismo, no tocar al único ADMINISTRADOR activo, no cambiarse el rol
- * propio) las decide el backend; aquí solo se muestra el mensaje que
- * devuelve, no se duplica la regla.
- */
+/* Gestión de usuarios. Exclusiva de ADMINISTRACION (DIRECTORA +
+   ADMINISTRADOR) — la ruta ya lo exige en Rutas.tsx.
+   
+   Las guardas contra dejar el sistema sin acceso (no desactivarse a sí
+   mismo, no tocar al único ADMINISTRADOR activo, no cambiarse el rol
+   propio) las decide el backend; aquí solo se muestra el mensaje que
+   devuelve, no se duplica la regla. */
 function PaginaUsuarios() {
   const { usuario: sesionActual } = useAuth();
 

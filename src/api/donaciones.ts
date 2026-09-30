@@ -1,16 +1,14 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Donaciones: recepciones, lotes de inventario y documentos de respaldo
- * Módulo de OPERACION (tareas de bodega al recibir insumos)
- */
+/* Donaciones: recepciones, lotes de inventario y documentos de respaldo
+   Módulo de OPERACION (tareas de bodega al recibir insumos) */
 
 /* Tipos del módulo */
 
-/** Cabecera de la recepción. Una entrega de una institución en una fecha. */
+// Cabecera de la recepción. Una entrega de una institución en una fecha.
 export interface Recepcion {
   id: number;
-  /** Código con que la institución identifica el envío. No es del fabricante. */
+  // Código con que la institución identifica el envío. No es del fabricante.
   codigo_lote: string | null;
   fecha_recepcion: string;
   institucion_id: number;
@@ -18,10 +16,8 @@ export interface Recepcion {
   activo: boolean;
 }
 
-/**
- * Renglón de inventario recibido
- * Cantidades inicial/disponible son calculadas por DB (trg_calcular_recepcion_lote)
- */
+/* Renglón de inventario recibido
+   Cantidades inicial/disponible son calculadas por DB (trg_calcular_recepcion_lote) */
 export interface LoteRecepcion {
   id: number;
   insumo_id: number;
@@ -46,7 +42,7 @@ export interface DocumentoRecepcion {
   activo: boolean;
 }
 
-/** Lo que devuelve GET /recepciones/:id: la cabecera con sus sub-recursos. */
+// Lo que devuelve GET /recepciones/:id: la cabecera con sus sub-recursos.
 export interface RecepcionDetalle extends Recepcion {
   lotes: LoteRecepcion[];
   documentos: DocumentoRecepcion[];
@@ -55,7 +51,7 @@ export interface RecepcionDetalle extends Recepcion {
 export interface DatosRecepcion {
   institucion_id: number;
   codigo_lote?: string | null;
-  /** Opcional: la base pone CURRENT_DATE y rechaza fechas futuras. */
+  // Opcional: la base pone CURRENT_DATE y rechaza fechas futuras.
   fecha_recepcion?: string;
   observaciones_generales?: string | null;
 }
@@ -71,10 +67,8 @@ export interface DatosLote {
   observaciones?: string | null;
 }
 
-/**
- * Línea de solicitud esperando existencias (v_lista_espera)
- * Utilizada para contar cuántas solicitudes se destraban al registrar un lote
- */
+/* Línea de solicitud esperando existencias (v_lista_espera)
+   Utilizada para contar cuántas solicitudes se destraban al registrar un lote */
 export interface LineaEnEspera {
   detalle_solicitud_id: number;
   solicitud_id: number;
@@ -83,13 +77,13 @@ export interface LineaEnEspera {
   insumo_nombre: string;
   cantidad_requerida: number;
   cantidad_entregada: number;
-  /** PENDIENTE_ADQUISICION o PENDIENTE_ENTREGA_PARCIAL. */
+  // PENDIENTE_ADQUISICION o PENDIENTE_ENTREGA_PARCIAL.
   estado: string;
   fecha_ingreso_espera: string;
   dias_esperando: number;
 }
 
-/** Estado del que saca a una línea la llegada de existencias. */
+// Estado del que saca a una línea la llegada de existencias.
 export const EN_ESPERA_DE_STOCK = "PENDIENTE_ADQUISICION";
 
 /* Cliente */
@@ -151,10 +145,8 @@ export async function crearLote(
   return data;
 }
 
-/**
- * Ingresa múltiples unidades identificables de un insumo (una por número de serie)
- * Equivalente a crearLote para equipo serializado, registrando qué unidades llegan
- */
+/* Ingresa múltiples unidades identificables de un insumo (una por número de serie)
+   Equivalente a crearLote para equipo serializado, registrando qué unidades llegan */
 export async function crearUnidades(
   recepcionId: number,
   datos: {
@@ -184,10 +176,8 @@ export async function listarDocumentosRecepcion(
   return data;
 }
 
-/**
- * Sube un documento. Va como multipart y el archivo viaja en el campo
- * `archivo`, que es el nombre que espera el middleware del backend.
- */
+/* Sube un documento. Va como multipart y el archivo viaja en el campo
+   `archivo`, que es el nombre que espera el middleware del backend. */
 export async function subirDocumentoRecepcion(
   recepcionId: number,
   datos: { archivo: File; descripcion?: string },
@@ -214,10 +204,8 @@ export async function eliminarDocumentoRecepcion(
 
 /* Lista de espera */
 
-/**
- * Líneas de solicitud esperando existencias filtrables por nombre
- * El filtro de servidor (ILIKE) requiere afinación exacta en el cliente
- */
+/* Líneas de solicitud esperando existencias filtrables por nombre
+   El filtro de servidor (ILIKE) requiere afinación exacta en el cliente */
 export async function listarListaEspera(
   insumoNombre?: string,
 ): Promise<LineaEnEspera[]> {

@@ -12,11 +12,9 @@ const VISTAS = [
 
 type Vista = (typeof VISTAS)[number]["id"];
 
-/**
- * Único módulo con acceso de ALCALDE (solo lectura); DIRECTORA también
- * entra. Cada reporte se genera en pantalla y se puede exportar a Excel o
- * PDF — el archivo lo arma el backend, aquí solo se pide y se descarga.
- */
+/* Único módulo con acceso de ALCALDE (solo lectura); DIRECTORA también
+   entra. Cada reporte se genera en pantalla y se puede exportar a Excel o
+   PDF — el archivo lo arma el backend, aquí solo se pide y se descarga. */
 function PaginaReportes() {
   const [vista, setVista] = useState<Vista>("personas");
 

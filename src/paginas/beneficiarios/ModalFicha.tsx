@@ -46,20 +46,18 @@ function Dato({
   );
 }
 
-/**
- * Ficha del beneficiario.
- *
- * Va en modal sobre el listado y no en pantalla aparte: consultar una ficha es
- * un vistazo dentro de una tarea que ocurre en la tabla —revisar varias
- * personas de una comunidad, por ejemplo—, y sacar al usuario de ella le
- * costaba perder el filtro, la búsqueda y la página en la que estaba. Al
- * cerrar, la tabla sigue exactamente donde la dejó.
- *
- * Es un modal amplio porque no es un formulario sino un expediente con cinco
- * regiones. La edición de los datos generales abre a su vez su propio modal
- * encima: el elemento `dialog` nativo los apila en la capa superior sin que
- * haya que coordinar nada.
- */
+/* Ficha del beneficiario.
+   
+   Va en modal sobre el listado y no en pantalla aparte: consultar una ficha es
+   un vistazo dentro de una tarea que ocurre en la tabla —revisar varias
+   personas de una comunidad, por ejemplo—, y sacar al usuario de ella le
+   costaba perder el filtro, la búsqueda y la página en la que estaba. Al
+   cerrar, la tabla sigue exactamente donde la dejó.
+   
+   Es un modal amplio porque no es un formulario sino un expediente con cinco
+   regiones. La edición de los datos generales abre a su vez su propio modal
+   encima: el elemento `dialog` nativo los apila en la capa superior sin que
+   haya que coordinar nada. */
 function ModalFicha({
   personaId,
   abierto,
@@ -123,7 +121,7 @@ function ModalFicha({
     (m) => m.id === persona?.municipio_nacimiento_id,
   );
 
-  /** Los datos de la sección I del estudio que esta ficha todavía no tiene. */
+  // Los datos de la sección I del estudio que esta ficha todavía no tiene.
   const faltantes = persona ? datosFaltantesDelEstudio(persona) : [];
   const comunidad = comunidades.opciones.find(
     (c) => c.id === persona?.comunidad_id,

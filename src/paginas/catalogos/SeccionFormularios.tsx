@@ -29,27 +29,25 @@ import {
 import estilos from "./Catalogos.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/** Tipos de campo que ofrecen opciones y por tanto necesitan de dónde sacarlas. */
+// Tipos de campo que ofrecen opciones y por tanto necesitan de dónde sacarlas.
 const TIPOS_CON_OPCIONES: string[] = [
   TIPO_DATO.SELECCION_UNICA,
   TIPO_DATO.SELECCION_MULTIPLE,
 ];
 
-/**
- * Administración de formularios y de sus campos.
- *
- * Hasta ahora un formulario nuevo se creaba insertando filas por SQL a mano,
- * siguiendo la migración 17 como plantilla. Eso ataba cualquier cambio a
- * alguien con acceso a la base, cuando en realidad es una decisión de la
- * Dirección: qué se le pregunta a una persona antes de entregarle un equipo.
- *
- * Aquí se define QUÉ campos tiene cada formulario. A qué categoría de insumo
- * se le exige, y bajo qué modalidad, se decide en la pestaña de al lado.
- *
- * Los campos no se borran, se desactivan: un campo eliminado dejaría
- * huérfanas las respuestas que ya se dieron en solicitudes anteriores, y esas
- * respuestas son el respaldo de decisiones que ya se tomaron.
- */
+/* Administración de formularios y de sus campos.
+   
+   Hasta ahora un formulario nuevo se creaba insertando filas por SQL a mano,
+   siguiendo la migración 17 como plantilla. Eso ataba cualquier cambio a
+   alguien con acceso a la base, cuando en realidad es una decisión de la
+   Dirección: qué se le pregunta a una persona antes de entregarle un equipo.
+   
+   Aquí se define QUÉ campos tiene cada formulario. A qué categoría de insumo
+   se le exige, y bajo qué modalidad, se decide en la pestaña de al lado.
+   
+   Los campos no se borran, se desactivan: un campo eliminado dejaría
+   huérfanas las respuestas que ya se dieron en solicitudes anteriores, y esas
+   respuestas son el respaldo de decisiones que ya se tomaron. */
 function SeccionFormularios() {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
@@ -197,21 +195,17 @@ function SeccionFormularios() {
 
   const todosLosCampos = detalle.data?.campos ?? [];
 
-  /**
-   * Mayor orden ocupado + 1, contando también los campos desactivados: siguen
-   * existiendo en la tabla y su orden sigue reservado por la unicidad de
-   * (formulario, orden).
-   */
+  /* Mayor orden ocupado + 1, contando también los campos desactivados: siguen
+     existiendo en la tabla y su orden sigue reservado por la unicidad de
+     (formulario, orden). */
   const siguienteOrden =
     todosLosCampos.reduce((mayor, campo) => Math.max(mayor, campo.orden), 0) +
     1;
 
-  /**
-   * Lo que se muestra. Los botones de mover se habilitan según esta lista y
-   * no según todos los campos: el intercambio ocurre solo entre activos, así
-   * que el primero y el último visibles son los que no tienen con quién
-   * intercambiarse.
-   */
+  /* Lo que se muestra. Los botones de mover se habilitan según esta lista y
+     no según todos los campos: el intercambio ocurre solo entre activos, así
+     que el primero y el último visibles son los que no tienen con quién
+     intercambiarse. */
   const camposVisibles = verInactivos
     ? todosLosCampos
     : todosLosCampos.filter((campo) => campo.activo);

@@ -16,15 +16,13 @@ import {
 } from "../../api/solicitudes";
 import estilos from "./Solicitudes.module.css";
 
-/**
- * Recetas médicas que respaldan la solicitud: lo que exige fn_validar_stock
- * cuando una línea pide un medicamento y trabajo social necesita constancia
- * de prescripción.
- *
- * Misma baja lógica que los documentos de una recepción: el archivo se
- * conserva en el servidor aunque se quite de la lista, porque es evidencia
- * de por qué se autorizó (o no) un medicamento.
- */
+/* Recetas médicas que respaldan la solicitud: lo que exige fn_validar_stock
+   cuando una línea pide un medicamento y trabajo social necesita constancia
+   de prescripción.
+   
+   Misma baja lógica que los documentos de una recepción: el archivo se
+   conserva en el servidor aunque se quite de la lista, porque es evidencia
+   de por qué se autorizó (o no) un medicamento. */
 function SeccionRecetas({
   solicitudId,
   recetas,
@@ -32,7 +30,7 @@ function SeccionRecetas({
 }: {
   solicitudId: number;
   recetas: RecetaMedica[];
-  /** Avisa a la ficha de si hay un adjunto elegido y todavía sin subir. */
+  // Avisa a la ficha de si hay un adjunto elegido y todavía sin subir.
   onBorrador?: (hay: boolean) => void;
 }) {
   const clienteQuery = useQueryClient();

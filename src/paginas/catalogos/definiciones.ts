@@ -11,23 +11,21 @@ export interface DefinicionCatalogo {
   ruta: RutaCatalogo;
   titulo: string;
   singular: string;
-  /** Artículo del singular. Sin esto salía «Nombre de la programa». */
+  // Artículo del singular. Sin esto salía «Nombre de la programa».
   articulo: "el" | "la";
   nota?: string;
-  /** Campos que solo tiene este catálogo. */
+  // Campos que solo tiene este catálogo.
   extra?: CampoExtra[];
 }
 
-/**
- * Los catálogos con CRUD genérico.
- *
- * Comparten contrato exacto, así que se describen como datos y los atiende una
- * sola pantalla. Escribir seis pantallas idénticas habría multiplicado por seis
- * cualquier corrección posterior.
- *
- * Solo dos se salen del molde y por un campo cada uno: programas tiene
- * descripción e instituciones donantes tiene teléfono y correo.
- */
+/* Los catálogos con CRUD genérico.
+   
+   Comparten contrato exacto, así que se describen como datos y los atiende una
+   sola pantalla. Escribir seis pantallas idénticas habría multiplicado por seis
+   cualquier corrección posterior.
+   
+   Solo dos se salen del molde y por un campo cada uno: programas tiene
+   descripción e instituciones donantes tiene teléfono y correo. */
 export const CATALOGOS: DefinicionCatalogo[] = [
   {
     ruta: "discapacidades",

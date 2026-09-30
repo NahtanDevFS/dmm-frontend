@@ -14,7 +14,7 @@ import { useListadoPaginado, type Filtros } from "../useListadoPaginado";
 
 const getMock = vi.mocked(axiosClient.get);
 
-/** Respuesta de un sobre paginado con `total` filas y 5 devueltas. */
+// Respuesta de un sobre paginado con `total` filas y 5 devueltas.
 function sobre(total: number) {
   return {
     data: {

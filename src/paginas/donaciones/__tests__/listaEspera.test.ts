@@ -1,12 +1,10 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { LineaEnEspera } from "../../../api/donaciones";
 
-/**
- * Se mockea el módulo api/donaciones entero, no axios directamente: lo que
- * hay que controlar aquí es qué devuelve listarListaEspera, y mockear un
- * nivel más abajo (axiosClient) obligaría a simular también la forma exacta
- * de la respuesta HTTP sin aportar nada a lo que este test verifica.
- */
+/* Se mockea el módulo api/donaciones entero, no axios directamente: lo que
+   hay que controlar aquí es qué devuelve listarListaEspera, y mockear un
+   nivel más abajo (axiosClient) obligaría a simular también la forma exacta
+   de la respuesta HTTP sin aportar nada a lo que este test verifica. */
 vi.mock("../../../api/donaciones", () => ({
   listarListaEspera: vi.fn(),
   EN_ESPERA_DE_STOCK: "PENDIENTE_ADQUISICION",

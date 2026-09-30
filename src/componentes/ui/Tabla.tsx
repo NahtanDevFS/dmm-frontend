@@ -1,17 +1,15 @@
 import type { ReactNode, TdHTMLAttributes } from "react";
 import estilos from "./Tabla.module.css";
 
-/**
- * Tabla de datos del sistema.
- *
- * Envuelve en un contenedor con scroll propio: una tabla ancha desborda dentro
- * de su caja y nunca hace que el cuerpo de la página se desplace en
- * horizontal.
- *
- * `titulo` alimenta el caption, que es lo que anuncia un lector de pantalla al
- * entrar en la tabla. Se oculta a la vista porque el encabezado de la sección
- * ya lo dice.
- */
+/* Tabla de datos del sistema.
+   
+   Envuelve en un contenedor con scroll propio: una tabla ancha desborda dentro
+   de su caja y nunca hace que el cuerpo de la página se desplace en
+   horizontal.
+   
+   `titulo` alimenta el caption, que es lo que anuncia un lector de pantalla al
+   entrar en la tabla. Se oculta a la vista porque el encabezado de la sección
+   ya lo dice. */
 function Tabla({
   titulo,
   children,
@@ -35,7 +33,7 @@ type PropsCelda = TdHTMLAttributes<HTMLTableCellElement> & {
   children?: ReactNode;
 };
 
-/** Celda de identificador: CUI/DPI, código de lote, folio. Mono, a la izquierda. */
+// Celda de identificador: CUI/DPI, código de lote, folio. Mono, a la izquierda.
 export function CeldaIdentificador({ className, children, ...resto }: PropsCelda) {
   return (
     <td
@@ -47,7 +45,7 @@ export function CeldaIdentificador({ className, children, ...resto }: PropsCelda
   );
 }
 
-/** Celda de cantidad: a la derecha y en cifras tabulares. */
+// Celda de cantidad: a la derecha y en cifras tabulares.
 export function CeldaCantidad({ className, children, ...resto }: PropsCelda) {
   return (
     <td
@@ -59,7 +57,7 @@ export function CeldaCantidad({ className, children, ...resto }: PropsCelda) {
   );
 }
 
-/** Celda de acciones de fila. No se estira ni parte los botones. */
+// Celda de acciones de fila. No se estira ni parte los botones.
 export function CeldaAcciones({ className, children, ...resto }: PropsCelda) {
   return (
     <td
@@ -71,10 +69,8 @@ export function CeldaAcciones({ className, children, ...resto }: PropsCelda) {
   );
 }
 
-/**
- * Fila de un registro inactivo. Se atenúa, pero quien la use debe seguir
- * diciendo el estado con texto en su propia celda: el color no basta.
- */
+/* Fila de un registro inactivo. Se atenúa, pero quien la use debe seguir
+   diciendo el estado con texto en su propia celda: el color no basta. */
 export function FilaInactiva({ children }: { children: ReactNode }) {
   return <tr className={estilos.inactiva}>{children}</tr>;
 }

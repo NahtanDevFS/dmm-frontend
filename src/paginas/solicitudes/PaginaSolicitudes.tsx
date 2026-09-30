@@ -33,7 +33,7 @@ const VISTAS = [
 
 type Vista = (typeof VISTAS)[number]["id"];
 
-/** Nombres legibles de estadoLinea, en el mismo orden que el desplegable. */
+// Nombres legibles de estadoLinea, en el mismo orden que el desplegable.
 const OPCIONES_ESTADO: { valor: string; etiqueta: string }[] = [
   {
     valor: ESTADO_LINEA.PENDIENTE_ADQUISICION,
@@ -48,15 +48,13 @@ const OPCIONES_ESTADO: { valor: string; etiqueta: string }[] = [
   { valor: ESTADO_LINEA.RECHAZADA, etiqueta: "Rechazada" },
 ];
 
-/**
- * Solicitudes de apoyo.
- *
- * El listado viene de v_solicitudes_activas, que expone una fila por LÍNEA
- * (no por trámite): una solicitud con tres insumos aparece tres veces, cada
- * una con su propio estado, porque cada insumo avanza por su cuenta según su
- * stock. La cabecera completa —con todas sus líneas juntas— se ve en la
- * ficha, que se abre desde cualquiera de sus filas.
- */
+/* Solicitudes de apoyo.
+   
+   El listado viene de v_solicitudes_activas, que expone una fila por LÍNEA
+   (no por trámite): una solicitud con tres insumos aparece tres veces, cada
+   una con su propio estado, porque cada insumo avanza por su cuenta según su
+   stock. La cabecera completa —con todas sus líneas juntas— se ve en la
+   ficha, que se abre desde cualquiera de sus filas. */
 function PaginaSolicitudes() {
   const navegar = useNavigate();
   const { id } = useParams();
@@ -68,12 +66,10 @@ function PaginaSolicitudes() {
   const [textoPersona, setTextoPersona] = useState("");
   const [programaId, setProgramaId] = useState("");
   const [estadoLinea, setEstadoLinea] = useState("");
-  /**
-   * Ver también lo ya entregado o cancelado. Apagado por omisión: la pantalla
-   * se abre para trabajar sobre lo pendiente. Pero sin la opción, una
-   * solicitud entregada desaparecía y no había forma de volver a su
-   * expediente ni a sus documentos.
-   */
+  /* Ver también lo ya entregado o cancelado. Apagado por omisión: la pantalla
+     se abre para trabajar sobre lo pendiente. Pero sin la opción, una
+     solicitud entregada desaparecía y no había forma de volver a su
+     expediente ni a sus documentos. */
   const [incluirCerradas, setIncluirCerradas] = useState(false);
   const [soloPendientesAprobacion, setSoloPendientesAprobacion] =
     useState(false);
@@ -111,7 +107,7 @@ function PaginaSolicitudes() {
       )
     : listado.datos;
 
-  /** Devuelve la barra de direcciones al módulo si se entró por la ruta profunda. */
+  // Devuelve la barra de direcciones al módulo si se entró por la ruta profunda.
   const limpiarRuta = () => {
     if (rutaId !== null) navegar("/solicitudes", { replace: true });
   };

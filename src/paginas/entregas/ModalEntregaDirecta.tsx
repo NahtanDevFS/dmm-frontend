@@ -29,10 +29,8 @@ import PreviaLotes from "./PreviaLotes";
 import estilos from "./Entregas.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Entrega directa de medicina/comida sin solicitud previa
- * Flujo en dos pasos (registro y evidencias) que replica el acto físico único
- */
+/* Entrega directa de medicina/comida sin solicitud previa
+   Flujo en dos pasos (registro y evidencias) que replica el acto físico único */
 function ModalEntregaDirecta({
   abierto,
   onCerrar,
@@ -77,7 +75,7 @@ function ModalEntregaDirecta({
     queryFn: () => listarStockInsumos(),
   });
 
-  /** Agrupa insumos por categoría y muestra stock para búsqueda rápida */
+  // Agrupa insumos por categoría y muestra stock para búsqueda rápida
   const porCategoria = useMemo(() => {
     const grupos = new Map<string, StockInsumoListado[]>();
     for (const fila of stock.data ?? []) {

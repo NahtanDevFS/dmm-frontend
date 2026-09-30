@@ -21,21 +21,19 @@ import {
 } from "../../api/donaciones";
 import type { InstitucionDonante } from "../../types/api";
 
-/**
- * Alta y edición exclusiva de la cabecera de una recepción
- * Los lotes se registran por separado en la ficha para aislar validaciones
- */
+/* Alta y edición exclusiva de la cabecera de una recepción
+   Los lotes se registran por separado en la ficha para aislar validaciones */
 function ModalRecepcion({
   recepcion,
   abierto,
   onCerrar,
   onCreada,
 }: {
-  /** Sin recepción, el modal da de alta. */
+  // Sin recepción, el modal da de alta.
   recepcion?: Recepcion;
   abierto: boolean;
   onCerrar: () => void;
-  /** Recibe el id recién creado para que el listado abra su ficha. */
+  // Recibe el id recién creado para que el listado abra su ficha.
   onCreada?: (recepcionId: number) => void;
 }) {
   const clienteQuery = useQueryClient();
@@ -73,7 +71,7 @@ function ModalRecepcion({
     ) =>
       setDatos((previos) => ({ ...previos, [campo]: evento.target.value }));
 
-  /** Cuerpo del PATCH: envía solo cambios para evitar validaciones innecesarias */
+  // Cuerpo del PATCH: envía solo cambios para evitar validaciones innecesarias
   const soloCambios = (): Partial<DatosRecepcion> => {
     if (!recepcion) return {};
     const cambios: Partial<DatosRecepcion> = {};

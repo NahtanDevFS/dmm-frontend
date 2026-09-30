@@ -16,10 +16,8 @@ import {
 import { CLAVE_FORMULARIOS, listarFormularios } from "../../api/formularios";
 import estilos from "./Solicitudes.module.css";
 
-/**
- * Legajo escaneado de respaldo de solicitud
- * Admite cualquier documento (recetas, formularios), clasificación opcional
- */
+/* Legajo escaneado de respaldo de solicitud
+   Admite cualquier documento (recetas, formularios), clasificación opcional */
 function SeccionDocumentosSolicitud({
   solicitudId,
   documentos,
@@ -27,7 +25,7 @@ function SeccionDocumentosSolicitud({
 }: {
   solicitudId: number;
   documentos: DocumentoSolicitud[];
-  /** Avisa a la ficha de si hay un adjunto elegido y todavía sin subir. */
+  // Avisa a la ficha de si hay un adjunto elegido y todavía sin subir.
   onBorrador?: (hay: boolean) => void;
 }) {
   const clienteQuery = useQueryClient();

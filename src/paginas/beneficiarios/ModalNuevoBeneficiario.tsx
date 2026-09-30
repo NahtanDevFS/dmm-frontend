@@ -28,15 +28,13 @@ import { etiquetaDe } from "../../lib/etiquetas";
 const numeroOpcional = (valor: string | undefined) =>
   valor ? Number(valor) : null;
 
-/**
- * Arma el encargado para el API.
- *
- * El esquema deja sus campos opcionales y exige los obligatorios desde el
- * superRefine, así que aquí hay que estrechar el tipo. Si falta alguno se
- * devuelve undefined en vez de enviar a medias: la validación ya habrá
- * impedido llegar hasta aquí, y esto solo evita mandar un encargado roto si
- * alguna vez dejara de hacerlo.
- */
+/* Arma el encargado para el API.
+   
+   El esquema deja sus campos opcionales y exige los obligatorios desde el
+   superRefine, así que aquí hay que estrechar el tipo. Si falta alguno se
+   devuelve undefined en vez de enviar a medias: la validación ya habrá
+   impedido llegar hasta aquí, y esto solo evita mandar un encargado roto si
+   alguna vez dejara de hacerlo. */
 function armarEncargado(
   encargado: DatosBeneficiario["encargado"],
 ): EncargadoNuevo[] | undefined {
@@ -60,20 +58,18 @@ function armarEncargado(
   ];
 }
 
-/**
- * Registro de un beneficiario.
- *
- * Va en modal y no en pantalla propia porque el alta nace siempre desde el
- * listado y vuelve a él: sacar al usuario de la tabla para traerlo de vuelta
- * dos pantallas después le hacía perder el filtro y la página en la que
- * estaba. El formulario es largo, pero el modal deja fijos el encabezado y el
- * pie, así que las acciones no se pierden al desplazarse.
- *
- * El botón de guardar vive en el pie, que en el DOM es hermano del cuerpo y no
- * está dentro del <form>. Por eso lleva `form={idFormulario}`: es lo que
- * permite que un submit fuera del formulario siga siendo su submit, con la
- * validación nativa y el Enter incluidos.
- */
+/* Registro de un beneficiario.
+   
+   Va en modal y no en pantalla propia porque el alta nace siempre desde el
+   listado y vuelve a él: sacar al usuario de la tabla para traerlo de vuelta
+   dos pantallas después le hacía perder el filtro y la página en la que
+   estaba. El formulario es largo, pero el modal deja fijos el encabezado y el
+   pie, así que las acciones no se pierden al desplazarse.
+   
+   El botón de guardar vive en el pie, que en el DOM es hermano del cuerpo y no
+   está dentro del <form>. Por eso lleva `form={idFormulario}`: es lo que
+   permite que un submit fuera del formulario siga siendo su submit, con la
+   validación nativa y el Enter incluidos. */
 function ModalNuevoBeneficiario({
   abierto,
   onCerrar,
@@ -81,7 +77,7 @@ function ModalNuevoBeneficiario({
 }: {
   abierto: boolean;
   onCerrar: () => void;
-  /** Recibe el id recién creado para que el listado abra su ficha. */
+  // Recibe el id recién creado para que el listado abra su ficha.
   onCreado: (personaId: number) => void;
 }) {
   const idFormulario = useId();
@@ -150,13 +146,11 @@ function ModalNuevoBeneficiario({
     name: "discapacidadIds",
   });
 
-  /**
-   * A quién CONVIENE registrarle un encargado: menores de edad y personas con
-   * alguna discapacidad. Es una recomendación, nunca un bloqueo — la base
-   * dejó de exigirlo en la migración 22. Negarse a registrar a alguien por un
-   * dato que no trae encima no protege a nadie: en la práctica se termina
-   * inventando el dato, o la persona no queda registrada y su ayuda tampoco.
-   */
+  /* A quién CONVIENE registrarle un encargado: menores de edad y personas con
+     alguna discapacidad. Es una recomendación, nunca un bloqueo — la base
+     dejó de exigirlo en la migración 22. Negarse a registrar a alguien por un
+     dato que no trae encima no protege a nadie: en la práctica se termina
+     inventando el dato, o la persona no queda registrada y su ayuda tampoco. */
   const encargadoRecomendado =
     menor || (discapacidadesElegidas?.length ?? 0) > 0;
 
@@ -180,11 +174,9 @@ function ModalNuevoBeneficiario({
   });
 
   const enviar = handleSubmit(async (datos) => {
-    /**
-     * Se envía todo en una sola llamada: el backend crea persona,
-     * discapacidades, encargados y contactos en la misma transacción. Hacerlo
-     * en varias peticiones dejaría una persona a medias si una fallara.
-     */
+    /* Se envía todo en una sola llamada: el backend crea persona,
+       discapacidades, encargados y contactos en la misma transacción. Hacerlo
+       en varias peticiones dejaría una persona a medias si una fallara. */
     const cuerpo: CrearPersona = {
       cui_dpi: datos.cui_dpi || null,
       nombres: datos.nombres,

@@ -19,18 +19,16 @@ import RutaPorRol from "./RutaPorRol";
 import { NAVEGACION, rutaInicialDe } from "./navegacion";
 import { useAuth } from "../auth/useAuth";
 
-/**
- * Árbol de rutas de la aplicación.
- *
- * Se genera a partir del mismo modelo que alimenta el menú lateral, así que un
- * módulo no puede quedar en el menú sin ruta ni tener ruta sin aparecer en el
- * menú, ni protegerse con un conjunto de roles distinto al que decide su
- * visibilidad.
- *
- * PANTALLAS es el registro de módulos ya construidos: los que no aparecen ahí
- * caen en EnConstruccion. Cada módulo se incorpora añadiendo una línea, sin
- * tocar la navegación ni las guardas.
- */
+/* Árbol de rutas de la aplicación.
+   
+   Se genera a partir del mismo modelo que alimenta el menú lateral, así que un
+   módulo no puede quedar en el menú sin ruta ni tener ruta sin aparecer en el
+   menú, ni protegerse con un conjunto de roles distinto al que decide su
+   visibilidad.
+   
+   PANTALLAS es el registro de módulos ya construidos: los que no aparecen ahí
+   caen en EnConstruccion. Cada módulo se incorpora añadiendo una línea, sin
+   tocar la navegación ni las guardas. */
 const PANTALLAS: Record<string, ReactNode> = {
   "/": <PaginaInicio />,
   "/beneficiarios": <PaginaBeneficiarios />,
@@ -45,17 +43,15 @@ const PANTALLAS: Record<string, ReactNode> = {
   "/auditoria": <PaginaAuditoria />,
 };
 
-/**
- * Rutas que no son ítems de menú: altas, fichas y detalles. Declaran su propio
- * conjunto de roles porque no lo heredan de un ítem de navegación, y pasan por
- * la misma guarda que el resto.
- *
- * Todas rinden la misma pantalla que su módulo. Las altas y las fichas se
- * abren en modal sobre el listado, así que la ruta no cambia de vista: le dice
- * a la pantalla qué modal abrir al entrar. Existen para que un enlace guardado
- * o compartido siga llevando al mismo sitio; desde la propia tabla no se
- * navega, para no perder el filtro ni la página.
- */
+/* Rutas que no son ítems de menú: altas, fichas y detalles. Declaran su propio
+   conjunto de roles porque no lo heredan de un ítem de navegación, y pasan por
+   la misma guarda que el resto.
+   
+   Todas rinden la misma pantalla que su módulo. Las altas y las fichas se
+   abren en modal sobre el listado, así que la ruta no cambia de vista: le dice
+   a la pantalla qué modal abrir al entrar. Existen para que un enlace guardado
+   o compartido siga llevando al mismo sitio; desde la propia tabla no se
+   navega, para no perder el filtro ni la página. */
 const RUTAS_EXTRA: {
   ruta: string;
   roles: readonly Rol[];
@@ -113,11 +109,9 @@ function Rutas() {
             key={item.ruta}
             path={item.ruta}
             element={
-              /**
-               * ALCALDE no tiene Inicio: su acceso es solo Reportes, así que
-               * la raíz lo lleva a su módulo en lugar de darle una pantalla de
-               * acceso denegado nada más entrar.
-               */
+              /* ALCALDE no tiene Inicio: su acceso es solo Reportes, así que
+                 la raíz lo lleva a su módulo en lugar de darle una pantalla de
+                 acceso denegado nada más entrar. */
               item.ruta === "/" && inicio !== "/" ? (
                 <Navigate to={inicio} replace />
               ) : (

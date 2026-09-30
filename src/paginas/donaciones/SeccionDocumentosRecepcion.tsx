@@ -15,15 +15,13 @@ import {
 } from "../../api/donaciones";
 import estilos from "./Donaciones.module.css";
 
-/**
- * Documentos de respaldo de la recepción: el acta de entrega, la carta de la
- * institución, la factura o la fotografía de la descarga.
- *
- * Es lo que sostiene la donación ante una auditoría, así que la baja es lógica
- * —el archivo permanece en el servidor— y se dice al confirmar. Tampoco se
- * previsualizan: se abren de uno en uno, con la sesión iniciada, igual que los
- * documentos de identificación del beneficiario.
- */
+/* Documentos de respaldo de la recepción: el acta de entrega, la carta de la
+   institución, la factura o la fotografía de la descarga.
+   
+   Es lo que sostiene la donación ante una auditoría, así que la baja es lógica
+   —el archivo permanece en el servidor— y se dice al confirmar. Tampoco se
+   previsualizan: se abren de uno en uno, con la sesión iniciada, igual que los
+   documentos de identificación del beneficiario. */
 function SeccionDocumentosRecepcion({
   recepcionId,
   documentos,
@@ -31,7 +29,7 @@ function SeccionDocumentosRecepcion({
 }: {
   recepcionId: number;
   documentos: DocumentoRecepcion[];
-  /** Avisa a la ficha de si hay un adjunto elegido y todavía sin subir. */
+  // Avisa a la ficha de si hay un adjunto elegido y todavía sin subir.
   onBorrador?: (hay: boolean) => void;
 }) {
   const clienteQuery = useQueryClient();
@@ -81,7 +79,7 @@ function SeccionDocumentosRecepcion({
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
-  /** Nombre del archivo en disco, cuando no se escribió una descripción. */
+  // Nombre del archivo en disco, cuando no se escribió una descripción.
   const nombreDe = (documento: DocumentoRecepcion) =>
     documento.descripcion ??
     documento.ruta_archivo.split("/").pop() ??

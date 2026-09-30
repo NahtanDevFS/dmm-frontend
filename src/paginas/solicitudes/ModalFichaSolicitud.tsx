@@ -34,16 +34,14 @@ function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
   );
 }
 
-/**
- * Ficha de una solicitud de apoyo: la cabecera del trámite, sus líneas por
- * insumo, las recetas que lo respaldan y, para DIRECTORA, la resolución.
- *
- * La región de aprobar/rechazar se aparta a propósito del resto de la ficha
- * (borde superior Rosa 300, según el manual: pertenece a otro rol) y ni
- * siquiera se monta para quien no es DIRECTORA — no es solo un botón oculto,
- * es una decisión de negocio (types/api.ts, RESOLUCION_SOLICITUD) que la
- * interfaz respeta aunque el backend admita también a ADMINISTRADOR.
- */
+/* Ficha de una solicitud de apoyo: la cabecera del trámite, sus líneas por
+   insumo, las recetas que lo respaldan y, para DIRECTORA, la resolución.
+   
+   La región de aprobar/rechazar se aparta a propósito del resto de la ficha
+   (borde superior Rosa 300, según el manual: pertenece a otro rol) y ni
+   siquiera se monta para quien no es DIRECTORA — no es solo un botón oculto,
+   es una decisión de negocio (types/api.ts, RESOLUCION_SOLICITUD) que la
+   interfaz respeta aunque el backend admita también a ADMINISTRADOR. */
 function ModalFichaSolicitud({
   solicitudId,
   abierto,
@@ -64,11 +62,9 @@ function ModalFichaSolicitud({
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [rechazando, setRechazando] = useState(false);
 
-  /**
-   * El expediente en PDF: la ficha de la persona, cada insumo con sus
-   * formularios llenos, las entregas y los documentos adjuntos, todo en un
-   * solo archivo para poder archivarlo o imprimirlo de una vez.
-   */
+  /* El expediente en PDF: la ficha de la persona, cada insumo con sus
+     formularios llenos, las entregas y los documentos adjuntos, todo en un
+     solo archivo para poder archivarlo o imprimirlo de una vez. */
   const expediente = useMutation({
     mutationFn: () => descargarExpediente(solicitudId),
     onError: (error) => avisar(mensajeDeError(error), "error"),

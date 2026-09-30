@@ -34,10 +34,8 @@ function Dato({ titulo, children }: { titulo: string; children: ReactNode }) {
   );
 }
 
-/**
- * Ficha de entrega con lotes reales de origen y evidencias
- * Permite a DIRECCION anular insumos individuales o la entrega completa
- */
+/* Ficha de entrega con lotes reales de origen y evidencias
+   Permite a DIRECCION anular insumos individuales o la entrega completa */
 function ModalFichaEntrega({
   entregaId,
   abierto,

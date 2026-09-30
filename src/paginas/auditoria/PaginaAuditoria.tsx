@@ -47,11 +47,9 @@ function formatearFechaHora(valor: string): string {
   });
 }
 
-/**
- * Bitácora de solo lectura: cada INSERT/UPDATE/DELETE del sistema, con quién
- * y cuándo. Exclusivo de ADMINISTRADOR — no hay nada que crear, editar ni
- * borrar aquí, así que no hay ningún modal de alta.
- */
+/* Bitácora de solo lectura: cada INSERT/UPDATE/DELETE del sistema, con quién
+   y cuándo. Exclusivo de ADMINISTRADOR — no hay nada que crear, editar ni
+   borrar aquí, así que no hay ningún modal de alta. */
 function PaginaAuditoria() {
   const [tabla, setTabla] = useState("");
   const [registroId, setRegistroId] = useState("");

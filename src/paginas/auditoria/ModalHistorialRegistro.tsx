@@ -36,12 +36,10 @@ function formatearFechaHora(valor: string): string {
   });
 }
 
-/**
- * Línea de tiempo completa de un registro concreto: cada cambio que ha
- * tenido, del más antiguo al más reciente. Útil para «¿quién cambió esta
- * ficha, y en qué orden?» — la pregunta que un listado filtrado no responde
- * bien porque mezcla registros distintos.
- */
+/* Línea de tiempo completa de un registro concreto: cada cambio que ha
+   tenido, del más antiguo al más reciente. Útil para «¿quién cambió esta
+   ficha, y en qué orden?» — la pregunta que un listado filtrado no responde
+   bien porque mezcla registros distintos. */
 function ModalHistorialRegistro({
   tabla,
   registroId,

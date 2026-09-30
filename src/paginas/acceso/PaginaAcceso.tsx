@@ -8,11 +8,9 @@ import { intentosRestantes } from "../../lib/limitePeticiones";
 import { esquemaAcceso, type DatosAcceso } from "./esquema";
 import estilos from "./PaginaAcceso.module.css";
 
-/**
- * Redacta el error del intento fallido. El backend ya manda un texto en
- * español, así que se respeta y solo se le añade el conteo de intentos cuando
- * el servidor permite leerlo.
- */
+/* Redacta el error del intento fallido. El backend ya manda un texto en
+   español, así que se respeta y solo se le añade el conteo de intentos cuando
+   el servidor permite leerlo. */
 function textoDeError(error: unknown): string {
   const base = mensajeDeError(error, "No se pudo iniciar sesión.");
   if (esLimiteExcedido(error)) return base;

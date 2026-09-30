@@ -1,9 +1,7 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Bitácora de lectura de INSERT/UPDATE/DELETE exclusiva de administrador
- * Las consultas paginadas usan useListadoPaginado, aquí van otras consultas
- */
+/* Bitácora de lectura de INSERT/UPDATE/DELETE exclusiva de administrador
+   Las consultas paginadas usan useListadoPaginado, aquí van otras consultas */
 
 export type AccionAuditoria = "INSERT" | "UPDATE" | "DELETE";
 
@@ -31,7 +29,7 @@ export async function listarTablasAuditadas(): Promise<TablaAuditada[]> {
   return data;
 }
 
-/** Historial completo de un registro desde el más antiguo al más reciente */
+// Historial completo de un registro desde el más antiguo al más reciente
 export async function historialDeRegistro(
   tabla: string,
   registroId: number,

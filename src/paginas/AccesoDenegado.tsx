@@ -4,14 +4,12 @@ import { rutaInicialDe } from "../rutas/navegacion";
 import estilos from "./AccesoDenegado.module.css";
 import { etiquetaDe } from "../lib/etiquetas";
 
-/**
- * Pantalla para una ruta que existe pero que el rol no puede abrir.
- *
- * Se distingue a propósito de «página no encontrada»: decirle a alguien que
- * algo no existe cuando en realidad no le corresponde le deja buscando un
- * error que no cometió. Aquí se le dice qué pasó, con qué rol entró y a quién
- * pedirlo, sin detallar qué contiene el módulo.
- */
+/* Pantalla para una ruta que existe pero que el rol no puede abrir.
+   
+   Se distingue a propósito de «página no encontrada»: decirle a alguien que
+   algo no existe cuando en realidad no le corresponde le deja buscando un
+   error que no cometió. Aquí se le dice qué pasó, con qué rol entró y a quién
+   pedirlo, sin detallar qué contiene el módulo. */
 function AccesoDenegado() {
   const { usuario } = useAuth();
   const rol = usuario ? etiquetaDe(usuario.rol) : null;

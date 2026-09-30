@@ -8,10 +8,8 @@ import {
 } from "../../../test/reactQuery";
 import { ProveedorAvisos } from "../../../componentes/ui/avisos/ProveedorAvisos";
 
-/**
- * QA-06: el cambio de contraseña limita los intentos. Lo que quedan se muestra
- * fijo bajo el campo de la contraseña actual, no en un aviso que desaparece.
- */
+/* QA-06: el cambio de contraseña limita los intentos. Lo que quedan se muestra
+   fijo bajo el campo de la contraseña actual, no en un aviso que desaparece. */
 vi.mock("../../../api/usuarios", () => ({
   cambiarPasswordPropia: vi.fn(),
 }));

@@ -1,6 +1,6 @@
 import estilos from "./Auditoria.module.css";
 
-/** Campos que fn_auditoria() siempre toca aunque nadie haya cambiado nada de negocio. */
+// Campos que fn_auditoria() siempre toca aunque nadie haya cambiado nada de negocio.
 const CAMPOS_TECNICOS = new Set([
   "updated_at",
   "updated_by",
@@ -19,13 +19,11 @@ function sonIguales(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-/**
- * Compara valores_antiguos y valores_nuevos campo por campo, en vez de
- * volcar los dos JSON crudos: lo que de verdad importa al revisar un
- * cambio es qué campo cambió y a qué valor, no releer una fila entera para
- * encontrarlo a ojo. Los campos que no cambiaron se muestran igual, pero
- * atenuados, al final.
- */
+/* Compara valores_antiguos y valores_nuevos campo por campo, en vez de
+   volcar los dos JSON crudos: lo que de verdad importa al revisar un
+   cambio es qué campo cambió y a qué valor, no releer una fila entera para
+   encontrarlo a ojo. Los campos que no cambiaron se muestran igual, pero
+   atenuados, al final. */
 function TablaCambios({
   anteriores,
   nuevos,

@@ -1,15 +1,11 @@
 import { z } from "zod";
 import { normalizarTelefono } from "../../lib/telefono";
 
-/**
- * Espejo de crearPersonaSchema en el backend, con una regla añadida que allí
- * no vive en Zod sino en un constraint diferido de la base.
- */
+/* Espejo de crearPersonaSchema en el backend, con una regla añadida que allí
+   no vive en Zod sino en un constraint diferido de la base. */
 
-/**
- * Teléfono guatemalteco: ocho dígitos, normalizado con la misma regla que el
- * resto del frontend (ver lib/telefono.ts).
- */
+/* Teléfono guatemalteco: ocho dígitos, normalizado con la misma regla que el
+   resto del frontend (ver lib/telefono.ts). */
 const telefonoOpcional = z
   .string()
   .trim()
@@ -67,11 +63,9 @@ export const datosBasePersona = z.object({
   comunidad_id: opcionalVacio(10),
   telefono: telefonoOpcional,
 
-  /**
-   * Lo que pide la sección I del estudio socioeconómico. Todos opcionales:
-   * una ficha se abre con lo que la persona traiga encima y se completa
-   * después, cuando se hace el estudio.
-   */
+  /* Lo que pide la sección I del estudio socioeconómico. Todos opcionales:
+     una ficha se abre con lo que la persona traiga encima y se completa
+     después, cuando se hace el estudio. */
   estado_civil_id: opcionalVacio(10),
   grado_academico_id: opcionalVacio(10),
   ocupacion_id: opcionalVacio(10),
@@ -79,12 +73,10 @@ export const datosBasePersona = z.object({
   direccion: opcionalVacio(255),
 });
 
-/**
- * Todos los campos son opcionales aquí a propósito. Qué se exige depende del
- * beneficiario —si es menor y si tiene CUI/DPI— y de si alguien empezó a
- * escribir en el bloque, así que la regla vive completa en el superRefine de
- * abajo en vez de repartirse entre dos sitios que pueden contradecirse.
- */
+/* Todos los campos son opcionales aquí a propósito. Qué se exige depende del
+   beneficiario —si es menor y si tiene CUI/DPI— y de si alguien empezó a
+   escribir en el bloque, así que la regla vive completa en el superRefine de
+   abajo en vez de repartirse entre dos sitios que pueden contradecirse. */
 export const esquemaEncargado = z.object({
   nombres: opcionalVacio(100),
   apellidos: opcionalVacio(100),
@@ -94,7 +86,7 @@ export const esquemaEncargado = z.object({
   tipoParentescoId: opcionalVacio(10),
 });
 
-/** Verdadero si nadie tocó el bloque de encargado. */
+// Verdadero si nadie tocó el bloque de encargado.
 function encargadoVacio(
   encargado: Record<string, unknown> | undefined,
 ): boolean {
@@ -106,11 +98,9 @@ function encargadoVacio(
 
 export const esquemaContacto = z.object({
   nombre: z.string().trim().min(1, "Ingrese el nombre del contacto").max(150),
-  /**
-   * Obligatorio, a diferencia del teléfono de la persona. Un contacto de
-   * referencia sin número no sirve para nada: existe justamente para poder
-   * llamar a alguien cuando no se ubica a la persona.
-   */
+  /* Obligatorio, a diferencia del teléfono de la persona. Un contacto de
+     referencia sin número no sirve para nada: existe justamente para poder
+     llamar a alguien cuando no se ubica a la persona. */
   telefono: telefonoRequerido,
   observaciones: opcionalVacio(2000),
 });
@@ -118,16 +108,14 @@ export const esquemaContacto = z.object({
 export const esquemaBeneficiario = datosBasePersona
   .extend({
     discapacidadIds: z.array(z.number()).default([]),
-    /**
-     * Un bloque de encargado con todos los campos en blanco vale por «no hay
-     * encargado».
-     *
-     * Hace falta porque register() crea las claves en cuanto los campos se
-     * pintan, de modo que `encargado` nunca llega como undefined. Sin este
-     * paso previo, un menor que sí tiene CUI/DPI —donde el encargado es
-     * opcional— quedaría bloqueado por los campos vacíos de un encargado que
-     * nadie quiso registrar.
-     */
+    /* Un bloque de encargado con todos los campos en blanco vale por «no hay
+       encargado».
+       
+       Hace falta porque register() crea las claves en cuanto los campos se
+       pintan, de modo que `encargado` nunca llega como undefined. Sin este
+       paso previo, un menor que sí tiene CUI/DPI —donde el encargado es
+       opcional— quedaría bloqueado por los campos vacíos de un encargado que
+       nadie quiso registrar. */
     encargado: z.preprocess((valor) => {
       if (!valor || typeof valor !== "object") return undefined;
       const campos = valor as Record<string, unknown>;
@@ -138,19 +126,17 @@ export const esquemaBeneficiario = datosBasePersona
     }, esquemaEncargado.optional()),
     contactos: z.array(esquemaContacto).default([]),
   })
-  /**
-   * Reglas del encargado.
-   *
-   * No tener encargado NUNCA bloquea, ni siquiera en un menor sin CUI/DPI: la
-   * base dejó de exigirlo en la migración 22 y la interfaz solo lo recomienda.
-   * Negarse a registrar a alguien por un dato que no trae encima no protege a
-   * nadie; lo que ocurre en la práctica es que se inventa el dato o la
-   * persona no queda registrada.
-   *
-   * Lo que sí se valida es la coherencia: si alguien empezó a escribir el
-   * bloque, hay que completarlo, porque un encargado a medias no se puede
-   * crear.
-   */
+  /* Reglas del encargado.
+     
+     No tener encargado NUNCA bloquea, ni siquiera en un menor sin CUI/DPI: la
+     base dejó de exigirlo en la migración 22 y la interfaz solo lo recomienda.
+     Negarse a registrar a alguien por un dato que no trae encima no protege a
+     nadie; lo que ocurre en la práctica es que se inventa el dato o la
+     persona no queda registrada.
+     
+     Lo que sí se valida es la coherencia: si alguien empezó a escribir el
+     bloque, hay que completarlo, porque un encargado a medias no se puede
+     crear. */
   .superRefine((datos, ctx) => {
     if (encargadoVacio(datos.encargado)) return;
 
@@ -173,18 +159,16 @@ export const esquemaBeneficiario = datosBasePersona
     }
   });
 
-/**
- * Tipo de los campos del formulario, declarado a mano.
- *
- * No se deriva con z.input del esquema porque los transforms que limpian los
- * campos vacíos colapsan el objeto `encargado` a {} en la inferencia, y con él
- * react-hook-form pierde las rutas anidadas y deja de aceptar
- * register("encargado.nombres"). Escribirlo aquí cuesta unas líneas y devuelve
- * el tipado de todo el formulario.
- *
- * Todo es texto porque un formulario HTML solo maneja texto; la conversión a
- * número y la limpieza de vacíos las hace el esquema al validar.
- */
+/* Tipo de los campos del formulario, declarado a mano.
+   
+   No se deriva con z.input del esquema porque los transforms que limpian los
+   campos vacíos colapsan el objeto `encargado` a {} en la inferencia, y con él
+   react-hook-form pierde las rutas anidadas y deja de aceptar
+   register("encargado.nombres"). Escribirlo aquí cuesta unas líneas y devuelve
+   el tipado de todo el formulario.
+   
+   Todo es texto porque un formulario HTML solo maneja texto; la conversión a
+   número y la limpieza de vacíos las hace el esquema al validar. */
 export interface DatosBeneficiario {
   cui_dpi?: string;
   nombres: string;

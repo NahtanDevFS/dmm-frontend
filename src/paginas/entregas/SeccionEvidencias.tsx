@@ -18,11 +18,9 @@ import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Entregas.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Evidencias de entrega: la constancia de que el despacho ocurrió — firma,
- * foto, acta. Misma baja lógica que recetas y documentos de recepción: el
- * archivo se conserva en el servidor aunque se quite de la lista.
- */
+/* Evidencias de entrega: la constancia de que el despacho ocurrió — firma,
+   foto, acta. Misma baja lógica que recetas y documentos de recepción: el
+   archivo se conserva en el servidor aunque se quite de la lista. */
 function SeccionEvidencias({
   entregaId,
   evidencias,
@@ -30,7 +28,7 @@ function SeccionEvidencias({
 }: {
   entregaId: number;
   evidencias: EvidenciaEntrega[];
-  /** Avisa a la ficha de si hay un adjunto elegido y todavía sin subir. */
+  // Avisa a la ficha de si hay un adjunto elegido y todavía sin subir.
   onBorrador?: (hay: boolean) => void;
 }) {
   const clienteQuery = useQueryClient();

@@ -4,12 +4,12 @@ import { etiquetaDe } from "../../lib/etiquetas";
 import type { ColumnaReporte } from "../../api/reportes";
 import estilos from "./Reportes.module.css";
 
-/** true si el nombre de campo sugiere una fecha (fecha_x, x_fecha, generado_en). */
+// true si el nombre de campo sugiere una fecha (fecha_x, x_fecha, generado_en).
 function pareceFecha(campo: string): boolean {
   return /fecha|_en$/i.test(campo);
 }
 
-/** true si el valor es puramente numérico, para alinearlo como cantidad. */
+// true si el valor es puramente numérico, para alinearlo como cantidad.
 function esNumerico(valor: unknown): valor is number {
   return typeof valor === "number";
 }
@@ -37,12 +37,10 @@ function esColumnaDeCatalogo(campo: string): boolean {
   return /genero|grupo_etario|parentesco|estado|modalidad|rol/i.test(campo);
 }
 
-/**
- * Tabla genérica para cualquier reporte: recorre columnas y datos tal como
- * los define el backend, sin columnas fijas de antemano — cada uno de los
- * tres reportes trae su propia forma, y el backend es la fuente de verdad
- * de qué campos mostrar y en qué orden.
- */
+/* Tabla genérica para cualquier reporte: recorre columnas y datos tal como
+   los define el backend, sin columnas fijas de antemano — cada uno de los
+   tres reportes trae su propia forma, y el backend es la fuente de verdad
+   de qué campos mostrar y en qué orden. */
 function TablaReporte({
   titulo,
   columnas,

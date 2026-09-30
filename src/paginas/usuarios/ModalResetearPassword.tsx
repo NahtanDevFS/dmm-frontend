@@ -13,11 +13,9 @@ function passwordValida(v: string): boolean {
   return v.length >= 8 && /[a-zA-Z]/.test(v) && /\d/.test(v);
 }
 
-/**
- * Restablecer la contraseña de otro usuario, sin conocer la actual. Cierra
- * todas las sesiones abiertas de ese usuario — quien lo pide debe avisarle
- * la contraseña nueva por un canal aparte, el sistema no la envía.
- */
+/* Restablecer la contraseña de otro usuario, sin conocer la actual. Cierra
+   todas las sesiones abiertas de ese usuario — quien lo pide debe avisarle
+   la contraseña nueva por un canal aparte, el sistema no la envía. */
 function ModalResetearPassword({
   usuario,
   abierto,

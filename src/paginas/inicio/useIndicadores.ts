@@ -8,14 +8,12 @@ import {
 } from "../../api/panel";
 import { SEMAFORO, type Semaforo, type Sobre } from "../../types/api";
 
-/**
- * Indicadores del panel de inicio.
- *
- * Los conteos de beneficiarios y solicitudes se sacan del sobre paginado
- * pidiendo una sola fila: el servidor calcula `total` con un count aparte, así
- * que `limite=1` trae el número sin arrastrar las cincuenta filas por defecto
- * que nadie va a mirar.
- */
+/* Indicadores del panel de inicio.
+   
+   Los conteos de beneficiarios y solicitudes se sacan del sobre paginado
+   pidiendo una sola fila: el servidor calcula `total` con un count aparte, así
+   que `limite=1` trae el número sin arrastrar las cincuenta filas por defecto
+   que nadie va a mirar. */
 
 const VIGENCIA = 1000 * 60 * 2;
 
@@ -60,25 +58,21 @@ export function useSolicitudesPendientes() {
   });
 }
 
-/**
- * Lotes por caducidad.
- *
- * `/inventario/semaforo` no pagina y devuelve el arreglo completo, así que se
- * pide una sola vez sin filtro y se cuenta aquí, en lugar de hacer una
- * petición por color. Está acotado por naturaleza: solo son los lotes con
- * existencias.
- *
- * ROJO es «vence en menos de tres meses» y VENCIDO es «ya caducó». Se cuentan
- * por separado porque exigen cosas distintas: uno pide priorizar la entrega y
- * el otro dar de baja el lote.
- */
-/**
- * Préstamos que ya pasaron su fecha de devolución pactada.
- *
- * Es de las pocas cosas del sistema que exigen actuar sin que nadie las pida:
- * un equipo vencido nadie lo reclama solo. Por eso vive en el panel y no
- * dentro del módulo de Préstamos.
- */
+/* Lotes por caducidad.
+   
+   `/inventario/semaforo` no pagina y devuelve el arreglo completo, así que se
+   pide una sola vez sin filtro y se cuenta aquí, en lugar de hacer una
+   petición por color. Está acotado por naturaleza: solo son los lotes con
+   existencias.
+   
+   ROJO es «vence en menos de tres meses» y VENCIDO es «ya caducó». Se cuentan
+   por separado porque exigen cosas distintas: uno pide priorizar la entrega y
+   el otro dar de baja el lote. */
+/* Préstamos que ya pasaron su fecha de devolución pactada.
+   
+   Es de las pocas cosas del sistema que exigen actuar sin que nadie las pida:
+   un equipo vencido nadie lo reclama solo. Por eso vive en el panel y no
+   dentro del módulo de Préstamos. */
 export function usePrestamosVencidos() {
   return useQuery({
     queryKey: ["inicio", "prestamos-vencidos"],
@@ -88,12 +82,10 @@ export function usePrestamosVencidos() {
   });
 }
 
-/**
- * Líneas de solicitud esperando existencias.
- *
- * El endpoint no pagina —devuelve el arreglo entero— así que se cuenta aquí.
- * Está acotado por naturaleza: solo son líneas pendientes por falta de stock.
- */
+/* Líneas de solicitud esperando existencias.
+   
+   El endpoint no pagina —devuelve el arreglo entero— así que se cuenta aquí.
+   Está acotado por naturaleza: solo son líneas pendientes por falta de stock. */
 export function useListaEspera() {
   return useQuery({
     queryKey: ["inicio", "lista-espera"],
@@ -108,14 +100,12 @@ export function useListaEspera() {
   });
 }
 
-/**
- * Entregas registradas dentro de un rango de fechas.
- *
- * A diferencia del resto de indicadores, este no describe un estado sino un
- * período: sirve para contestar "¿cuánto se atendió este mes?" sin entrar al
- * módulo de Reportes. El rango lo elige quien mira, así que la consulta se
- * rehace al cambiarlo.
- */
+/* Entregas registradas dentro de un rango de fechas.
+   
+   A diferencia del resto de indicadores, este no describe un estado sino un
+   período: sirve para contestar "¿cuánto se atendió este mes?" sin entrar al
+   módulo de Reportes. El rango lo elige quien mira, así que la consulta se
+   rehace al cambiarlo. */
 export function useEntregasDelPeriodo(desde: string, hasta: string) {
   return useQuery({
     queryKey: ["inicio", "entregas", desde, hasta],
@@ -126,14 +116,12 @@ export function useEntregasDelPeriodo(desde: string, hasta: string) {
   });
 }
 
-/**
- * Serie mensual de entregas, para la gráfica de tendencia.
- *
- * Ventana fija (6 meses) en vez de atarla al selector de "Actividad del
- * período": son preguntas distintas — una es "¿cuánto se hizo en el rango
- * que elegí?" y la otra "¿cómo viene la tendencia?", que solo tiene sentido
- * mirando varios meses seguidos.
- */
+/* Serie mensual de entregas, para la gráfica de tendencia.
+   
+   Ventana fija (6 meses) en vez de atarla al selector de "Actividad del
+   período": son preguntas distintas — una es "¿cuánto se hizo en el rango
+   que elegí?" y la otra "¿cómo viene la tendencia?", que solo tiene sentido
+   mirando varios meses seguidos. */
 export function useEntregasPorMes(meses = 6) {
   return useQuery({
     queryKey: ["inicio", "entregas-por-mes", meses],

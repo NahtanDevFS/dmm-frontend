@@ -38,24 +38,22 @@ import { datosFaltantesDelEstudio } from "../beneficiarios/datosFaltantes";
 import estilos from "./Solicitudes.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/** Una línea todavía sin enviar, con los nombres ya resueltos para mostrarla. */
+// Una línea todavía sin enviar, con los nombres ya resueltos para mostrarla.
 interface LineaBorrador extends DatosLineaNueva {
   clave: number;
   insumoNombre: string;
   modalidadNombre: string;
-  /** Lo pedido tal como se dijo: "2 cajas (200 Tableta)". */
+  // Lo pedido tal como se dijo: "2 cajas (200 Tableta)".
   descripcionCantidad: string;
 }
 
-/**
- * Alta de una solicitud de apoyo.
- *
- * A diferencia de una recepción de donación, aquí la cabecera y sus líneas
- * viajan juntas en un solo POST (crearSolicitudSchema exige lineas: [...]
- * con al menos una): la base las crea en una sola transacción, así que
- * armar el trámite completo antes de enviarlo —en vez de guardar línea por
- * línea como en una recepción— es lo que refleja cómo lo valida el backend.
- */
+/* Alta de una solicitud de apoyo.
+   
+   A diferencia de una recepción de donación, aquí la cabecera y sus líneas
+   viajan juntas en un solo POST (crearSolicitudSchema exige lineas: [...]
+   con al menos una): la base las crea en una sola transacción, así que
+   armar el trámite completo antes de enviarlo —en vez de guardar línea por
+   línea como en una recepción— es lo que refleja cómo lo valida el backend. */
 function ModalSolicitud({
   abierto,
   onCerrar,
@@ -63,7 +61,7 @@ function ModalSolicitud({
 }: {
   abierto: boolean;
   onCerrar: () => void;
-  /** Recibe el id recién creado para que el listado abra su ficha. */
+  // Recibe el id recién creado para que el listado abra su ficha.
   onCreada?: (solicitudId: number) => void;
 }) {
   const clienteQuery = useQueryClient();
@@ -71,14 +69,12 @@ function ModalSolicitud({
   const { usuario } = useAuth();
 
   const [persona, setPersona] = useState<Persona | null>(null);
-  /**
-   * Preseleccionado con el programa de quien está registrando.
-   *
-   * Es siempre el mismo y elegirlo a mano cada vez invita a equivocarse; un
-   * programa mal puesto ensucia los reportes sin que nadie lo note. Se puede
-   * cambiar: cuando una compañera falta, otra la cubre, y el sistema no debe
-   * estorbar eso — solo dejar constancia, que es lo que hace el backend.
-   */
+  /* Preseleccionado con el programa de quien está registrando.
+     
+     Es siempre el mismo y elegirlo a mano cada vez invita a equivocarse; un
+     programa mal puesto ensucia los reportes sin que nadie lo note. Se puede
+     cambiar: cuando una compañera falta, otra la cubre, y el sistema no debe
+     estorbar eso — solo dejar constancia, que es lo que hace el backend. */
   const [programaId, setProgramaId] = useState(
     usuario?.programa_id ? String(usuario.programa_id) : "",
   );
@@ -118,13 +114,11 @@ function ModalSolicitud({
     (m) => m.nombre === "DONACION",
   )?.id;
 
-  /**
-   * Modalidad que se va a enviar: siempre donación. Una solicitud existe para
-   * decidir si corresponde donar; el préstamo se registra completo en el
-   * módulo de Préstamos. Antes, si la categoría admitía préstamo (la silla de
-   * ruedas), se tomaba la de un selector que ya no existe, así que quedaba
-   * vacía y no se podía agregar el insumo.
-   */
+  /* Modalidad que se va a enviar: siempre donación. Una solicitud existe para
+     decidir si corresponde donar; el préstamo se registra completo en el
+     módulo de Préstamos. Antes, si la categoría admitía préstamo (la silla de
+     ruedas), se tomaba la de un selector que ya no existe, así que quedaba
+     vacía y no se podía agregar el insumo. */
   const modalidadEfectiva = idDonacion ? String(idDonacion) : "";
 
   const filasStock = insumos.data;
@@ -139,10 +133,8 @@ function ModalSolicitud({
     return [...grupos.entries()].sort((a, b) => a[0].localeCompare(b[0], "es"));
   }, [filasStock]);
 
-  /**
-   * Las presentaciones del insumo elegido, para poder pedir "2 cajas" en vez
-   * de obligar a que quien atiende multiplique de cabeza.
-   */
+  /* Las presentaciones del insumo elegido, para poder pedir "2 cajas" en vez
+     de obligar a que quien atiende multiplique de cabeza. */
   const presentaciones = useQuery({
     queryKey: [CLAVE_INSUMOS, insumoId, "presentaciones"],
     queryFn: () => listarPresentaciones(Number(insumoId), false),
@@ -153,11 +145,9 @@ function ModalSolicitud({
     (p) => p.id === Number(presentacionId),
   );
 
-  /**
-   * Lo pedido convertido a unidad base. El backend vuelve a hacer esta cuenta
-   * al guardar —es él quien manda— pero mostrarla aquí evita que alguien
-   * descubra recién al enviar que pidió diez veces más de lo que quería.
-   */
+  /* Lo pedido convertido a unidad base. El backend vuelve a hacer esta cuenta
+     al guardar —es él quien manda— pero mostrarla aquí evita que alguien
+     descubra recién al enviar que pidió diez veces más de lo que quería. */
   const equivalenteBase =
     presentacionElegida && Number(cantidad) > 0
       ? Math.round(
@@ -166,12 +156,10 @@ function ModalSolicitud({
         )
       : null;
 
-  /**
-   * Los formularios que este insumo va a exigir bajo esta modalidad. Se
-   * consultan al elegir, no al aprobar: el estudio socioeconómico hay que
-   * llenarlo con la persona presente, y descubrirlo cuando ya se fue vuelve
-   * el dato irrecuperable.
-   */
+  /* Los formularios que este insumo va a exigir bajo esta modalidad. Se
+     consultan al elegir, no al aprobar: el estudio socioeconómico hay que
+     llenarlo con la persona presente, y descubrirlo cuando ya se fue vuelve
+     el dato irrecuperable. */
   const formulariosExigidos = useQuery({
     queryKey: [CLAVE_FORMULARIOS, "insumo", insumoId, modalidadEfectiva],
     queryFn: () =>

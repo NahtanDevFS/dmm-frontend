@@ -23,20 +23,18 @@ import {
 import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Inventario.module.css";
 
-/**
- * Presentaciones en las que se recibe un insumo.
- *
- * Una presentación es la forma en que llega la donación —caja de 100, bolsa de
- * 5 libras—, no la unidad en la que se cuentan las existencias. Esa distinción
- * es la razón de que el módulo tenga dos unidades de medida por insumo: la
- * base, en la que vive el stock, y la de cada presentación, que solo describe
- * el envase de entrada.
- *
- * Exactamente una presentación es la predeterminada, y lo garantiza un índice
- * único parcial de la base (insumo_id donde es_default), no esta pantalla. Por
- * eso no hay forma de «desmarcar» la predeterminada: se marca otra, y la base
- * desplaza a la anterior en la misma transacción.
- */
+/* Presentaciones en las que se recibe un insumo.
+   
+   Una presentación es la forma en que llega la donación —caja de 100, bolsa de
+   5 libras—, no la unidad en la que se cuentan las existencias. Esa distinción
+   es la razón de que el módulo tenga dos unidades de medida por insumo: la
+   base, en la que vive el stock, y la de cada presentación, que solo describe
+   el envase de entrada.
+   
+   Exactamente una presentación es la predeterminada, y lo garantiza un índice
+   único parcial de la base (insumo_id donde es_default), no esta pantalla. Por
+   eso no hay forma de «desmarcar» la predeterminada: se marca otra, y la base
+   desplaza a la anterior en la misma transacción. */
 function SeccionPresentaciones({
   insumoId,
   puedeGestionar,
@@ -44,7 +42,7 @@ function SeccionPresentaciones({
 }: {
   insumoId: number;
   puedeGestionar: boolean;
-  /** Existencias por presentación, para no repetir la consulta de stock. */
+  // Existencias por presentación, para no repetir la consulta de stock.
   stock: StockPorPresentacion[];
 }) {
   const clienteQuery = useQueryClient();
@@ -83,12 +81,10 @@ function SeccionPresentaciones({
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
 
-  /**
-   * El factor NOMINAL de la presentación: "una caja son 100 tabletas". Se usa
-   * para convertir cuando alguien pide en esa presentación al hacer una
-   * solicitud. No es el dato del inventario —cada lote registra el suyo, que
-   * puede diferir— sino la referencia con la que se pide.
-   */
+  /* El factor NOMINAL de la presentación: "una caja son 100 tabletas". Se usa
+     para convertir cuando alguien pide en esa presentación al hacer una
+     solicitud. No es el dato del inventario —cada lote registra el suyo, que
+     puede diferir— sino la referencia con la que se pide. */
   const editarFactor = useMutation({
     mutationFn: ({ id, factor }: { id: number; factor: number }) =>
       editarPresentacion(insumoId, id, {
@@ -134,7 +130,7 @@ function SeccionPresentaciones({
 
   const presentaciones = consulta.data ?? [];
 
-  /** Unidades que todavía no tiene el insumo: la unicidad es por (insumo, unidad). */
+  // Unidades que todavía no tiene el insumo: la unicidad es por (insumo, unidad).
   const disponibles = unidades.opciones.filter(
     (unidad) =>
       unidad.activo &&
@@ -147,11 +143,9 @@ function SeccionPresentaciones({
   const stockDe = (presentacionId: number) =>
     stock.find((fila) => fila.presentacion_id === presentacionId);
 
-  /**
-   * El promedio llega como el numeric(12,4) de Postgres, es decir «100.0000».
-   * Se muestra sin los decimales que no aportan: una caja de cien unidades no
-   * se lee mejor por escribir cuatro ceros detrás.
-   */
+  /* El promedio llega como el numeric(12,4) de Postgres, es decir «100.0000».
+     Se muestra sin los decimales que no aportan: una caja de cien unidades no
+     se lee mejor por escribir cuatro ceros detrás. */
   const formatearPromedio = (valor: string | null) => {
     if (valor === null) return "—";
     const numero = Number(valor);

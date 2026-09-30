@@ -1,7 +1,5 @@
-/**
- * Cálculo de unidades base que entran al inventario (solo para visualización)
- * El valor real lo calcula la base de datos (trg_calcular_recepcion_lote)
- */
+/* Cálculo de unidades base que entran al inventario (solo para visualización)
+   El valor real lo calcula la base de datos (trg_calcular_recepcion_lote) */
 export function calcularUnidadesBase(
   cantidad: number,
   unidadesPorPresentacion: number,

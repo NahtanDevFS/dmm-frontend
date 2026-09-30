@@ -28,16 +28,14 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
   // confirmar, la sesión NO se rescata con /auth/me, se reintenta el cierre.
   const [cierrePendiente, setCierrePendiente] = useState(hayCierrePendiente);
 
-  /**
-   * Rescate de sesión al arrancar. La cookie dmm_session es HttpOnly: el
-   * frontend no puede leerla, así que la única forma de saber si hay sesión es
-   * preguntárselo al servidor. Sin esto, recargar la página echaría al usuario
-   * aunque su sesión siguiera viva.
-   *
-   * La query es la única fuente de verdad del usuario. Copiarla a un useState
-   * obligaría a sincronizar dos estados y a hacerlo desde un efecto, que es
-   * justo lo que provoca renders en cascada.
-   */
+  /* Rescate de sesión al arrancar. La cookie dmm_session es HttpOnly: el
+     frontend no puede leerla, así que la única forma de saber si hay sesión es
+     preguntárselo al servidor. Sin esto, recargar la página echaría al usuario
+     aunque su sesión siguiera viva.
+     
+     La query es la única fuente de verdad del usuario. Copiarla a un useState
+     obligaría a sincronizar dos estados y a hacerlo desde un efecto, que es
+     justo lo que provoca renders en cascada */
   const consultaSesion = useQuery<UsuarioSesion | null>({
     queryKey: CLAVE_SESION,
     queryFn: async () => {
@@ -57,16 +55,14 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
     enabled: !cierrePendiente,
   });
 
-  /**
-   * Descarta todo lo cacheado y deja la sesión explícitamente vacía. Los datos
-   * en caché son de personas con discapacidad y documentos de identificación:
-   * no deben sobrevivir al cierre de sesión ni quedar visibles para quien use
-   * la máquina después.
-   *
-   * Se vuelve a sembrar la clave de sesión en null tras el borrado para que la
-   * consulta no quede en estado pendiente y la pantalla de acceso aparezca de
-   * inmediato, sin un parpadeo en blanco.
-   */
+  /* Descarta todo lo cacheado y deja la sesión explícitamente vacía. Los datos
+     en caché son de personas con discapacidad y documentos de identificación:
+     no deben sobrevivir al cierre de sesión ni quedar visibles para quien use
+     la máquina después.
+     
+     Se vuelve a sembrar la clave de sesión en null tras el borrado para que la
+     consulta no quede en estado pendiente y la pantalla de acceso aparezca de
+     inmediato, sin un parpadeo en blanco. */
   const limpiarEstado = useCallback(() => {
     clienteQuery.clear();
     clienteQuery.setQueryData(CLAVE_SESION, null);

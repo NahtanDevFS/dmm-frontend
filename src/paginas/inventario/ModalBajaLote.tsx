@@ -17,42 +17,38 @@ import { CLAVE_RECEPCIONES } from "../../api/donaciones";
 import { nivelDe } from "./semaforo";
 import estilos from "./Inventario.module.css";
 
-/**
- * Lo que el modal necesita saber del lote. Se pide en piezas sueltas y no como
- * una fila del semáforo porque lo abren dos sitios con formas distintas: el
- * semáforo, donde el lote llega con su nivel de caducidad ya calculado, y la
- * ficha de la recepción, donde llega como renglón del envío y sin semáforo.
- */
+/* Lo que el modal necesita saber del lote. Se pide en piezas sueltas y no como
+   una fila del semáforo porque lo abren dos sitios con formas distintas: el
+   semáforo, donde el lote llega con su nivel de caducidad ya calculado, y la
+   ficha de la recepción, donde llega como renglón del envío y sin semáforo. */
 export interface LoteParaBaja {
   id: number;
   insumoNombre: string;
-  /** Código del envío o del fabricante, según desde dónde se abra. */
+  // Código del envío o del fabricante, según desde dónde se abra.
   codigo: string | null;
   fechaCaducidad: string | null;
   cantidadDisponible: number;
-  /** Nivel del semáforo, si quien abre lo conoce. */
+  // Nivel del semáforo, si quien abre lo conoce.
   semaforo?: string | null;
 }
 
-/**
- * Baja de un lote.
- *
- * No es una edición: la base ejecuta sp_dar_baja_insumo_vencido, que descarta
- * las existencias disponibles y deja el motivo escrito en las observaciones.
- * No hay reverso, así que el modal enseña primero qué lote es y cuánto se va a
- * descartar, y solo después pide el motivo.
- *
- * Sirve para dos cosas que parecen distintas y en la base son la misma: el
- * producto que se venció o se dañó, y el renglón que se capturó mal. El
- * procedimiento admite dar de baja un lote no vencido —solo levanta un
- * WARNING— justo para eso, y es hoy la única forma de deshacer un lote mal
- * registrado, porque el API no tiene edición ni borrado de lotes.
- *
- * El motivo es obligatorio en el backend y aquí también, pero por una razón
- * distinta: sin él la bitácora registra que alguien descartó producto y no por
- * qué, que es lo único que un auditor va a querer saber. Y es lo que separa
- * «se venció» de «me equivoqué al teclear».
- */
+/* Baja de un lote.
+   
+   No es una edición: la base ejecuta sp_dar_baja_insumo_vencido, que descarta
+   las existencias disponibles y deja el motivo escrito en las observaciones.
+   No hay reverso, así que el modal enseña primero qué lote es y cuánto se va a
+   descartar, y solo después pide el motivo.
+   
+   Sirve para dos cosas que parecen distintas y en la base son la misma: el
+   producto que se venció o se dañó, y el renglón que se capturó mal. El
+   procedimiento admite dar de baja un lote no vencido —solo levanta un
+   WARNING— justo para eso, y es hoy la única forma de deshacer un lote mal
+   registrado, porque el API no tiene edición ni borrado de lotes.
+   
+   El motivo es obligatorio en el backend y aquí también, pero por una razón
+   distinta: sin él la bitácora registra que alguien descartó producto y no por
+   qué, que es lo único que un auditor va a querer saber. Y es lo que separa
+   «se venció» de «me equivoqué al teclear». */
 function ModalBajaLote({
   lote,
   abierto,

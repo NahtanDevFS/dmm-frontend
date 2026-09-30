@@ -3,24 +3,24 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import axiosClient from "../api/axiosClient";
 import { LIMITE_MAXIMO, LIMITE_POR_DEFECTO, type Sobre } from "../types/api";
 
-/** Filtros de un listado. Los `undefined` no se envían. */
+// Filtros de un listado. Los `undefined` no se envían.
 export type Filtros = Record<
   string,
   string | number | boolean | undefined | null
 >;
 
 interface OpcionesListado {
-  /** Prefijo de la clave de caché. Por convención, el nombre del recurso. */
+  // Prefijo de la clave de caché. Por convención, el nombre del recurso.
   clave: string;
-  /** Ruta relativa al baseURL, sin barra inicial. Por ejemplo `personas`. */
+  // Ruta relativa al baseURL, sin barra inicial. Por ejemplo `personas`.
   ruta: string;
   filtros?: Filtros;
   limiteInicial?: number;
-  /** Falso para no consultar todavía (por ejemplo, mientras falta un filtro). */
+  // Falso para no consultar todavía (por ejemplo, mientras falta un filtro).
   habilitado?: boolean;
 }
 
-/** Descarta los filtros vacíos para no mandar `?busqueda=` sin valor. */
+// Descarta los filtros vacíos para no mandar `?busqueda=` sin valor.
 function limpiar(filtros: Filtros): Record<string, string> {
   const limpios: Record<string, string> = {};
   for (const [clave, valor] of Object.entries(filtros)) {
@@ -30,17 +30,15 @@ function limpiar(filtros: Filtros): Record<string, string> {
   return limpios;
 }
 
-/**
- * Listados de negocio paginados: personas, insumos, recepciones, solicitudes,
- * entregas, contratos, usuarios y auditoría.
- *
- * Encapsula el contrato de paginación del backend (`limite` de 1 a 200, 50 por
- * defecto, y `desplazamiento`) y lo traduce a algo que una tabla pueda usar
- * directamente: número de página, total de páginas y navegación.
- *
- * Los catálogos de selección no pasan por aquí: no paginan y devuelven el
- * arreglo completo. Para esos está useCatalogo.
- */
+/* Listados de negocio paginados: personas, insumos, recepciones, solicitudes,
+   entregas, contratos, usuarios y auditoría.
+   
+   Encapsula el contrato de paginación del backend (`limite` de 1 a 200, 50 por
+   defecto, y `desplazamiento`) y lo traduce a algo que una tabla pueda usar
+   directamente: número de página, total de páginas y navegación.
+   
+   Los catálogos de selección no pasan por aquí: no paginan y devuelven el
+   arreglo completo. Para esos está useCatalogo. */
 export function useListadoPaginado<T>({
   clave,
   ruta,
@@ -90,7 +88,7 @@ export function useListadoPaginado<T>({
 
   return {
     ...consulta,
-    /** Filas de la página actual. Nunca `undefined`, para no ramificar en cada tabla. */
+    // Filas de la página actual. Nunca `undefined`, para no ramificar en cada tabla.
     datos: consulta.data?.datos ?? [],
     total,
     hayMas,
@@ -98,7 +96,7 @@ export function useListadoPaginado<T>({
     desplazamiento,
     paginaActual,
     totalPaginas,
-    /** Verdadero al pasar de página, mientras se sigue mostrando la anterior. */
+    // Verdadero al pasar de página, mientras se sigue mostrando la anterior.
     cambiandoPagina: consulta.isPlaceholderData && consulta.isFetching,
     irAPagina: (pagina: number) => {
       const destino = Math.min(Math.max(pagina, 1), totalPaginas);

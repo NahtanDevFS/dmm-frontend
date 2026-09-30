@@ -1,13 +1,11 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Entregas físicas: gestiona cabeceras, detalles por insumo y asignación de lotes (FEFO/FIFO)
- * Evita mezclar entregas directas (medicinas/víveres) con despachos de solicitudes
- */
+/* Entregas físicas: gestiona cabeceras, detalles por insumo y asignación de lotes (FEFO/FIFO)
+   Evita mezclar entregas directas (medicinas/víveres) con despachos de solicitudes */
 
 /* Tipos del módulo */
 
-/** Cabecera de una entrega ya registrada. */
+// Cabecera de una entrega ya registrada.
 export interface Entrega {
   id: number;
   persona_id: number;
@@ -19,7 +17,7 @@ export interface Entrega {
   activo: boolean;
 }
 
-/** De qué lote salió una parte del renglón, y cuánto. */
+// De qué lote salió una parte del renglón, y cuánto.
 export interface LoteDeRenglon {
   id: number;
   detalle_inventario_lote_id: number;
@@ -28,17 +26,17 @@ export interface LoteDeRenglon {
   cantidad_entregada: number;
   activo: boolean;
   codigo_lote: string | null;
-  /** Número de serie del fabricante (identifica unidades precisas, distinto a código de lote) */
+  // Número de serie del fabricante (identifica unidades precisas, distinto a código de lote)
   numero_serie: string | null;
   fecha_caducidad: string | null;
 }
 
-/** Renglón de insumo entregado, detalle_solicitud_id nulo indica entrega directa */
+// Renglón de insumo entregado, detalle_solicitud_id nulo indica entrega directa
 export interface DetalleEntrega {
   id: number;
   insumo_id: number;
   insumo_nombre: string;
-  /** Unidad base del insumo: en ella se expresa cantidad_entregada. */
+  // Unidad base del insumo: en ella se expresa cantidad_entregada.
   unidad_nombre: string;
   detalle_solicitud_id: number | null;
   solicitud_id: number | null;
@@ -47,9 +45,9 @@ export interface DetalleEntrega {
   motivo_anulacion: string | null;
   fecha_anulacion: string | null;
   tiene_prestamo: boolean;
-  /** Si el insumo lleva serie por unidad: cambia cómo se rotula cada lote. */
+  // Si el insumo lleva serie por unidad: cambia cómo se rotula cada lote.
   serie_por_unidad: boolean;
-  /** Préstamo ya devuelto (bloquea la anulación para evitar sumas dobles en inventario) */
+  // Préstamo ya devuelto (bloquea la anulación para evitar sumas dobles en inventario)
   prestamo_devuelto: boolean;
   lotes: LoteDeRenglon[];
 }
@@ -63,21 +61,21 @@ export interface EvidenciaEntrega {
   activo: boolean;
 }
 
-/** Lo que devuelve GET /entregas/:id: la cabecera con sus sub-recursos. */
+// Lo que devuelve GET /entregas/:id: la cabecera con sus sub-recursos.
 export interface EntregaDetalle extends Entrega {
   detalles: DetalleEntrega[];
   evidencias: EvidenciaEntrega[];
 }
 
-/** Un insumo dentro de una fila del listado. */
+// Un insumo dentro de una fila del listado.
 export interface RenglonListado {
   insumo: string;
   cantidad: number;
-  /** Unidad base del insumo (Tableta, Caja de 100…), en singular. */
+  // Unidad base del insumo (Tableta, Caja de 100…), en singular.
   unidad: string;
 }
 
-/** Fila del listado, con nombres ya resueltos (no hay vista; los arma el backend). */
+// Fila del listado, con nombres ya resueltos (no hay vista; los arma el backend).
 export interface EntregaListado {
   id: number;
   fecha_entrega: string;
@@ -89,17 +87,17 @@ export interface EntregaListado {
   entregado_por: string;
   observaciones: string | null;
   activo: boolean;
-  /** Renglones no anulados, cada uno en la unidad base de su insumo. */
+  // Renglones no anulados, cada uno en la unidad base de su insumo.
   renglones: RenglonListado[];
-  /** Nombres de los insumos entregados, separados por coma. */
+  // Nombres de los insumos entregados, separados por coma.
   insumos: string;
-  /** Solicitud de la que salió, o null si fue una entrega directa. */
+  // Solicitud de la que salió, o null si fue una entrega directa.
   solicitud_id: number | null;
-  /** Cuántos renglones se anularon sin anular la entrega entera. */
+  // Cuántos renglones se anularon sin anular la entrega entera.
   renglones_anulados: number;
 }
 
-/** Un lote en el orden en que sp_registrar_entrega lo va a consumir. */
+// Un lote en el orden en que sp_registrar_entrega lo va a consumir.
 export interface LoteFifo {
   detalle_inventario_lote_id: number;
   codigo_lote: string | null;
@@ -109,17 +107,17 @@ export interface LoteFifo {
   orden_fifo: string;
 }
 
-/** Un insumo a entregar dentro de la misma entrega. */
+// Un insumo a entregar dentro de la misma entrega.
 export interface RenglonEntrega {
   insumo_id: number;
   cantidad: number;
-  /** Línea origen de la solicitud (todas las filas deben coincidir en tenerlo o no) */
+  // Línea origen de la solicitud (todas las filas deben coincidir en tenerlo o no)
   detalle_solicitud_id?: number | null;
 }
 
 export interface DatosEntrega {
   persona_id: number;
-  /** Al menos uno. El backend registra una sola entrega con todos ellos. */
+  // Al menos uno. El backend registra una sola entrega con todos ellos.
   insumos: RenglonEntrega[];
   persona_receptor_id?: number | null;
   tipo_parentesco_receptor_id?: number | null;
@@ -138,13 +136,13 @@ export interface FiltrosEntregas {
 
 export const CLAVE_ENTREGAS = "entregas";
 
-/** Obtiene la entrega y sus sub-recursos (detalles y evidencias) */
+// Obtiene la entrega y sus sub-recursos (detalles y evidencias)
 export async function obtenerEntrega(id: number): Promise<EntregaDetalle> {
   const { data } = await axiosClient.get<EntregaDetalle>("entregas/" + id);
   return data;
 }
 
-/** Previsualización de orden FEFO/FIFO al momento actual, solo lectura */
+// Previsualización de orden FEFO/FIFO al momento actual, solo lectura
 export async function listarLotesFifo(insumoId: number): Promise<LoteFifo[]> {
   const { data } = await axiosClient.get<LoteFifo[]>("entregas/lotes-fifo", {
     params: { insumoId },
@@ -152,7 +150,7 @@ export async function listarLotesFifo(insumoId: number): Promise<LoteFifo[]> {
   return data;
 }
 
-/** Registra una entrega consumiendo inventario (FEFO/FIFO automático) */
+// Registra una entrega consumiendo inventario (FEFO/FIFO automático)
 export async function registrarEntrega(
   datos: DatosEntrega,
 ): Promise<EntregaDetalle> {
@@ -160,7 +158,7 @@ export async function registrarEntrega(
   return data;
 }
 
-/** Anula la entrega completa: todos sus renglones y todo su inventario. */
+// Anula la entrega completa: todos sus renglones y todo su inventario.
 export async function anularEntrega(
   id: number,
   motivo: string,
@@ -172,7 +170,7 @@ export async function anularEntrega(
   return data;
 }
 
-/** Anulación parcial de insumo, rechazada por backend si hay préstamos vinculados */
+// Anulación parcial de insumo, rechazada por backend si hay préstamos vinculados
 export async function anularDetalleEntrega(
   entregaId: number,
   detalleId: number,
@@ -196,7 +194,7 @@ export async function listarEvidencias(
   return data;
 }
 
-/** Sube evidencia como multipart (`archivo`) */
+// Sube evidencia como multipart (`archivo`)
 export async function subirEvidencia(
   entregaId: number,
   datos: { archivo: File; tipoEvidenciaId: number; observaciones?: string },
@@ -213,7 +211,7 @@ export async function subirEvidencia(
   return data;
 }
 
-/** Elimina (baja lógica) y devuelve la lista de evidencias ya actualizada. */
+// Elimina (baja lógica) y devuelve la lista de evidencias ya actualizada.
 export async function eliminarEvidencia(
   entregaId: number,
   evidenciaId: number,

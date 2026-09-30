@@ -5,11 +5,9 @@ import {
   envolverConQueryClient,
 } from "../../../test/reactQuery";
 
-/**
- * Se mockea axiosClient, no el hook: lo que hay que verificar es la
- * derivación (contar por color a partir del arreglo crudo), que vive en
- * useCaducidades y no en la petición HTTP en sí.
- */
+/* Se mockea axiosClient, no el hook: lo que hay que verificar es la
+   derivación (contar por color a partir del arreglo crudo), que vive en
+   useCaducidades y no en la petición HTTP en sí. */
 vi.mock("../../../api/axiosClient", () => ({
   default: { get: vi.fn() },
 }));

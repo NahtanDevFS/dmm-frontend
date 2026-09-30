@@ -16,13 +16,11 @@ import {
 import type { Comunidad, Departamento, Municipio } from "../../types/api";
 import estilos from "./Catalogos.module.css";
 
-/**
- * Comunidades.
- *
- * Va aparte del CRUD genérico porque su contrato no es el mismo: exige
- * municipio_id y su unicidad es por (nombre, municipio_id), así que dos
- * municipios pueden tener una comunidad con el mismo nombre sin chocar.
- */
+/* Comunidades.
+   
+   Va aparte del CRUD genérico porque su contrato no es el mismo: exige
+   municipio_id y su unicidad es por (nombre, municipio_id), así que dos
+   municipios pueden tener una comunidad con el mismo nombre sin chocar. */
 function SeccionComunidades() {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
@@ -35,11 +33,9 @@ function SeccionComunidades() {
 
   const departamentos = useCatalogo<Departamento>("departamentos");
 
-  /**
-   * Selects encadenados: los municipios se piden por departamento. Traerlos
-   * todos daría una lista de cientos donde el usuario tendría que reconocer a
-   * cuál pertenece cada nombre repetido.
-   */
+  /* Selects encadenados: los municipios se piden por departamento. Traerlos
+     todos daría una lista de cientos donde el usuario tendría que reconocer a
+     cuál pertenece cada nombre repetido. */
   const municipios = useCatalogo<Municipio>("municipios", {
     parametros: { departamentoId: departamentoId || undefined },
     habilitado: Boolean(departamentoId),

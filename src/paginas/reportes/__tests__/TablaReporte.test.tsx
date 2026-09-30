@@ -2,11 +2,9 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import TablaReporte from "../TablaReporte";
 
-/**
- * Las columnas de catálogo de un reporte llegan como identificador
- * (FEMENINO, ADULTO_MAYOR) y se mostraban así. Se traducen solo esas: los
- * demás textos (nombres, comunidades) se dejan tal cual.
- */
+/* Las columnas de catálogo de un reporte llegan como identificador
+   (FEMENINO, ADULTO_MAYOR) y se mostraban así. Se traducen solo esas: los
+   demás textos (nombres, comunidades) se dejan tal cual. */
 describe("TablaReporte", () => {
   it("muestra legibles las columnas de catálogo y deja igual el resto", () => {
     render(

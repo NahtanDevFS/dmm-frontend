@@ -21,20 +21,18 @@ import { NIVELES, ORDEN_SEMAFORO } from "./semaforo";
 import ModalBajaLote from "./ModalBajaLote";
 import estilos from "./Inventario.module.css";
 
-/**
- * Semáforo de caducidad (RF-INV-02).
- *
- * Una fila por lote y no por insumo: lo que vence es el lote, y un mismo
- * insumo puede tener a la vez existencias vencidas y existencias vigentes.
- * Agregarlo por insumo escondería justo el lote que hay que retirar.
- *
- * Se pide entero y se filtra en el cliente. El endpoint acepta insumoId y
- * semaforo, pero no pagina ni devuelve conteos, y el resumen por nivel hay que
- * calcularlo sobre el conjunto completo de todas formas: filtrar en el
- * servidor obligaría a pedir la lista dos veces para poder contar. El
- * inventario de la DMM se mide en cientos de lotes; si algún día creciera de
- * verdad, lo que hace falta es un endpoint de resumen, no paginar este.
- */
+/* Semáforo de caducidad (RF-INV-02).
+   
+   Una fila por lote y no por insumo: lo que vence es el lote, y un mismo
+   insumo puede tener a la vez existencias vencidas y existencias vigentes.
+   Agregarlo por insumo escondería justo el lote que hay que retirar.
+   
+   Se pide entero y se filtra en el cliente. El endpoint acepta insumoId y
+   semaforo, pero no pagina ni devuelve conteos, y el resumen por nivel hay que
+   calcularlo sobre el conjunto completo de todas formas: filtrar en el
+   servidor obligaría a pedir la lista dos veces para poder contar. El
+   inventario de la DMM se mide en cientos de lotes; si algún día creciera de
+   verdad, lo que hace falta es un endpoint de resumen, no paginar este. */
 function SeccionSemaforo({
   onVerFicha,
 }: {
@@ -51,7 +49,7 @@ function SeccionSemaforo({
 
   const lotes = useMemo(() => consulta.data ?? [], [consulta.data]);
 
-  /** Conteo por nivel sobre el conjunto completo, no sobre lo filtrado. */
+  // Conteo por nivel sobre el conjunto completo, no sobre lo filtrado.
   const conteos = useMemo(() => {
     const total: Record<string, number> = {};
     for (const lote of lotes) {
@@ -60,7 +58,7 @@ function SeccionSemaforo({
     return total;
   }, [lotes]);
 
-  /** Insumos presentes en el inventario, para el filtro. Sin repetir. */
+  // Insumos presentes en el inventario, para el filtro. Sin repetir.
   const insumos = useMemo(() => {
     const porId = new Map<number, string>();
     for (const lote of lotes) porId.set(lote.insumo_id, lote.insumo_nombre);

@@ -28,13 +28,11 @@ import { nivelDe } from "./semaforo";
 import ModalInsumo from "./ModalInsumo";
 import estilos from "./Inventario.module.css";
 
-/**
- * Catálogo de insumos.
- *
- * Es el listado maestro del módulo: define *qué* puede entrar en bodega, no
- * cuánto hay. Las existencias son cosa del semáforo y de la ficha de cada
- * insumo, porque viven a nivel de lote y no de insumo.
- */
+/* Catálogo de insumos.
+   
+   Es el listado maestro del módulo: define *qué* puede entrar en bodega, no
+   cuánto hay. Las existencias son cosa del semáforo y de la ficha de cada
+   insumo, porque viven a nivel de lote y no de insumo. */
 function SeccionInsumos({
   puedeGestionar,
   onVerFicha,
@@ -49,11 +47,9 @@ function SeccionInsumos({
   const [incluirInactivos, setIncluirInactivos] = useState(false);
   const [editando, setEditando] = useState<Insumo | null>(null);
 
-  /**
-   * Con los inactivos incluidos: un insumo puede apuntar a una categoría o a
-   * una unidad dada de baja después, y sin esto la fila mostraría un guion
-   * donde sí hay un dato.
-   */
+  /* Con los inactivos incluidos: un insumo puede apuntar a una categoría o a
+     una unidad dada de baja después, y sin esto la fila mostraría un guion
+     donde sí hay un dato. */
   const categorias = useCatalogo<ElementoCatalogo>("categorias-insumo", {
     incluirInactivos: true,
   });
@@ -70,17 +66,15 @@ function SeccionInsumos({
     [busqueda, categoriaId, incluirInactivos],
   );
 
-  /**
-   * Existencias de todos los insumos en una sola consulta, para poder
-   * mostrarlas en el listado.
-   *
-   * Sin esto, la tabla decía qué insumos existen pero no si había alguno: para
-   * contestar «¿hay acetaminofén?» había que entrar a la ficha de cada uno. El
-   * dato que se busca en un catálogo de insumos casi siempre es cuánto queda.
-   *
-   * Se consulta aparte del listado porque este está paginado y filtrado por el
-   * servidor, y v_stock_insumo no conoce esos filtros; se cruzan por id.
-   */
+  /* Existencias de todos los insumos en una sola consulta, para poder
+     mostrarlas en el listado.
+     
+     Sin esto, la tabla decía qué insumos existen pero no si había alguno: para
+     contestar «¿hay acetaminofén?» había que entrar a la ficha de cada uno. El
+     dato que se busca en un catálogo de insumos casi siempre es cuánto queda.
+     
+     Se consulta aparte del listado porque este está paginado y filtrado por el
+     servidor, y v_stock_insumo no conoce esos filtros; se cruzan por id. */
   const stock = useQuery({
     queryKey: [CLAVE_INSUMOS, "stock"],
     queryFn: () => listarStockInsumos(),

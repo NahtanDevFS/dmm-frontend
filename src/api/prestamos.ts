@@ -1,9 +1,7 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Préstamos de equipo: contratos vinculados a entregas físicas (detalle_entrega_id)
- * Las renovaciones forman cadenas lineales donde solo el último es modificable
- */
+/* Préstamos de equipo: contratos vinculados a entregas físicas (detalle_entrega_id)
+   Las renovaciones forman cadenas lineales donde solo el último es modificable */
 
 /* Tipos del módulo */
 
@@ -12,7 +10,7 @@ export const ESTADO_CONTRATO = {
   DEVUELTO: "DEVUELTO",
   VENCIDO: "VENCIDO",
   EXTENDIDO: "EXTENDIDO",
-  /** Contrato cerrado sin restituir inventario (equipo perdido/incobrable) */
+  // Contrato cerrado sin restituir inventario (equipo perdido/incobrable)
   NO_DEVUELTO: "NO_DEVUELTO",
 } as const;
 
@@ -27,15 +25,13 @@ export interface Contrato {
   fecha_devolucion_pactada: string;
   fecha_devolucion_real: string | null;
   estado_id: number;
-  /**
-   * Por qué se anuló el contrato o por qué se dio el equipo por no devuelto.
-   * Vacío mientras el préstamo sigue su curso normal.
-   */
+  /* Por qué se anuló el contrato o por qué se dio el equipo por no devuelto.
+     Vacío mientras el préstamo sigue su curso normal. */
   motivo_cierre: string | null;
   activo: boolean;
 }
 
-/** Fila del listado: persona e insumo ya resueltos, subiendo por la cadena hasta la raíz. */
+// Fila del listado: persona e insumo ya resueltos, subiendo por la cadena hasta la raíz.
 export interface ContratoListado {
   id: number;
   contrato_anterior_id: number | null;
@@ -80,7 +76,7 @@ export interface Multa {
   activo: boolean;
 }
 
-/** Evidencias centralizadas (contrato firmado, DPI, fotos) sin requerir estudio socioeconómico */
+// Evidencias centralizadas (contrato firmado, DPI, fotos) sin requerir estudio socioeconómico
 export interface EvidenciaContrato {
   id: number;
   contrato_prestamo_id: number;
@@ -90,18 +86,18 @@ export interface EvidenciaContrato {
   activo: boolean;
 }
 
-/** Lo que devuelve GET /contratos/:id: la cabecera con sus sub-recursos. */
+// Lo que devuelve GET /contratos/:id: la cabecera con sus sub-recursos.
 export interface ContratoDetalle extends Contrato {
   multas: Multa[];
-  /** La cadena completa de renovaciones a la que pertenece, en orden. */
+  // La cadena completa de renovaciones a la que pertenece, en orden.
   cadena: Contrato[];
-  /** El DPI de quien firma, frontal/reverso, y cualquier otra evidencia. */
+  // El DPI de quien firma, frontal/reverso, y cualquier otra evidencia.
   evidencias: EvidenciaContrato[];
-  /** Resueltos desde el contrato raíz (undefined si no hay entrega física resoluble) */
+  // Resueltos desde el contrato raíz (undefined si no hay entrega física resoluble)
   persona_id?: number;
   persona_nombre_completo?: string;
   insumo_nombre?: string;
-  /** Serie del equipo (permite verificar que la devolución es correcta) */
+  // Serie del equipo (permite verificar que la devolución es correcta)
   numero_serie?: string | null;
   cantidad_entregada?: number;
 }
@@ -114,7 +110,7 @@ export interface DatosCrearContrato {
 
 export interface DatosAplicarMulta {
   tipo_multa_id: number;
-  /** Si se omite, el backend usa el monto_sugerido del tipo de multa. */
+  // Si se omite, el backend usa el monto_sugerido del tipo de multa.
   monto?: number;
   motivo?: string | null;
   fecha_aplicacion?: string;
@@ -141,10 +137,10 @@ export async function listarContratosVencidos(): Promise<ContratoVencido[]> {
   return data;
 }
 
-/** Solo DIRECCION: pone en VENCIDO los contratos con fecha pactada ya pasada. */
+// Solo DIRECCION: pone en VENCIDO los contratos con fecha pactada ya pasada.
 export async function marcarVencidos(): Promise<{
   actualizados: number;
-  /** Multas por atraso aplicadas automáticamente en la misma pasada. */
+  // Multas por atraso aplicadas automáticamente en la misma pasada.
   multas: number;
   message: string;
 }> {
@@ -156,16 +152,14 @@ export async function marcarVencidos(): Promise<{
   return data;
 }
 
-/**
- * Alta completa de préstamo (entrega y contrato)
- * No requiere solicitud previa, las fotos y DPI se adjuntan en el siguiente paso
- */
+/* Alta completa de préstamo (entrega y contrato)
+   No requiere solicitud previa, las fotos y DPI se adjuntan en el siguiente paso */
 export async function crearPrestamoDirecto(datos: {
   persona_id: number;
   insumo_id: number;
   fecha_devolucion_pactada: string;
   observaciones?: string | null;
-  /** Identificador de serie, evita selección automática por FEFO en equipos enumerables */
+  // Identificador de serie, evita selección automática por FEFO en equipos enumerables
   detalle_inventario_lote_id?: number | null;
 }): Promise<Contrato & { entrega_id: number }> {
   const { data } = await axiosClient.post<Contrato & { entrega_id: number }>(
@@ -175,7 +169,7 @@ export async function crearPrestamoDirecto(datos: {
   return data;
 }
 
-/** Crea el contrato inicial desde la ficha de entrega */
+// Crea el contrato inicial desde la ficha de entrega
 export async function crearContrato(
   datos: DatosCrearContrato,
 ): Promise<Contrato> {
@@ -183,7 +177,7 @@ export async function crearContrato(
   return data;
 }
 
-/** Renueva un préstamo extendiendo su fecha de devolución */
+// Renueva un préstamo extendiendo su fecha de devolución
 export async function renovarContrato(
   id: number,
   fechaDevolucionPactada: string,
@@ -205,7 +199,7 @@ export async function editarContrato(
   return data;
 }
 
-/** Registra la devolución (backend resuelve el contrato raíz) */
+// Registra la devolución (backend resuelve el contrato raíz)
 export async function registrarDevolucion(
   id: number,
 ): Promise<ContratoDetalle> {
@@ -215,7 +209,7 @@ export async function registrarDevolucion(
   return data;
 }
 
-/** Anula contrato y entrega por error de captura (rechaza si hay multas) */
+// Anula contrato y entrega por error de captura (rechaza si hay multas)
 export async function anularContrato(
   id: number,
   motivo: string,
@@ -227,7 +221,7 @@ export async function anularContrato(
   return data;
 }
 
-/** Cierra un préstamo por no devolución (stock no se restituye) */
+// Cierra un préstamo por no devolución (stock no se restituye)
 export async function marcarNoDevuelto(
   id: number,
   motivo: string,
@@ -308,7 +302,7 @@ export async function listarEvidenciasContrato(
   return data;
 }
 
-/** Sube evidencia como multipart (`archivo`) */
+// Sube evidencia como multipart (`archivo`)
 export async function subirEvidenciaContrato(
   contratoId: number,
   datos: { archivo: File; tipoEvidenciaId: number; observaciones?: string },
@@ -325,7 +319,7 @@ export async function subirEvidenciaContrato(
   return data;
 }
 
-/** Elimina (baja lógica) y devuelve la lista de evidencias ya actualizada. */
+// Elimina (baja lógica) y devuelve la lista de evidencias ya actualizada.
 export async function eliminarEvidenciaContrato(
   contratoId: number,
   evidenciaId: number,

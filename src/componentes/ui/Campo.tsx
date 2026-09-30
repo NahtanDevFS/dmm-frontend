@@ -14,20 +14,18 @@ import estilos from "./Campo.module.css";
 interface PropsBase {
   etiqueta: string;
   obligatorio?: boolean;
-  /** Texto de ayuda bajo el campo. Se oculta cuando hay error, para no competir. */
+  // Texto de ayuda bajo el campo. Se oculta cuando hay error, para no competir.
   ayuda?: string;
   error?: string;
   className?: string;
 }
 
-/**
- * Envoltura común: etiqueta, control, ayuda y error, con los identificadores
- * ya enlazados.
- *
- * El enlace es lo que justifica que exista: `htmlFor`, `aria-describedby` y
- * `aria-invalid` son fáciles de olvidar campo por campo, y sin ellos el lector
- * de pantalla anuncia un input sin nombre y un error que nadie oye.
- */
+/* Envoltura común: etiqueta, control, ayuda y error, con los identificadores
+   ya enlazados.
+   
+   El enlace es lo que justifica que exista: `htmlFor`, `aria-describedby` y
+   `aria-invalid` son fáciles de olvidar campo por campo, y sin ellos el lector
+   de pantalla anuncia un input sin nombre y un error que nadie oye. */
 function useCampo({ obligatorio, ayuda, error }: PropsBase) {
   const id = useId();
   const idAyuda = ayuda ? id + "-ayuda" : undefined;
@@ -98,13 +96,13 @@ function Envoltura({
 
 type PropsTexto = PropsBase &
   Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "required"> & {
-    /** Monoespaciada: CUI/DPI, códigos de lote, folios. */
+    // Monoespaciada: CUI/DPI, códigos de lote, folios.
     identificador?: boolean;
-    /** Alineado a la derecha y con cifras tabulares. */
+    // Alineado a la derecha y con cifras tabulares.
     numerico?: boolean;
-    /** Solo lectura y en gris tintado: se lee como resultado, no como entrada. */
+    // Solo lectura y en gris tintado: se lee como resultado, no como entrada.
     calculado?: boolean;
-    /** Control adjunto a la derecha: «+ Nueva», «Buscar». */
+    // Control adjunto a la derecha: «+ Nueva», «Buscar».
     accion?: ReactNode;
   };
 
@@ -156,12 +154,10 @@ export function CampoTexto({
   );
 }
 
-/**
- * Teléfono guatemalteco. Descarta al teclear lo que no puede ser parte de un
- * número y corta en el largo máximo; la regla de los ocho dígitos se sigue
- * validando en el esquema. Filtra sobre el mismo evento, así que funciona
- * igual controlado que con register() de react-hook-form.
- */
+/* Teléfono guatemalteco. Descarta al teclear lo que no puede ser parte de un
+   número y corta en el largo máximo; la regla de los ocho dígitos se sigue
+   validando en el esquema. Filtra sobre el mismo evento, así que funciona
+   igual controlado que con register() de react-hook-form. */
 export function CampoTelefono({
   onChange,
   placeholder = "5512 3344",
@@ -186,7 +182,7 @@ export function CampoTelefono({
 
 type PropsSelect = PropsBase &
   Omit<SelectHTMLAttributes<HTMLSelectElement>, "id" | "required"> & {
-    /** Texto de la opción vacía. Se omite en un select ya resuelto. */
+    // Texto de la opción vacía. Se omite en un select ya resuelto.
     marcador?: string;
     accion?: ReactNode;
     children: ReactNode;

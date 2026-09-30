@@ -28,10 +28,8 @@ import { normalizarTelefono, telefonoValido } from "../../lib/telefono";
 import estilos from "./Ficha.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Hook común de secciones (refresca ficha, avisa y traduce error)
- * Centraliza invalidación de query para evitar datos fantasma
- */
+/* Hook común de secciones (refresca ficha, avisa y traduce error)
+   Centraliza invalidación de query para evitar datos fantasma */
 function useAccionFicha(personaId: number) {
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
@@ -164,10 +162,8 @@ export function SeccionDiscapacidades({
 
 /* Encargados */
 
-/**
- * Encargados de persona registrada
- * Recomendado para menores y personas con discapacidad (no bloqueante)
- */
+/* Encargados de persona registrada
+   Recomendado para menores y personas con discapacidad (no bloqueante) */
 export function SeccionEncargados({
   personaId,
   encargados,

@@ -20,10 +20,10 @@ import RenderizadorCampo from "./RenderizadorCampo";
 import { calcularSugerencias } from "./sugerencias";
 import estilos from "./Formularios.module.css";
 
-/** Valores de los campos sueltos: uno por campo (numero_fila siempre 1). */
+// Valores de los campos sueltos: uno por campo (numero_fila siempre 1).
 type ValoresSueltos = Record<number, string | null>;
 
-/** Valores de un grupo repetible: un array de filas, cada una campoId -> valor. */
+// Valores de un grupo repetible: un array de filas, cada una campoId -> valor.
 type FilaGrupo = Record<number, string | null>;
 type ValoresGrupos = Record<string, FilaGrupo[]>;
 
@@ -39,7 +39,7 @@ function agruparCampos(campos: FormularioCampo[]) {
   return { sueltos, grupos };
 }
 
-/** Nombre legible para un grupo repetible, a falta de un catálogo de nombres de grupo. */
+// Nombre legible para un grupo repetible, a falta de un catálogo de nombres de grupo.
 function tituloDeGrupo(nombreGrupo: string): string {
   return nombreGrupo
     .split("_")
@@ -53,12 +53,10 @@ function filaVacia(camposDelGrupo: FormularioCampo[]): FilaGrupo {
   return fila;
 }
 
-/**
- * Estado inicial a partir de las respuestas ya guardadas (si las hay). Vive
- * fuera del componente para poder usarse como inicializador perezoso de
- * useState: así la precarga ocurre una sola vez, en el primer render, sin
- * useEffect ni setState posterior a montar.
- */
+/* Estado inicial a partir de las respuestas ya guardadas (si las hay). Vive
+   fuera del componente para poder usarse como inicializador perezoso de
+   useState: así la precarga ocurre una sola vez, en el primer render, sin
+   useEffect ni setState posterior a montar. */
 function estadoInicial(
   formulario: FormularioConCampos,
   respuestas: RespuestasFormulario,
@@ -86,19 +84,17 @@ function estadoInicial(
   return { sueltos, grupos };
 }
 
-/**
- * Formulario dinámico: renderiza cualquier configuración de formulario_campo
- * sin conocerla de antemano. Los campos sueltos van en una rejilla; los que
- * comparten grupo_repetible se agrupan en su propia tabla de filas, con
- * "+ Agregar" y "Quitar" — el grupo familiar y los egresos mensuales del
- * estudio socioeconómico son el caso que motivó esto, pero cualquier
- * formulario configurado con un grupo_repetible nuevo se beneficia igual.
- *
- * Este componente solo carga los datos y decide loading/error/vacío; una
- * vez que formulario y respuestas están listos, delega en FormularioInterno
- * (más abajo), que sí puede inicializar su estado en el primer render sin
- * useEffect porque para entonces los datos ya existen.
- */
+/* Formulario dinámico: renderiza cualquier configuración de formulario_campo
+   sin conocerla de antemano. Los campos sueltos van en una rejilla; los que
+   comparten grupo_repetible se agrupan en su propia tabla de filas, con
+   "+ Agregar" y "Quitar" — el grupo familiar y los egresos mensuales del
+   estudio socioeconómico son el caso que motivó esto, pero cualquier
+   formulario configurado con un grupo_repetible nuevo se beneficia igual.
+   
+   Este componente solo carga los datos y decide loading/error/vacío; una
+   vez que formulario y respuestas están listos, delega en FormularioInterno
+   (más abajo), que sí puede inicializar su estado en el primer render sin
+   useEffect porque para entonces los datos ya existen. */
 function ModalFormulario({
   detalleSolicitudId,
   formularioId,
@@ -112,7 +108,7 @@ function ModalFormulario({
   nombreFormulario: string;
   abierto: boolean;
   onCerrar: () => void;
-  /** true si la línea ya no admite editarse (cancelada, o solicitud inactiva). */
+  // true si la línea ya no admite editarse (cancelada, o solicitud inactiva).
   soloLectura?: boolean;
 }) {
   const formulario = useQuery({
@@ -231,11 +227,9 @@ function FormularioInterno({
     Record<number, string>
   >({});
 
-  /**
-   * Lo que el sistema puede deducir de lo ya escrito: la talla de silla que
-   * corresponde a la cadera medida, las posiciones de reposapiés y respaldo.
-   * Se recalculan en cada tecla, así que aparecen mientras se mide.
-   */
+  /* Lo que el sistema puede deducir de lo ya escrito: la talla de silla que
+     corresponde a la cadera medida, las posiciones de reposapiés y respaldo.
+     Se recalculan en cada tecla, así que aparecen mientras se mide. */
   const sugerencias = calcularSugerencias(formulario.campos, sueltos);
 
   const hayCambios =
@@ -323,7 +317,7 @@ function FormularioInterno({
     return resultado;
   };
 
-  /** Campos sueltos obligatorios sin responder. Los de un grupo no se exigen por fila. */
+  // Campos sueltos obligatorios sin responder. Los de un grupo no se exigen por fila.
   const validarObligatorios = (): boolean => {
     const errores: Record<number, string> = {};
     for (const campo of camposSueltos) {

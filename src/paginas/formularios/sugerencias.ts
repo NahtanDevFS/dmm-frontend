@@ -1,9 +1,7 @@
 import type { FormularioCampo } from "../../api/formularios";
 
-/**
- * Cálculo de sugerencias basadas en respuestas previas (ej. tallas de silla)
- * Son textos de ayuda no vinculantes, resueltos emparejando por etiqueta
- */
+/* Cálculo de sugerencias basadas en respuestas previas (ej. tallas de silla)
+   Son textos de ayuda no vinculantes, resueltos emparejando por etiqueta */
 
 const ETIQUETA_CADERA = "Ancho de la cadera (cm)";
 const ETIQUETA_PIERNA = "Largo de la pierna (cm)";
@@ -12,7 +10,7 @@ const ETIQUETA_TALLA = "Talla de silla resultante";
 const ETIQUETA_POS_PIERNA = "Posición del reposapiés";
 const ETIQUETA_POS_ESPALDA = "Posición del respaldo";
 
-/** Rangos con límite superior excluyente para tallas GEN_2 */
+// Rangos con límite superior excluyente para tallas GEN_2
 const TALLAS_GEN_2: [number, number, string][] = [
   [25, 33, "GEN_2 S"],
   [33, 38, "GEN_2 M"],
@@ -35,17 +33,15 @@ function tallaPara(
   return fila ? fila[2] : null;
 }
 
-/**
- * Posición de reposapiés según largo de pierna
- * El texto debe coincidir con opciones en base de datos
- */
+/* Posición de reposapiés según largo de pierna
+   El texto debe coincidir con opciones en base de datos */
 function posicionPierna(cm: number): string {
   if (cm < 41) return "La más corta";
   if (cm <= 47) return "Media";
   return "La más larga";
 }
 
-/** Posición del respaldo según la altura de la espalda. Misma advertencia. */
+// Posición del respaldo según la altura de la espalda. Misma advertencia.
 function posicionEspalda(cm: number): string {
   if (cm < 44) return "La más baja";
   if (cm < 48) return "Media-baja";
@@ -53,14 +49,14 @@ function posicionEspalda(cm: number): string {
   return "La más alta";
 }
 
-/** Convierte a número lo escrito, o null si no es un número usable. */
+// Convierte a número lo escrito, o null si no es un número usable.
 function numero(valor: string | null | undefined): number | null {
   if (valor === null || valor === undefined || valor.trim() === "") return null;
   const n = Number(valor);
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-/** Devuelve por ID de campo el texto sugerido (vacío si no hay sugerencias) */
+// Devuelve por ID de campo el texto sugerido (vacío si no hay sugerencias)
 export function calcularSugerencias(
   campos: FormularioCampo[],
   valores: Record<number, string | null>,

@@ -29,16 +29,14 @@ import {
 import estilos from "./PaginaInicio.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/**
- * Qué hace cada módulo, para describirlo en su atajo.
- *
- * Los atajos se derivan de NAVEGACION en vez de mantener una lista aparte:
- * antes eran cinco escritos a mano y los módulos que se agregaban después
- * nunca llegaban aquí. Ahora aparece todo lo que el rol puede abrir, y si
- * mañana nace un módulo, su atajo nace con él.
- *
- * Inicio se excluye por razones obvias: es donde ya está el usuario.
- */
+/* Qué hace cada módulo, para describirlo en su atajo.
+   
+   Los atajos se derivan de NAVEGACION en vez de mantener una lista aparte:
+   antes eran cinco escritos a mano y los módulos que se agregaban después
+   nunca llegaban aquí. Ahora aparece todo lo que el rol puede abrir, y si
+   mañana nace un módulo, su atajo nace con él.
+   
+   Inicio se excluye por razones obvias: es donde ya está el usuario. */
 const TEXTO_MODULO: Record<string, string> = {
   "/beneficiarios": "Registrar personas, encargados y documentos.",
   "/solicitudes": "Crear una solicitud, llenar formularios y aprobar.",
@@ -52,7 +50,7 @@ const TEXTO_MODULO: Record<string, string> = {
   "/auditoria": "Quién cambió qué y cuándo.",
 };
 
-/** Valor del indicador, o su esqueleto mientras llega. */
+// Valor del indicador, o su esqueleto mientras llega.
 function Valor({
   cargando,
   error,
@@ -69,7 +67,7 @@ function Valor({
   return <>{valor ?? 0}</>;
 }
 
-/** "2026-04-01" → "abr". Corto porque son cinco o seis a la vez en el eje. */
+// "2026-04-01" → "abr". Corto porque son cinco o seis a la vez en el eje.
 function mesCorto(valorIso: string): string {
   const [, mes] = valorIso.split("-");
   const fecha = new Date(2000, Number(mes) - 1, 1);
@@ -88,11 +86,9 @@ function PaginaInicio() {
   const entregasPorMes = useEntregasPorMes(6);
   const stockGrafica = useStockPorCategoriaGrafica();
 
-  /**
-   * Rango del período, por omisión el mes en curso: es la ventana con la que
-   * se piensa el trabajo de la Dirección, y arrancar en blanco obligaría a
-   * elegir fechas antes de ver nada.
-   */
+  /* Rango del período, por omisión el mes en curso: es la ventana con la que
+     se piensa el trabajo de la Dirección, y arrancar en blanco obligaría a
+     elegir fechas antes de ver nada. */
   const hoy = new Date();
   const [desde, setDesde] = useState(
     new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().slice(0, 10),

@@ -16,19 +16,17 @@ import {
 import type { ElementoCatalogo } from "../../types/api";
 import estilos from "./Ficha.module.css";
 
-/**
- * Documentos de identificación del beneficiario.
- *
- * Es el bloque con los datos más sensibles de la ficha: fotografías de DPI y
- * partidas de nacimiento. Los archivos se sirven tras la sesión, así que no
- * se muestran en línea ni se previsualizan; se abren a propósito, uno a uno.
- */
+/* Documentos de identificación del beneficiario.
+   
+   Es el bloque con los datos más sensibles de la ficha: fotografías de DPI y
+   partidas de nacimiento. Los archivos se sirven tras la sesión, así que no
+   se muestran en línea ni se previsualizan; se abren a propósito, uno a uno. */
 function SeccionDocumentos({
   personaId,
   cuiPersona,
 }: {
   personaId: number;
-  /** CUI/DPI de la ficha, para no volver a teclearlo al subir cada cara. */
+  // CUI/DPI de la ficha, para no volver a teclearlo al subir cada cara.
   cuiPersona?: string | null;
 }) {
   const clienteQuery = useQueryClient();
@@ -39,14 +37,12 @@ function SeccionDocumentos({
   const [tipoId, setTipoId] = useState("");
   const [numero, setNumero] = useState("");
 
-  /**
-   * Al elegir un tipo de DPI se propone el CUI de la ficha.
-   *
-   * Las dos caras llevan el mismo número y ese número ya está registrado en
-   * la persona: volver a teclearlo trece dígitos por cada foto es la clase de
-   * repetición donde se cuelan los errores. Sigue siendo editable, por si el
-   * documento que se sube es de otra persona (el encargado, por ejemplo).
-   */
+  /* Al elegir un tipo de DPI se propone el CUI de la ficha.
+     
+     Las dos caras llevan el mismo número y ese número ya está registrado en
+     la persona: volver a teclearlo trece dígitos por cada foto es la clase de
+     repetición donde se cuelan los errores. Sigue siendo editable, por si el
+     documento que se sube es de otra persona (el encargado, por ejemplo). */
   const elegirTipo = (id: string) => {
     setTipoId(id);
     const nombre = tipos.opciones.find((t) => String(t.id) === id)?.nombre;

@@ -1,16 +1,14 @@
-/**
- * Texto legible de los valores de catálogo que el API devuelve como
- * identificadores (`PREFIERE_NO_DECIR`, `HIJO_A`, `PENDIENTE_ADQUISICION`).
- *
- * Esos nombres NO se cambian en la base: el backend, las funciones SQL y los
- * filtros los usan tal cual (el filtro de género de los reportes valida
- * `PREFIERE_NO_DECIR`, `marcarContratosVencidos` busca `ATRASO`, los triggers
- * comparan estados por nombre). Traducirlos es solo cosa de la pantalla, y
- * vive aquí para que dos pantallas no digan lo mismo con palabras distintas.
- *
- * Al mostrar un valor de catálogo, siempre `etiquetaDe(nombre)`. Al ENVIARLO
- * al API (filtros, formularios), siempre el nombre original.
- */
+/* Texto legible de los valores de catálogo que el API devuelve como
+   identificadores (`PREFIERE_NO_DECIR`, `HIJO_A`, `PENDIENTE_ADQUISICION`).
+   
+   Esos nombres NO se cambian en la base: el backend, las funciones SQL y los
+   filtros los usan tal cual (el filtro de género de los reportes valida
+   `PREFIERE_NO_DECIR`, `marcarContratosVencidos` busca `ATRASO`, los triggers
+   comparan estados por nombre). Traducirlos es solo cosa de la pantalla, y
+   vive aquí para que dos pantallas no digan lo mismo con palabras distintas.
+   
+   Al mostrar un valor de catálogo, siempre `etiquetaDe(nombre)`. Al ENVIARLO
+   al API (filtros, formularios), siempre el nombre original. */
 
 const ETIQUETAS: Record<string, string> = {
   // ── roles
@@ -94,19 +92,17 @@ const ETIQUETAS: Record<string, string> = {
   OTRO: "Otro",
 };
 
-/** Identificador de sistema: mayúsculas y dígitos unidos por guion bajo */
+// Identificador de sistema: mayúsculas y dígitos unidos por guion bajo
 const IDENTIFICADOR = /^[A-Z0-9]+(?:_[A-Z0-9]+)+$/;
 
-/**
- * Texto para mostrar un valor de catálogo.
- *
- * 1. Si está en el mapa, su etiqueta.
- * 2. Si parece un identificador compuesto que nadie agregó al mapa
- *    (`ALGO_NUEVO`), se vuelve legible de forma automática ("Algo nuevo") en
- *    vez de mostrarse crudo. Sin tildes: para eso hay que agregarlo al mapa.
- * 3. Cualquier otra cosa se devuelve igual. Así un nombre que ya es legible
- *    ("DPI anverso", "Zacapa") o una sigla sola ("DPI") no se toca.
- */
+/* Texto para mostrar un valor de catálogo.
+   
+   1. Si está en el mapa, su etiqueta.
+   2. Si parece un identificador compuesto que nadie agregó al mapa
+      (`ALGO_NUEVO`), se vuelve legible de forma automática ("Algo nuevo") en
+      vez de mostrarse crudo. Sin tildes: para eso hay que agregarlo al mapa.
+   3. Cualquier otra cosa se devuelve igual. Así un nombre que ya es legible
+      ("DPI anverso", "Zacapa") o una sigla sola ("DPI") no se toca. */
 export function etiquetaDe(nombre: string | null | undefined): string {
   if (!nombre) return "";
   const conocida = ETIQUETAS[nombre];

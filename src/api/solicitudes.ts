@@ -1,13 +1,11 @@
 import axiosClient from "./axiosClient";
 
-/**
- * Solicitudes de apoyo (cabecera, líneas, recetas)
- * Operaciones de seguimiento (OPERACION), aprobaciones (DIRECTORA exclusivamente)
- */
+/* Solicitudes de apoyo (cabecera, líneas, recetas)
+   Operaciones de seguimiento (OPERACION), aprobaciones (DIRECTORA exclusivamente) */
 
 /*Tipos del módulo */
 
-/** Estados posibles de una LÍNEA. Los asigna la base según el stock real. */
+// Estados posibles de una LÍNEA. Los asigna la base según el stock real.
 export const ESTADO_LINEA = {
   PENDIENTE_ADQUISICION: "PENDIENTE_ADQUISICION",
   PENDIENTE_ENTREGA: "PENDIENTE_ENTREGA",
@@ -20,7 +18,7 @@ export const ESTADO_LINEA = {
 
 export type EstadoLinea = (typeof ESTADO_LINEA)[keyof typeof ESTADO_LINEA];
 
-/** Cabecera del trámite. Un beneficiario, un programa, una fecha. */
+// Cabecera del trámite. Un beneficiario, un programa, una fecha.
 export interface Solicitud {
   id: number;
   persona_id: number;
@@ -28,30 +26,30 @@ export interface Solicitud {
   fecha_solicitud: string;
   requiere_aprobacion: boolean;
   aprobada: boolean;
-  /** Refleja el AVANCE DEL DESPACHO, no la aprobación. Ver `aprobada` para eso. */
+  // Refleja el AVANCE DEL DESPACHO, no la aprobación. Ver `aprobada` para eso.
   estado_id: number;
   fecha_aprobacion: string | null;
   aprobado_por: number | null;
   observaciones_trabajo_social: string | null;
-  /** Indicador de registro en suplencia (fijado a la creación, no recalculado) */
+  // Indicador de registro en suplencia (fijado a la creación, no recalculado)
   registrada_en_suplencia: boolean;
   activo: boolean;
 }
 
-/** Renglón por insumo dentro de una solicitud. */
+// Renglón por insumo dentro de una solicitud.
 export interface LineaSolicitud {
   id: number;
   solicitud_id: number;
   insumo_id: number;
   cantidad_requerida: number;
   cantidad_entregada: number;
-  /** Id del catálogo estado_solicitud_apoyo. El nombre no viaja aquí. */
+  // Id del catálogo estado_solicitud_apoyo. El nombre no viaja aquí.
   estado_id: number;
   fecha_asignacion: string | null;
   receta_medica_id: number | null;
-  /** Donación o préstamo. Inmutable: la base rechaza cambiarla. */
+  // Donación o préstamo. Inmutable: la base rechaza cambiarla.
   modalidad_solicitud_id: number;
-  /** Cómo se expresó el pedido, si fue por presentación. */
+  // Cómo se expresó el pedido, si fue por presentación.
   presentacion_solicitud_id: number | null;
   cantidad_presentacion: string | null;
   activo: boolean;
@@ -66,7 +64,7 @@ export interface RecetaMedica {
   activo: boolean;
 }
 
-/** Documentos de legajo en papel (formularios_id opcional) */
+// Documentos de legajo en papel (formularios_id opcional)
 export interface DocumentoSolicitud {
   id: number;
   solicitud_id: number;
@@ -77,15 +75,15 @@ export interface DocumentoSolicitud {
   activo: boolean;
 }
 
-/** Lo que devuelve GET /solicitudes/:id: la cabecera con sus sub-recursos. */
+// Lo que devuelve GET /solicitudes/:id: la cabecera con sus sub-recursos.
 export interface SolicitudDetalle extends Solicitud {
   lineas: LineaSolicitud[];
-  /** Recetas médicas (mantenidas por compatibilidad con flujo anterior) */
+  // Recetas médicas (mantenidas por compatibilidad con flujo anterior)
   recetas: RecetaMedica[];
   documentos: DocumentoSolicitud[];
 }
 
-/** LÍNEA de solicitud activa (v_solicitudes_activas), excluye estados finales */
+// LÍNEA de solicitud activa (v_solicitudes_activas), excluye estados finales
 export interface LineaSolicitudActiva {
   solicitud_id: number;
   detalle_solicitud_id: number;
@@ -106,19 +104,19 @@ export interface LineaSolicitudActiva {
 
 export interface DatosLineaNueva {
   insumo_id: number;
-  /** Cantidad requerida en unidad base (calculada en backend si se usa presentación) */
+  // Cantidad requerida en unidad base (calculada en backend si se usa presentación)
   cantidad_requerida?: number;
-  /** "2 cajas": van juntas o no van. */
+  // "2 cajas": van juntas o no van.
   presentacion_solicitud_id?: number;
   cantidad_presentacion?: number;
-  /** Figura de entrega (donación/préstamo), determina formularios exigidos y es inmutable */
+  // Figura de entrega (donación/préstamo), determina formularios exigidos y es inmutable
   modalidad_solicitud_id: number;
 }
 
 export interface DatosSolicitud {
   persona_id: number;
   programa_id: number;
-  /** Opcional: la base pone CURRENT_DATE y rechaza fechas futuras. */
+  // Opcional: la base pone CURRENT_DATE y rechaza fechas futuras.
   fecha_solicitud?: string;
   requiere_aprobacion?: boolean;
   observaciones_trabajo_social?: string | null;
@@ -130,7 +128,7 @@ export interface FiltrosSolicitudes {
   programaId?: number;
   estadoLinea?: EstadoLinea;
   soloPendientesAprobacion?: boolean;
-  /** Mostrar líneas entregadas o canceladas para no ocultar sus formularios/expedientes */
+  // Mostrar líneas entregadas o canceladas para no ocultar sus formularios/expedientes
   incluirCerradas?: boolean;
 }
 
@@ -170,7 +168,7 @@ export async function editarSolicitud(
 
 /* Resolución (aprobar / rechazar) */
 
-/** Aprueba la solicitud y permite avanzar al despacho (solo DIRECTORA) */
+// Aprueba la solicitud y permite avanzar al despacho (solo DIRECTORA)
 export async function aprobarSolicitud(id: number): Promise<Solicitud> {
   const { data } = await axiosClient.post<Solicitud>(
     "solicitudes/" + id + "/aprobar",
@@ -178,7 +176,7 @@ export async function aprobarSolicitud(id: number): Promise<Solicitud> {
   return data;
 }
 
-/** Rechaza la solicitud indicando un motivo (solo DIRECTORA) */
+// Rechaza la solicitud indicando un motivo (solo DIRECTORA)
 export async function rechazarSolicitud(
   id: number,
   motivo: string,
@@ -190,7 +188,7 @@ export async function rechazarSolicitud(
   return data;
 }
 
-/** Cancela trámite y todas sus líneas activas (sp_cancelar_solicitud_completa) */
+// Cancela trámite y todas sus líneas activas (sp_cancelar_solicitud_completa)
 export async function cancelarSolicitud(
   id: number,
   motivo?: string,
@@ -261,10 +259,8 @@ export async function listarRecetas(
   return data;
 }
 
-/**
- * Sube una receta. Va como multipart y el archivo viaja en el campo
- * `archivo`, el nombre que espera el middleware del backend.
- */
+/* Sube una receta. Va como multipart y el archivo viaja en el campo
+   `archivo`, el nombre que espera el middleware del backend. */
 export async function subirReceta(
   solicitudId: number,
   datos: { archivo: File; fechaEmision?: string; observaciones?: string },
@@ -281,7 +277,7 @@ export async function subirReceta(
   return data;
 }
 
-/** Descarga expediente PDF (maneja fallback de errores JSON sobre Blobs) */
+// Descarga expediente PDF (maneja fallback de errores JSON sobre Blobs)
 export async function descargarExpediente(solicitudId: number): Promise<void> {
   const respuesta = await axiosClient.get(
     "solicitudes/" + solicitudId + "/expediente.pdf",
@@ -326,7 +322,7 @@ export async function subirDocumentoSolicitud(
   return data;
 }
 
-/** Baja lógica: devuelve el legajo ya actualizado. */
+// Baja lógica: devuelve el legajo ya actualizado.
 export async function eliminarDocumentoSolicitud(
   solicitudId: number,
   documentoId: number,
@@ -337,7 +333,7 @@ export async function eliminarDocumentoSolicitud(
   return data;
 }
 
-/** Elimina (baja lógica) y devuelve la lista de recetas ya actualizada. */
+// Elimina (baja lógica) y devuelve la lista de recetas ya actualizada.
 export async function eliminarReceta(
   solicitudId: number,
   recetaId: number,

@@ -11,7 +11,7 @@ import estilos from "./Solicitudes.module.css";
 const LARGO_MINIMO = 2;
 const RETARDO_MS = 350;
 
-/** Nombre y apellido juntos, tal como se leen en el resto del sistema. */
+// Nombre y apellido juntos, tal como se leen en el resto del sistema.
 function nombreCompleto(persona: Persona): string {
   return persona.nombres + " " + persona.apellidos;
 }
@@ -22,34 +22,30 @@ interface PropsBuscadorPersona {
   onElegir: (persona: Persona | null) => void;
   obligatorio?: boolean;
   error?: string;
-  /**
-   * Si el panel de resultados flota sobre el resto del formulario
-   * (position: absolute) o empuja el contenido hacia abajo.
-   *
-   * Flotante es lo correcto en una fila de filtros compacta —donde ocupar
-   * espacio real desalinearía los controles vecinos—, pero dentro de un modal
-   * el panel queda recortado por el overflow-y: auto del cuerpo del modal
-   * (Modal.module.css), que es lo que necesita ese scroll para que la
-   * cabecera y el pie queden fijos. Un modal tiene espacio de sobra para
-   * hacer sitio, así que ahí el panel empuja en vez de flotar.
-   */
+  /* Si el panel de resultados flota sobre el resto del formulario
+     (position: absolute) o empuja el contenido hacia abajo.
+     
+     Flotante es lo correcto en una fila de filtros compacta —donde ocupar
+     espacio real desalinearía los controles vecinos—, pero dentro de un modal
+     el panel queda recortado por el overflow-y: auto del cuerpo del modal
+     (Modal.module.css), que es lo que necesita ese scroll para que la
+     cabecera y el pie queden fijos. Un modal tiene espacio de sobra para
+     hacer sitio, así que ahí el panel empuja en vez de flotar. */
   flotante?: boolean;
 }
 
-/**
- * Buscador de persona por nombre o CUI/DPI, con resultados por similitud.
- *
- * Es el reemplazo, para este flujo, de pedir un id que nadie tiene a mano: se
- * escribe el nombre o el documento, se elige de la lista, y de ahí en
- * adelante el formulario solo conoce el id — el mismo patrón que
- * SelectorComunidad usa para departamento/municipio/comunidad.
- *
- * Escribir sin llegar a elegir a nadie de la lista es el error más fácil de
- * cometer aquí —el campo se ve lleno, pero por dentro sigue sin persona—, así
- * que ese caso se marca con un error explícito bajo el campo en cuanto se
- * abandona el control, en vez de dejar que el botón de enviar se quede
- * deshabilitado sin explicación.
- */
+/* Buscador de persona por nombre o CUI/DPI, con resultados por similitud.
+   
+   Es el reemplazo, para este flujo, de pedir un id que nadie tiene a mano: se
+   escribe el nombre o el documento, se elige de la lista, y de ahí en
+   adelante el formulario solo conoce el id — el mismo patrón que
+   SelectorComunidad usa para departamento/municipio/comunidad.
+   
+   Escribir sin llegar a elegir a nadie de la lista es el error más fácil de
+   cometer aquí —el campo se ve lleno, pero por dentro sigue sin persona—, así
+   que ese caso se marca con un error explícito bajo el campo en cuanto se
+   abandona el control, en vez de dejar que el botón de enviar se quede
+   deshabilitado sin explicación. */
 function BuscadorPersona({
   etiqueta,
   personaElegida,
@@ -75,12 +71,10 @@ function BuscadorPersona({
     enabled: habilitada,
   });
 
-  /**
-   * Hay texto escrito pero nadie elegido. Solo se avisa después de que el
-   * campo pierde el foco (blur), no en cada tecla: mientras se escribe es
-   * normal que todavía no haya elección, y marcarlo como error de inmediato
-   * regañaría por algo que el usuario ni ha terminado de hacer.
-   */
+  /* Hay texto escrito pero nadie elegido. Solo se avisa después de que el
+     campo pierde el foco (blur), no en cada tecla: mientras se escribe es
+     normal que todavía no haya elección, y marcarlo como error de inmediato
+     regañaría por algo que el usuario ni ha terminado de hacer. */
   const sinElegir = tocado && texto.trim() !== "" && !personaElegida;
   const errorMostrado =
     error ??

@@ -18,7 +18,7 @@ import estilos from "./Reportes.module.css";
 
 const FILTROS_VACIOS: FiltrosStockPorCategoria = {};
 
-/** Cuánto queda por categoría, y cuántos lotes ya están vencidos o por vencer. */
+// Cuánto queda por categoría, y cuántos lotes ya están vencidos o por vencer.
 function SeccionStockPorCategoria() {
   const { avisar } = useAvisos();
 
