@@ -85,7 +85,9 @@ function BuscadorPersona({
   if (personaElegida) {
     const edad = calcularEdad(personaElegida.fecha_nacimiento);
     return (
-      <div className={estiloCampo.campo}>
+      // data-campo: en una .fila-campos se alinea como un campo (por su
+      // etiqueta) y no como un botón, que baja una etiqueta de alto
+      <div className={estiloCampo.campo} data-campo="">
         <span className={estiloCampo.etiqueta}>
           {etiqueta}
           {obligatorio && (
@@ -138,7 +140,10 @@ function BuscadorPersona({
   }
 
   return (
-    <div className={flotante ? estilos.contenedorBuscador : undefined}>
+    <div
+      className={flotante ? estilos.contenedorBuscador : undefined}
+      data-campo=""
+    >
       <CampoTexto
         etiqueta={etiqueta}
         obligatorio={obligatorio}

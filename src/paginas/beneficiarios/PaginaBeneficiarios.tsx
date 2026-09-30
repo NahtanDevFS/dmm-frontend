@@ -101,7 +101,7 @@ function PaginaBeneficiarios() {
               búsquedas fallidas y concluiría que la persona no está
               registrada.
             */
-            ayuda="Escriba los acentos: «maria» no encuentra «María»."
+            ayuda="Escriba los acentos: 'maria' no encuentra 'María'."
           />
 
           <CampoSelect
@@ -136,7 +136,10 @@ function PaginaBeneficiarios() {
             titulo="No se pudo cargar el listado"
             texto={mensajeDeError(listado.error)}
             accion={
-              <Boton variante="secundaria" onClick={() => void listado.refetch()}>
+              <Boton
+                variante="secundaria"
+                onClick={() => void listado.refetch()}
+              >
                 Reintentar
               </Boton>
             }
@@ -179,7 +182,9 @@ function PaginaBeneficiarios() {
                         <span className={menor ? estilos.menor : undefined}>
                           {Number.isFinite(edad) ? edad : "—"}
                         </span>{" "}
-                        {menor && <Insignia tono="marca">Menor de edad</Insignia>}
+                        {menor && (
+                          <Insignia tono="marca">Menor de edad</Insignia>
+                        )}
                       </td>
                       <td>{nombreComunidad(persona.comunidad_id)}</td>
                       <td>

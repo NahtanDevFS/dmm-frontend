@@ -103,9 +103,9 @@ export function SeccionDiscapacidades({
                   const ok = await confirmar({
                     titulo: "Quitar discapacidad",
                     mensaje:
-                      "Se quitará «" +
+                      "Se quitará '" +
                       d.nombre +
-                      "» del registro de esta persona.",
+                      "' del registro de esta persona.",
                     textoConfirmar: "Quitar",
                     destructiva: true,
                   });
@@ -218,7 +218,9 @@ export function SeccionEncargados({
                 <p className={estilos.elementoNombre}>
                   {e.nombres} {e.apellidos}
                 </p>
-                <p className={estilos.elementoDetalle}>{etiquetaDe(e.parentesco_nombre)}</p>
+                <p className={estilos.elementoDetalle}>
+                  {etiquetaDe(e.parentesco_nombre)}
+                </p>
               </div>
               <Boton
                 pequeno

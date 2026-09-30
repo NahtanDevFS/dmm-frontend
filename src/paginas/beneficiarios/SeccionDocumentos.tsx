@@ -145,9 +145,9 @@ function SeccionDocumentos({
                     const ok = await confirmar({
                       titulo: "Eliminar documento",
                       mensaje:
-                        "Se quitará «" +
+                        "Se quitará '" +
                         nombreTipo(documento.tipo_documento_id) +
-                        "» de la ficha. El archivo permanece en el servidor: la baja es lógica.",
+                        "' de la ficha. El archivo permanece en el servidor: la baja es lógica.",
                       textoConfirmar: "Eliminar",
                       destructiva: true,
                     });
