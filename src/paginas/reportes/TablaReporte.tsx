@@ -1,5 +1,6 @@
 import Tabla, { CeldaCantidad } from "../../componentes/ui/Tabla";
 import { formatearFecha } from "../../lib/fechas";
+import { etiquetaDe } from "../../lib/etiquetas";
 import type { ColumnaReporte } from "../../api/reportes";
 import estilos from "./Reportes.module.css";
 
@@ -24,7 +25,16 @@ function formatearValor(campo: string, valor: unknown): string {
     return formateada === "—" ? valor : formateada;
   }
   if (esNumerico(valor)) return valor.toLocaleString("es-GT");
+  // Las columnas de catálogo llegan como identificador (FEMENINO, HIJO_A).
+  // Solo esas: un nombre de persona o de comunidad se deja tal cual.
+  if (typeof valor === "string" && esColumnaDeCatalogo(campo)) {
+    return etiquetaDe(valor);
+  }
   return String(valor);
+}
+
+function esColumnaDeCatalogo(campo: string): boolean {
+  return /genero|grupo_etario|parentesco|estado|modalidad|rol/i.test(campo);
 }
 
 /**

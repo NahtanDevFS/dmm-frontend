@@ -10,6 +10,14 @@ describe("etiquetaDe", () => {
     expect(etiquetaDe("NO_DEVUELTO")).toBe("No devuelto");
     expect(etiquetaDe("EMPLEADO_DMM")).toBe("Trabajo social");
     expect(etiquetaDe("DONACION")).toBe("Donación");
+    expect(etiquetaDe("HIJO_A")).toBe("Hijo(a)");
+  });
+
+  it("traduce los grupos etarios de los reportes", () => {
+    // MENOR y ADULTO son una sola palabra: sin el mapa quedarían en mayúsculas
+    expect(etiquetaDe("MENOR")).toBe("Menor de edad");
+    expect(etiquetaDe("ADULTO")).toBe("Adulto");
+    expect(etiquetaDe("ADULTO_MAYOR")).toBe("Adulto mayor");
   });
 
   it("vuelve legible un identificador nuevo que nadie agregó al mapa", () => {

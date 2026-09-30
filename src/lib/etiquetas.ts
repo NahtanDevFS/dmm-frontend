@@ -24,6 +24,11 @@ const ETIQUETAS: Record<string, string> = {
   FEMENINO: "Femenino",
   PREFIERE_NO_DECIR: "Prefiere no decir",
 
+  // ── grupo etario (reportes)
+  MENOR: "Menor de edad",
+  ADULTO: "Adulto",
+  ADULTO_MAYOR: "Adulto mayor",
+
   // ── parentesco
   MADRE: "Madre",
   PADRE: "Padre",

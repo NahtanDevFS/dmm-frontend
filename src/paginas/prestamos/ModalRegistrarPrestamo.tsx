@@ -44,6 +44,11 @@ function ModalRegistrarPrestamo({
   const { avisar } = useAvisos();
 
   const [contratoCreado, setContratoCreado] = useState<number | null>(null);
+  /** Lo que se prestó, fijado al registrar para el resumen del paso 2 */
+  const [prestado, setPrestado] = useState<{
+    insumo: string;
+    serie: string | null;
+  } | null>(null);
 
   const [persona, setPersona] = useState<Persona | null>(null);
   const [insumoId, setInsumoId] = useState("");
@@ -111,6 +116,16 @@ function ModalRegistrarPrestamo({
         detalle_inventario_lote_id: unidadId ? Number(unidadId) : null,
       }),
     onSuccess: async (creado) => {
+      // Se toma antes de invalidar: la unidad prestada deja de estar
+      // disponible, y la lista recargada ya no la trae. Buscarla ahí después
+      // dejaba el resumen con "serie" en blanco.
+      setPrestado({
+        insumo: insumoElegido?.insumo_nombre ?? "",
+        serie:
+          unidades.data?.find(
+            (u) => u.detalle_inventario_lote_id === Number(unidadId),
+          )?.numero_serie ?? null,
+      });
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_CONTRATOS] });
       // La entrega también cambió: el equipo salió y el stock bajó.
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_ENTREGAS] });
@@ -155,12 +170,8 @@ function ModalRegistrarPrestamo({
 
         <p className={estilos.nota}>
           {persona!.nombres} {persona!.apellidos} ·{" "}
-          {insumoElegido?.insumo_nombre}
-          {unidadId &&
-            " · serie " +
-              (unidades.data?.find(
-                (u) => u.detalle_inventario_lote_id === Number(unidadId),
-              )?.numero_serie ?? "")}{" "}
+          {prestado?.insumo}
+          {prestado?.serie && " · serie " + prestado.serie}{" "}
           · devuelve el {fechaDevolucion.split("-").reverse().join("/")}
         </p>
 

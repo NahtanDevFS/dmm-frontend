@@ -13,6 +13,7 @@ import { useListadoPaginado } from "../../hooks/useListadoPaginado";
 import { formatearFecha, fechaDeHoy } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
 import { formatearCantidad } from "../../lib/cantidades";
+import { etiquetaDe } from "../../lib/etiquetas";
 import { CLAVE_ENTREGAS, type EntregaListado } from "../../api/entregas";
 import ModalEntregaDirecta from "./ModalEntregaDirecta";
 import ModalFichaEntrega from "./ModalFichaEntrega";
@@ -208,7 +209,7 @@ function PaginaEntregas() {
                       {entrega.receptor_nombre_completo
                         ? entrega.receptor_nombre_completo +
                           (entrega.parentesco_receptor
-                            ? " (" + entrega.parentesco_receptor + ")"
+                            ? " (" + etiquetaDe(entrega.parentesco_receptor) + ")"
                             : "")
                         : "La misma persona"}
                     </td>
