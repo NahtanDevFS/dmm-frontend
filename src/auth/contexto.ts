@@ -16,6 +16,9 @@ export interface ValorAuth {
      muestran, pero la sesión podría seguir viva hasta que un reintento
      funcione. */
   cierrePendiente: boolean;
+  /* La sesión terminó porque la persona la cerró, no porque venció. Decide
+     si el acceso recuerda la pantalla en que estaba (ver rutas/acceso.ts). */
+  salidaManual: boolean;
 }
 
 /* Vive en su propio archivo, separado del proveedor: si el contexto y el

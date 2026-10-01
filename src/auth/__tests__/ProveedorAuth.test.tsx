@@ -21,6 +21,7 @@ import { ProveedorAuth } from "../ProveedorAuth";
 import { useAuth } from "../useAuth";
 import PantallaCierrePendiente from "../../paginas/acceso/PantallaCierrePendiente";
 import { hayCierrePendiente, marcarCierrePendiente } from "../cierrePendiente";
+import { anunciarSesionExpirada } from "../../api/sesion";
 
 const cerrarMock = vi.mocked(cerrarSesion);
 const sesionMock = vi.mocked(obtenerSesion);
@@ -51,8 +52,7 @@ function Consumidor() {
   );
 }
 
-function renderizar() {
-  const client = crearQueryClientDePrueba();
+function renderizar(client = crearQueryClientDePrueba()) {
   const Envoltorio = envolverConQueryClient(client);
   return render(
     <Envoltorio>
@@ -67,6 +67,24 @@ beforeEach(() => {
   cerrarMock.mockReset();
   sesionMock.mockReset();
   window.localStorage.clear();
+});
+
+describe("sesión vencida", () => {
+  /* Regresión: limpiarEstado borraba con clear() también la consulta de la
+     sesión, y el proveedor quedaba suscrito a la vieja. Al vencer la sesión
+     nada lo redibujaba: la pantalla seguía cargando con el usuario anterior. */
+  it("muestra el acceso y descarta los datos en caché", async () => {
+    sesionMock.mockResolvedValue(USUARIO);
+    const client = crearQueryClientDePrueba();
+    client.setQueryData(["personas"], [{ id: 1, nombres: "Sofía" }]);
+    renderizar(client);
+    await screen.findByText("Cerrar sesión");
+
+    act(() => anunciarSesionExpirada());
+
+    expect(await screen.findByText("pantalla de acceso")).toBeInTheDocument();
+    expect(client.getQueryData(["personas"])).toBeUndefined();
+  });
 });
 
 describe("cierre de sesión", () => {
