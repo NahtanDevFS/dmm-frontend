@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
-import { CampoTexto } from "../../componentes/ui/Campo";
+import { CampoContrasena } from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
@@ -30,13 +30,21 @@ function ModalCambiarPassword({
   const { avisar } = useAvisos();
   const [passwordActual, setPasswordActual] = useState("");
   const [passwordNueva, setPasswordNueva] = useState("");
+  // Si la nueva se escribe mal, la persona queda fuera de su propia cuenta y
+  // depende de que un administrador se la restablezca: se pide dos veces.
+  const [confirmacion, setConfirmacion] = useState("");
+  const [verActual, setVerActual] = useState(false);
+  // La nueva y su confirmación se muestran juntas, para poder compararlas
+  const [verNueva, setVerNueva] = useState(false);
   /* Error de la contraseña actual, fijo bajo su campo. El servidor limita los
      intentos (5 cada 15 minutos) y su mensaje ya dice cuántos quedan; un aviso
      que desaparece solo no deja volver a leerlo antes del siguiente intento. */
   const [errorActual, setErrorActual] = useState<string>();
   const [bloqueado, setBloqueado] = useState(false);
 
-  const hayCambios = passwordActual !== "" || passwordNueva !== "";
+  const hayCambios =
+    passwordActual !== "" || passwordNueva !== "" || confirmacion !== "";
+  const coinciden = confirmacion === passwordNueva;
   const cerrar = useCierreSeguro({ hayCambios, onCerrar });
 
   const mutacion = useMutation({
@@ -70,7 +78,8 @@ function ModalCambiarPassword({
     !bloqueado &&
     passwordActual !== "" &&
     passwordValida(passwordNueva) &&
-    passwordNueva !== passwordActual;
+    passwordNueva !== passwordActual &&
+    coinciden;
 
   return (
     <Modal
@@ -100,10 +109,12 @@ function ModalCambiarPassword({
         </GrupoBotones>
       }
     >
-      <CampoTexto
+      <CampoContrasena
         etiqueta="Contraseña actual"
         obligatorio
-        type="password"
+        autoComplete="current-password"
+        visible={verActual}
+        onCambiarVisible={setVerActual}
         value={passwordActual}
         onChange={(e) => {
           setPasswordActual(e.target.value);
@@ -113,10 +124,11 @@ function ModalCambiarPassword({
         }}
         error={errorActual}
       />
-      <CampoTexto
+      <CampoContrasena
         etiqueta="Contraseña nueva"
         obligatorio
-        type="password"
+        visible={verNueva}
+        onCambiarVisible={setVerNueva}
         value={passwordNueva}
         onChange={(e) => setPasswordNueva(e.target.value)}
         error={
@@ -126,6 +138,15 @@ function ModalCambiarPassword({
               ? "Debe tener al menos 8 caracteres, con una letra y un número."
               : undefined
         }
+      />
+      <CampoContrasena
+        etiqueta="Confirme la contraseña nueva"
+        obligatorio
+        visible={verNueva}
+        onCambiarVisible={setVerNueva}
+        value={confirmacion}
+        onChange={(e) => setConfirmacion(e.target.value)}
+        error={confirmacion !== "" && !coinciden ? "Las contraseñas no coinciden." : undefined}
       />
       <p className={estilos.ayudaPassword}>
         Mínimo 8 caracteres, con al menos una letra y un número.

@@ -7,7 +7,7 @@ import {
   CampoAreaTexto,
 } from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
-import Insignia from "../../componentes/ui/Insignia";
+import Nota from "../../componentes/ui/Nota";
 import Tabla, {
   CeldaAcciones,
   CeldaCantidad,
@@ -338,10 +338,10 @@ function ModalSolicitud({
         {usuario?.programa_id != null &&
           programaId !== "" &&
           Number(programaId) !== usuario.programa_id && (
-            <Insignia tono="pendiente">
+            <Nota tono="advertencia">
               Este programa no es el suyo ({usuario.programa_nombre}). La
               solicitud quedará marcada como registrada en suplencia.
-            </Insignia>
+            </Nota>
           )}
 
         <CampoSelect
@@ -517,16 +517,16 @@ function ModalSolicitud({
 
           {insumoElegido?.bloquea_solicitud_sin_stock &&
             (insumoElegido.stock_total > 0 ? (
-              <Insignia tono="informativa">
+              <Nota tono="informativa">
                 Este insumo exige stock disponible. Hay{" "}
                 {insumoElegido.stock_total.toLocaleString("es-GT")}{" "}
                 {insumoElegido.unidad_base_nombre} en existencia.
-              </Insignia>
+              </Nota>
             ) : (
-              <Insignia tono="rechazada">
+              <Nota tono="error">
                 Sin existencias y este insumo exige stock: el sistema no dejará
                 agregarlo. Anótelo en la lista de espera.
-              </Insignia>
+              </Nota>
             ))}
 
           {/*
@@ -539,15 +539,15 @@ function ModalSolicitud({
             formulariosExigidos.data.length > 0 &&
             persona !== null &&
             datosFaltantesDelEstudio(persona).length > 0 && (
-              <Insignia tono="pendiente">
+              <Nota tono="advertencia">
                 A la ficha de {persona.nombres} le falta registrar:{" "}
                 {datosFaltantesDelEstudio(persona).join(", ")}. Los formularios
                 los van a pedir; convendría completarlos ahora.
-              </Insignia>
+              </Nota>
             )}
 
           {formulariosExigidos.data && formulariosExigidos.data.length > 0 && (
-            <Insignia tono="informativa">
+            <Nota tono="informativa">
               Con esta modalidad habrá que llenar{" "}
               {formulariosExigidos.data.length === 1
                 ? "un formulario"
@@ -555,7 +555,7 @@ function ModalSolicitud({
               antes de poder aprobar:{" "}
               {formulariosExigidos.data.map((f) => f.nombre).join(", ")}.
               Convendría llenarlos ahora, con la persona presente.
-            </Insignia>
+            </Nota>
           )}
 
           <div className={estilos.accionLote}>

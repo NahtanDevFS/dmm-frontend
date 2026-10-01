@@ -49,6 +49,86 @@ function posicionEspalda(cm: number): string {
   return "La más alta";
 }
 
+/* Tablas de referencia de la hoja 2 (aptitud), como vienen en el papel. Se
+   muestran bajo cada medida y marcan la fila que corresponde a lo escrito.
+   Salen de los mismos rangos y funciones que las sugerencias: si cambia un
+   rango, cambian las dos cosas a la vez. */
+export interface CeldaReferencia {
+  texto: string;
+  marcada: boolean;
+}
+
+export interface TablaReferencia {
+  titulo: string;
+  columnas: string[];
+  filas: CeldaReferencia[][];
+}
+
+// «25 a 32.9»: el límite superior de la tabla es excluyente
+function rango(min: number, max: number): string {
+  const tope = Math.floor(max) === max ? max - 0.1 : Math.floor(max);
+  return min + " a " + tope;
+}
+
+export function tablaReferencia(
+  etiqueta: string,
+  valor: string | null | undefined,
+): TablaReferencia | null {
+  const cm = numero(valor);
+
+  if (etiqueta === ETIQUETA_CADERA) {
+    const gen2 = cm === null ? null : tallaPara(cm, TALLAS_GEN_2);
+    const gen3 = cm === null ? null : tallaPara(cm, TALLAS_GEN_3);
+    return {
+      titulo: "Talla según el ancho de la cadera (cm)",
+      columnas: ["Talla", "GEN_2", "GEN_3"],
+      filas: TALLAS_GEN_2.map(([min2, max2, nombre2], i) => {
+        const [min3, max3, nombre3] = TALLAS_GEN_3[i];
+        return [
+          { texto: nombre2.split(" ")[1], marcada: false },
+          { texto: rango(min2, max2), marcada: gen2 === nombre2 },
+          { texto: rango(min3, max3), marcada: gen3 === nombre3 },
+        ];
+      }),
+    };
+  }
+
+  if (etiqueta === ETIQUETA_PIERNA) {
+    const elegida = cm === null ? null : posicionPierna(cm);
+    return {
+      titulo: "Posición del reposapiés según el largo de la pierna",
+      columnas: ["Largo (cm)", "Posición"],
+      filas: [
+        ["Menos de 41", "La más corta"],
+        ["41 a 47", "Media"],
+        ["Más de 47", "La más larga"],
+      ].map(([medida, posicion]) => [
+        { texto: medida, marcada: elegida === posicion },
+        { texto: posicion, marcada: elegida === posicion },
+      ]),
+    };
+  }
+
+  if (etiqueta === ETIQUETA_ESPALDA) {
+    const elegida = cm === null ? null : posicionEspalda(cm);
+    return {
+      titulo: "Posición del respaldo según la altura de la espalda",
+      columnas: ["Altura (cm)", "Posición"],
+      filas: [
+        ["Menos de 44", "La más baja"],
+        ["44 a 47.9", "Media-baja"],
+        ["48 a 52", "Media-alta"],
+        ["Más de 52", "La más alta"],
+      ].map(([medida, posicion]) => [
+        { texto: medida, marcada: elegida === posicion },
+        { texto: posicion, marcada: elegida === posicion },
+      ]),
+    };
+  }
+
+  return null;
+}
+
 // Convierte a número lo escrito, o null si no es un número usable.
 function numero(valor: string | null | undefined): number | null {
   if (valor === null || valor === undefined || valor.trim() === "") return null;

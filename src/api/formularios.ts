@@ -56,6 +56,8 @@ export interface FormularioCampo {
   orden: number;
   grupo_repetible: string | null;
   ayuda: string | null;
+  // Título de la sección del papel; se muestra cuando cambia respecto del campo anterior
+  seccion: string | null;
   activo: boolean;
 }
 
@@ -194,6 +196,7 @@ export async function agregarCampoFormulario(
     orden: number;
     grupo_repetible?: string | null;
     ayuda?: string | null;
+    seccion?: string | null;
   },
 ): Promise<FormularioCampo> {
   const { data } = await axiosClient.post<FormularioCampo>(
@@ -221,6 +224,7 @@ export async function editarCampoFormulario(
     obligatorio?: boolean;
     orden?: number;
     ayuda?: string | null;
+    seccion?: string | null;
     activo?: boolean;
   },
 ): Promise<void> {

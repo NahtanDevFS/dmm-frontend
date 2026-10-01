@@ -4,6 +4,21 @@
   gap: var(--space-3);
 }
 
+/* Título de una sección del papel («Hoja 2 · …», «III. Vivienda»). La
+   raya de arriba marca dónde termina lo anterior; el primero no la lleva. */
+.tituloSeccion {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font: var(--texto-etiqueta);
+  font-size: 1rem;
+  color: var(--color-primary-darker);
+}
+
+.tituloSeccion:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
 .tarjeta {
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border-soft);
@@ -46,9 +61,9 @@
 }
 
 .grupoRepetible {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px dashed var(--color-border);
+  padding: var(--space-2);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-field);
 }
 
 .tituloGrupo {
@@ -59,8 +74,12 @@
 
 .filaGrupo {
   composes: fila-campos from global;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
+  /* Flex y no grid: repeat(auto-fit, …) junto a una columna auto es una
+     plantilla inválida, el navegador la descartaba y apilaba cada campo en
+     una columna a todo el ancho. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--space-2);
   padding: var(--space-2);
   margin-bottom: var(--space-2);
@@ -76,9 +95,61 @@
   margin-top: calc(var(--alto-etiqueta) + var(--space-1) + 4px);
 }
 
+.filaGrupo > [data-campo] {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
 .accionGrupo {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* El total va a la izquierda y el botón a la derecha */
+.totalGrupo {
+  margin-right: auto;
+  font: var(--texto-cuerpo);
+}
+
+/* Tabla de medidas del papel, bajo la medida */
+.tablaReferencia {
+  width: 100%;
+  margin-top: var(--space-1);
+  border-collapse: collapse;
+  font: var(--texto-auxiliar);
+  color: var(--color-text-muted);
+}
+
+.tablaReferencia caption {
+  margin-bottom: 2px;
+  text-align: left;
+}
+
+/* Un rango partido en dos líneas («33 a / 37.9») se lee mal */
+.tablaReferencia th,
+.tablaReferencia td {
+  padding: 2px 4px;
+  white-space: nowrap;
+  border: 1px solid var(--color-border-soft);
+  text-align: left;
+}
+
+.tablaReferencia th {
+  font-weight: 600;
+  background-color: var(--color-background);
+}
+
+.celdaMarcada {
+  font-weight: 600;
+  color: var(--color-text-main);
+  background-color: var(--color-primary-light);
+}
+
+.marcaCelda {
+  font-weight: 400;
 }
 
 .grupoCasillas {

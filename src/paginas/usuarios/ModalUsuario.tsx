@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
-import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
+import {
+  CampoTexto,
+  CampoSelect,
+  CampoContrasena,
+} from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAuth } from "../../auth/useAuth";
@@ -67,6 +71,10 @@ function ModalUsuario({
     usuario?.nombre_completo ?? "",
   );
   const [password, setPassword] = useState("");
+  // La inicial también se confirma: hay que comunicarla a la persona, y
+  // con un error de dedo no podría entrar la primera vez.
+  const [confirmacion, setConfirmacion] = useState("");
+  const [verPassword, setVerPassword] = useState(false);
   const [rolId, setRolId] = useState(usuario ? String(usuario.rol_id) : "");
   const [errores, setErrores] = useState<ErroresPorCampo>({});
   const [programaId, setProgramaId] = useState(
@@ -92,6 +100,7 @@ function ModalUsuario({
     : username !== "" ||
       nombreCompleto !== "" ||
       password !== "" ||
+      confirmacion !== "" ||
       rolId !== "" ||
       programaId !== "";
 
@@ -173,7 +182,10 @@ function ModalUsuario({
   const usernameValido = username.trim().length >= 3;
   const listoParaEnviar = esEdicion
     ? usernameValido && rolId !== "" && hayCambios
-    : usernameValido && passwordValida(password) && rolId !== "";
+    : usernameValido &&
+      passwordValida(password) &&
+      confirmacion === password &&
+      rolId !== "";
 
   return (
     <Modal
@@ -229,16 +241,30 @@ function ModalUsuario({
 
       {!esEdicion && (
         <>
-          <CampoTexto
+          <CampoContrasena
             etiqueta="Contraseña inicial"
             obligatorio
-            type="password"
+            visible={verPassword}
+            onCambiarVisible={setVerPassword}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             error={
               password !== "" && !passwordValida(password)
                 ? "Debe tener al menos 8 caracteres, con una letra y un número."
                 : errores.password?.[0]
+            }
+          />
+          <CampoContrasena
+            etiqueta="Confirme la contraseña inicial"
+            obligatorio
+            visible={verPassword}
+            onCambiarVisible={setVerPassword}
+            value={confirmacion}
+            onChange={(e) => setConfirmacion(e.target.value)}
+            error={
+              confirmacion !== "" && confirmacion !== password
+                ? "Las contraseñas no coinciden."
+                : undefined
             }
           />
           <p className={estilos.ayudaPassword}>

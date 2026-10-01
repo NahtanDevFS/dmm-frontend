@@ -169,16 +169,6 @@ function SeccionLotes({
   const cantidad = porSeries
     ? seriesEscritas.length
     : Number(datos.cantidad_recepcion_original);
-  // Con series, cada unidad es una: preguntar la equivalencia permitiría
-  // decir que una silla contiene tres sillas.
-  const porPresentacion = porSeries
-    ? 1
-    : Number(datos.unidades_por_presentacion_lote);
-  const unidadesBase = calcularUnidadesBase(cantidad, porPresentacion);
-  const hayCalculo =
-    datos.cantidad_recepcion_original !== "" &&
-    datos.unidades_por_presentacion_lote !== "" &&
-    Number.isFinite(unidadesBase);
 
   const nombreUnidad = (id: number | undefined) =>
     unidades.opciones.find((u) => u.id === id)?.nombre ?? "unidad base";
@@ -200,6 +190,27 @@ function SeccionLotes({
     : null;
   // Verdadero cuando ya se sabe en qué unidad llega y en cuál se cuenta.
   const equivalenciaLista = unidadRecibida !== null && unidadContada !== null;
+
+  /* Llega en la misma unidad en que se cuenta (silla: «Unidad» y «Unidad»).
+     Entonces cada bulto trae exactamente uno y no se pregunta: «cuántas
+     Unidad trae cada Unidad» confundía, y responder 2 registraba que una silla
+     contiene dos sillas. */
+  const mismaUnidad =
+    presentacionActual !== undefined &&
+    insumo !== undefined &&
+    presentacionActual.unidad_medida_id === insumo.unidad_medida_base_id;
+
+  // Con series, cada unidad es una: preguntar la equivalencia permitiría
+  // decir que una silla contiene tres sillas. Lo mismo con la misma unidad.
+  const porPresentacion =
+    porSeries || mismaUnidad
+      ? 1
+      : Number(datos.unidades_por_presentacion_lote);
+  const unidadesBase = calcularUnidadesBase(cantidad, porPresentacion);
+  const hayCalculo =
+    datos.cantidad_recepcion_original !== "" &&
+    (mismaUnidad || datos.unidades_por_presentacion_lote !== "") &&
+    Number.isFinite(unidadesBase);
 
   const alta = useMutation({
     /* Registrar el lote y medir a cuántas personas destrabó.
@@ -311,11 +322,15 @@ function SeccionLotes({
         cantidad.toLocaleString("es-GT", { maximumFractionDigits: 4 }) +
         " " +
         (presentacion ? nombreUnidad(presentacion.unidad_medida_id) : "—") +
-        ", con " +
-        porPresentacion.toLocaleString("es-GT", { maximumFractionDigits: 4 }) +
-        " " +
-        unidadBase +
-        " cada una",
+        (mismaUnidad
+          ? ""
+          : ", con " +
+            porPresentacion.toLocaleString("es-GT", {
+              maximumFractionDigits: 4,
+            }) +
+            " " +
+            unidadBase +
+            " cada una"),
       "Entra al inventario: " +
         unidadesBase.toLocaleString("es-GT") +
         " " +
@@ -547,11 +562,20 @@ function SeccionLotes({
                 va a contar el contenido.
               */
               <p className={estilos.equivalencia}>
-                Llega en <strong>{unidadRecibida}</strong>
-                {presentacionActual?.es_default && " (la predeterminada)"} y se
-                cuenta en <strong>{unidadContada}</strong>. Indique cuántas{" "}
-                {unidadRecibida} llegaron y cuántas {unidadContada} trae cada
-                una.
+                {mismaUnidad ? (
+                  <>
+                    Llega y se cuenta en <strong>{unidadContada}</strong>:
+                    indique cuántas llegaron.
+                  </>
+                ) : (
+                  <>
+                    Llega en <strong>{unidadRecibida}</strong>
+                    {presentacionActual?.es_default && " (la predeterminada)"} y
+                    se cuenta en <strong>{unidadContada}</strong>. Indique
+                    cuántas {unidadRecibida} llegaron y cuántas {unidadContada}{" "}
+                    trae cada una.
+                  </>
+                )}
               </p>
             )}
 
@@ -617,14 +641,13 @@ function SeccionLotes({
                   }
                 />
 
+                {/* Con la misma unidad no se pregunta ni se previsualiza: el
+                    resultado es el mismo número que se acaba de escribir. */}
+                {!mismaUnidad && (
                 <CampoTexto
                   etiqueta={
                     equivalenciaLista
-                      ? "Cuántas «" +
-                        unidadContada +
-                        "» trae cada «" +
-                        unidadRecibida +
-                        "»"
+                      ? "«" + unidadContada + "» en cada «" + unidadRecibida + "»"
                       : "Unidades por presentación"
                   }
                   type="number"
@@ -635,8 +658,17 @@ function SeccionLotes({
                   value={datos.unidades_por_presentacion_lote}
                   onChange={cambiar("unidades_por_presentacion_lote")}
                   error={errores.unidades_por_presentacion_lote}
-                  ayuda="Es de este lote y no del insumo: el próximo envío puede traer bultos de otro tamaño."
+                  ayuda={
+                    equivalenciaLista
+                      ? "Cuántas " +
+                        unidadContada +
+                        " trae cada " +
+                        unidadRecibida +
+                        " de este envío: el próximo puede traer bultos de otro tamaño."
+                      : "Es de este lote y no del insumo: el próximo envío puede traer bultos de otro tamaño."
+                  }
                 />
+                )}
 
                 {/*
               Previsualización, no un campo. El valor que se guarda lo calcula
@@ -645,6 +677,7 @@ function SeccionLotes({
               2.5 cajas de 3 unidades entran como 7, no como 7.5, y esa media
               unidad no reaparece en ningún informe posterior.
             */}
+                {!mismaUnidad && (
                 <CampoTexto
                   etiqueta={"Entrará al inventario como"}
                   calculado
@@ -663,6 +696,7 @@ function SeccionLotes({
                       : "Lo calcula la base al guardar. Aquí solo se previsualiza."
                   }
                 />
+                )}
 
                 <CampoSelect
                   etiqueta="Marca"
