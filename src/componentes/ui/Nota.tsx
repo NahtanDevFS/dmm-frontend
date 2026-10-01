@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import estilos from "./Nota.module.css";
 
-export type TonoNota = "informativa" | "exito" | "advertencia";
+export type TonoNota = "informativa" | "exito" | "advertencia" | "error";
 
 /* Nota de una o varias frases dentro de un formulario o modal: reglas que
    conviene leer antes de llenar, o la confirmación de lo que ya se hizo.

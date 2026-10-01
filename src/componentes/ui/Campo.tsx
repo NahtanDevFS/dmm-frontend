@@ -9,6 +9,7 @@ import {
   LARGO_MAXIMO_TELEFONO,
   filtrarEntradaTelefono,
 } from "../../lib/telefono";
+import Boton from "./Boton";
 import estilos from "./Campo.module.css";
 
 interface PropsBase {
@@ -150,6 +151,62 @@ export function CampoTexto({
       ) : (
         input
       )}
+    </Envoltura>
+  );
+}
+
+type PropsContrasena = PropsBase &
+  Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "id" | "required" | "type"
+  > & {
+    // Si se ve en claro. Lo maneja quien lo usa, para que la contraseña nueva
+    // y su confirmación se muestren u oculten juntas y se puedan comparar.
+    visible: boolean;
+    onCambiarVisible: (visible: boolean) => void;
+  };
+
+/* Contraseña con «Mostrar» / «Ocultar», como en la pantalla de acceso.
+   Escribir a ciegas una contraseña que después hay que comunicar o recordar
+   es donde se cuelan los errores de dedo. A diferencia de las demás acciones
+   adjuntas, el botón sigue al lado de la casilla también en el teléfono: es
+   corto, y debajo parecería un botón del formulario. */
+export function CampoContrasena({
+  etiqueta,
+  obligatorio,
+  ayuda,
+  error,
+  className,
+  visible,
+  onCambiarVisible,
+  ...resto
+}: PropsContrasena) {
+  const base = { etiqueta, obligatorio, ayuda, error, className };
+  const { id, idAyuda, idError, propsControl } = useCampo(base);
+
+  return (
+    <Envoltura {...base} id={id} idAyuda={idAyuda} idError={idError}>
+      <div className={estilos.conAccionEnLinea}>
+        <input
+          className={estilos.control}
+          type={visible ? "text" : "password"}
+          autoComplete="new-password"
+          spellCheck={false}
+          autoCapitalize="off"
+          {...propsControl}
+          {...resto}
+        />
+        <Boton
+          variante="secundaria"
+          className={estilos.botonVer}
+          aria-pressed={visible}
+          aria-controls={id}
+          onClick={() => onCambiarVisible(!visible)}
+          disabled={resto.disabled}
+        >
+          {visible ? "Ocultar" : "Mostrar"}
+        </Boton>
+      </div>
     </Envoltura>
   );
 }

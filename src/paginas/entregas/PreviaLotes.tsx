@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import Insignia from "../../componentes/ui/Insignia";
+import Nota from "../../componentes/ui/Nota";
 import { formatearFecha } from "../../lib/fechas";
 import { CLAVE_ENTREGAS, listarLotesFifo } from "../../api/entregas";
 import estilos from "./Entregas.module.css";
@@ -80,10 +81,10 @@ function PreviaLotes({
           </div>
 
           {noAlcanza && (
-            <Insignia tono="rechazada">
+            <Nota tono="error">
               Está pidiendo más de lo que hay en existencia. La base rechazará
               la entrega.
-            </Insignia>
+            </Nota>
           )}
         </>
       )}

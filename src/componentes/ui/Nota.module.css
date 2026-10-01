@@ -9,8 +9,9 @@
   font: var(--texto-auxiliar);
   color: var(--color-text-main);
   overflow-wrap: anywhere;
-  /* El cuerpo del modal no separa a sus hijos: la nota trae su propio aire. */
-  margin-bottom: var(--space-2);
+  /* El cuerpo del modal no separa a sus hijos: la nota trae su propio aire,
+     arriba y abajo, para no quedar pegada al campo que la precede. */
+  margin-block: var(--space-2);
 }
 
 .informativa {
@@ -23,4 +24,9 @@
 
 .advertencia {
   --tono: var(--color-warning);
+}
+
+/* Lo que el sistema va a rechazar si se sigue adelante */
+.error {
+  --tono: var(--color-danger);
 }

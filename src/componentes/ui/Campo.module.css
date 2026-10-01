@@ -128,6 +128,25 @@
   min-width: 0;
 }
 
+/* Igual, pero sin apilarse en el teléfono (contraseña + «Mostrar») */
+.conAccionEnLinea {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-1);
+}
+
+.conAccionEnLinea > .control {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mismo ancho con «Mostrar» y con «Ocultar»: si no, la casilla se mueve al
+   pulsarlo */
+.botonVer {
+  flex: none;
+  min-width: 6.5em;
+}
+
 @media (max-width: 768px) {
   .conAccion {
     flex-direction: column;

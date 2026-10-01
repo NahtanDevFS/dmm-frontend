@@ -17,7 +17,14 @@ import {
   type DatosRespuesta,
 } from "../../api/formularios";
 import RenderizadorCampo from "./RenderizadorCampo";
-import { calcularSugerencias } from "./sugerencias";
+import { calcularSugerencias, tablaReferencia } from "./sugerencias";
+import {
+  bloquesDeFormulario,
+  formatearQuetzales,
+  totalDeGrupo,
+  TOTALES_DE_GRUPO,
+} from "./bloques";
+import TablaDeReferencia from "./TablaDeReferencia";
 import estilos from "./Formularios.module.css";
 
 // Valores de los campos sueltos: uno por campo (numero_fila siempre 1).
@@ -85,7 +92,8 @@ function estadoInicial(
 }
 
 /* Formulario dinámico: renderiza cualquier configuración de formulario_campo
-   sin conocerla de antemano. Los campos sueltos van en una rejilla; los que
+   sin conocerla de antemano, en el orden del papel y con sus secciones (ver
+   bloques.ts). Los campos sueltos van en una rejilla; los que
    comparten grupo_repetible se agrupan en su propia tabla de filas, con
    "+ Agregar" y "Quitar" — el grupo familiar y los egresos mensuales del
    estudio socioeconómico son el caso que motivó esto, pero cualquier
@@ -210,6 +218,11 @@ function FormularioInterno({
 
   const { sueltos: camposSueltos, grupos: camposGrupos } = useMemo(
     () => agruparCampos(formulario.campos),
+    [formulario],
+  );
+  // Lo que se dibuja, en el orden del papel (secciones, sueltos y grupos)
+  const bloques = useMemo(
+    () => bloquesDeFormulario(formulario.campos),
     [formulario],
   );
 
@@ -405,88 +418,113 @@ function FormularioInterno({
       }
     >
       <div className={estilos.enModal}>
-        {camposSueltos.length > 0 && (
-          <div className={estilos.tarjeta}>
-            <div className={estilos.rejillaCampos}>
-              {camposSueltos.map((campo) => (
-                <div
-                  key={campo.id}
-                  className={
-                    campo.tipo_dato_nombre === "TEXTO_LARGO" ||
-                    campo.tipo_dato_nombre === "SELECCION_MULTIPLE"
-                      ? estilos.anchoCompleto
-                      : undefined
-                  }
-                >
-                  <RenderizadorCampo
-                    campo={campo}
-                    valor={sueltos[campo.id] ?? null}
-                    onCambiar={(v) => marcarSuelto(campo.id, v)}
-                    error={erroresPorCampo[campo.id]}
-                    deshabilitado={soloLectura}
-                    sugerencia={sugerencias[campo.id]}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {Array.from(camposGrupos.entries()).map(
-          ([nombreGrupo, camposDelGrupo]) => {
-            const filas = grupos[nombreGrupo] ?? [];
+        {bloques.map((bloque, indiceBloque) => {
+          if (bloque.tipo === "seccion") {
             return (
-              <div key={nombreGrupo} className={estilos.grupoRepetible}>
-                <h3 className={estilos.tituloGrupo}>
-                  {tituloDeGrupo(nombreGrupo)}
-                </h3>
+              <h3 key={"s" + indiceBloque} className={estilos.tituloSeccion}>
+                {bloque.titulo}
+              </h3>
+            );
+          }
 
-                {filas.length === 0 ? (
-                  <p className={estilos.auxiliar}>
-                    Todavía no hay filas agregadas.
-                  </p>
-                ) : (
-                  filas.map((fila, indice) => (
-                    <div key={indice} className={estilos.filaGrupo}>
-                      {camposDelGrupo.map((campo) => (
-                        <RenderizadorCampo
-                          key={campo.id}
-                          campo={campo}
-                          valor={fila[campo.id] ?? null}
-                          onCambiar={(v) =>
-                            marcarFilaGrupo(nombreGrupo, indice, campo.id, v)
-                          }
-                          deshabilitado={soloLectura}
-                        />
-                      ))}
-                      {!soloLectura && (
-                        <Boton
-                          pequeno
-                          variante="terciaria"
-                          onClick={() => quitarFila(nombreGrupo, indice)}
-                        >
-                          Quitar
-                        </Boton>
-                      )}
-                    </div>
-                  ))
-                )}
-
-                {!soloLectura && (
-                  <div className={estilos.accionGrupo}>
-                    <Boton
-                      pequeno
-                      variante="secundaria"
-                      onClick={() => agregarFila(nombreGrupo)}
+          if (bloque.tipo === "sueltos") {
+            return (
+              <div key={"c" + indiceBloque} className={estilos.rejillaCampos}>
+                {bloque.campos.map((campo) => {
+                  const referencia = tablaReferencia(
+                    campo.etiqueta,
+                    sueltos[campo.id],
+                  );
+                  return (
+                    <div
+                      key={campo.id}
+                      className={
+                        campo.tipo_dato_nombre === "TEXTO_LARGO" ||
+                        campo.tipo_dato_nombre === "SELECCION_MULTIPLE"
+                          ? estilos.anchoCompleto
+                          : undefined
+                      }
                     >
-                      + Agregar
-                    </Boton>
-                  </div>
-                )}
+                      <RenderizadorCampo
+                        campo={campo}
+                        valor={sueltos[campo.id] ?? null}
+                        onCambiar={(v) => marcarSuelto(campo.id, v)}
+                        error={erroresPorCampo[campo.id]}
+                        deshabilitado={soloLectura}
+                        sugerencia={sugerencias[campo.id]}
+                      />
+                      {referencia && <TablaDeReferencia tabla={referencia} />}
+                    </div>
+                  );
+                })}
               </div>
             );
-          },
-        )}
+          }
+
+          const nombreGrupo = bloque.nombre;
+          const camposDelGrupo = bloque.campos;
+          const filas = grupos[nombreGrupo] ?? [];
+          const etiquetaTotal = TOTALES_DE_GRUPO[nombreGrupo];
+          return (
+            <div key={"g" + nombreGrupo} className={estilos.grupoRepetible}>
+              <h4 className={estilos.tituloGrupo}>
+                {tituloDeGrupo(nombreGrupo)}
+              </h4>
+
+              {filas.length === 0 ? (
+                <p className={estilos.auxiliar}>
+                  Todavía no hay filas agregadas.
+                </p>
+              ) : (
+                filas.map((fila, indice) => (
+                  <div key={indice} className={estilos.filaGrupo}>
+                    {camposDelGrupo.map((campo) => (
+                      <RenderizadorCampo
+                        key={campo.id}
+                        campo={campo}
+                        valor={fila[campo.id] ?? null}
+                        onCambiar={(v) =>
+                          marcarFilaGrupo(nombreGrupo, indice, campo.id, v)
+                        }
+                        deshabilitado={soloLectura}
+                      />
+                    ))}
+                    {!soloLectura && (
+                      <Boton
+                        pequeno
+                        variante="terciaria"
+                        onClick={() => quitarFila(nombreGrupo, indice)}
+                      >
+                        Quitar
+                      </Boton>
+                    )}
+                  </div>
+                ))
+              )}
+
+              <div className={estilos.accionGrupo}>
+                {/* El papel pide el total: se suma solo mientras se escribe */}
+                {etiquetaTotal && (
+                  <p className={estilos.totalGrupo} aria-live="polite">
+                    {etiquetaTotal}:{" "}
+                    <strong>
+                      {formatearQuetzales(totalDeGrupo(camposDelGrupo, filas))}
+                    </strong>
+                  </p>
+                )}
+                {!soloLectura && (
+                  <Boton
+                    pequeno
+                    variante="secundaria"
+                    onClick={() => agregarFila(nombreGrupo)}
+                  >
+                    + Agregar
+                  </Boton>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </Modal>
   );

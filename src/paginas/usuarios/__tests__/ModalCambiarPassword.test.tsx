@@ -47,6 +47,9 @@ async function enviar(actual = "incorrecta1") {
   const campoNueva = screen.getByLabelText(/Contraseña nueva/);
   await userEvent.clear(campoNueva);
   await userEvent.type(campoNueva, "NuevaClave123");
+  const campoConfirmacion = screen.getByLabelText(/Confirme la contraseña nueva/);
+  await userEvent.clear(campoConfirmacion);
+  await userEvent.type(campoConfirmacion, "NuevaClave123");
   await userEvent.click(screen.getByRole("button", { name: "Cambiar contraseña" }));
 }
 

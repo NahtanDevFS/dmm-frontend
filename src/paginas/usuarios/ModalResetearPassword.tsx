@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
-import { CampoTexto } from "../../componentes/ui/Campo";
+import { CampoContrasena } from "../../componentes/ui/Campo";
 import Modal from "../../componentes/ui/Modal";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
@@ -27,9 +27,16 @@ function ModalResetearPassword({
 }) {
   const { avisar } = useAvisos();
   const [passwordNueva, setPasswordNueva] = useState("");
+  // Se escribe dos veces: quien restablece tiene que comunicarla después, y
+  // un error de dedo deja a la otra persona sin poder entrar.
+  const [confirmacion, setConfirmacion] = useState("");
+  const [visible, setVisible] = useState(false);
+
+  const coinciden = confirmacion === passwordNueva;
+  const lista = passwordValida(passwordNueva) && coinciden;
 
   const cerrar = useCierreSeguro({
-    hayCambios: passwordNueva !== "",
+    hayCambios: passwordNueva !== "" || confirmacion !== "",
     onCerrar,
   });
 
@@ -60,7 +67,7 @@ function ModalResetearPassword({
           </Boton>
           <Boton
             variante="primaria"
-            disabled={!passwordValida(passwordNueva)}
+            disabled={!lista}
             cargando={mutacion.isPending}
             textoCargando="Restableciendo…"
             onClick={() => mutacion.mutate()}
@@ -70,10 +77,11 @@ function ModalResetearPassword({
         </GrupoBotones>
       }
     >
-      <CampoTexto
+      <CampoContrasena
         etiqueta="Contraseña nueva"
         obligatorio
-        type="password"
+        visible={visible}
+        onCambiarVisible={setVisible}
         value={passwordNueva}
         onChange={(e) => setPasswordNueva(e.target.value)}
         error={
@@ -81,6 +89,15 @@ function ModalResetearPassword({
             ? "Debe tener al menos 8 caracteres, con una letra y un número."
             : undefined
         }
+      />
+      <CampoContrasena
+        etiqueta="Confirme la contraseña nueva"
+        obligatorio
+        visible={visible}
+        onCambiarVisible={setVisible}
+        value={confirmacion}
+        onChange={(e) => setConfirmacion(e.target.value)}
+        error={confirmacion !== "" && !coinciden ? "Las contraseñas no coinciden." : undefined}
       />
       <p className={estilos.ayudaPassword}>
         Comuníquele esta contraseña por un canal aparte: el sistema no se la

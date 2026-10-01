@@ -6,8 +6,8 @@ import {
   CampoSelect,
   CampoAreaTexto,
 } from "../../componentes/ui/Campo";
-import Insignia from "../../componentes/ui/Insignia";
 import Modal from "../../componentes/ui/Modal";
+import Nota from "../../componentes/ui/Nota";
 import { useCierreSeguro } from "../../componentes/ui/useCierreSeguro";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
 import { fechaDeHoy } from "../../lib/fechas";
@@ -161,10 +161,10 @@ function ModalRegistrarPrestamo({
           </GrupoBotones>
         }
       >
-        <Insignia tono="aprobada">
+        <Nota tono="exito">
           Préstamo registrado y equipo descontado del inventario. No vuelva a
           registrarlo aunque cierre esta ventana.
-        </Insignia>
+        </Nota>
 
         <p className={estilos.nota}>
           {persona!.nombres} {persona!.apellidos} ·{" "}

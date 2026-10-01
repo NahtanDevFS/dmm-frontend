@@ -68,6 +68,7 @@ function SeccionFormularios() {
   const [obligatorio, setObligatorio] = useState(false);
   const [grupoRepetible, setGrupoRepetible] = useState("");
   const [ayuda, setAyuda] = useState("");
+  const [seccion, setSeccion] = useState("");
 
   const formularios = useQuery({
     queryKey: [CLAVE_FORMULARIOS, "lista"],
@@ -155,6 +156,7 @@ function SeccionFormularios() {
         orden: siguienteOrden,
         grupo_repetible: grupoRepetible.trim() || null,
         ayuda: ayuda.trim() || null,
+        seccion: seccion.trim() || null,
       });
     },
     onSuccess: async () => {
@@ -167,6 +169,8 @@ function SeccionFormularios() {
       setObligatorio(false);
       setGrupoRepetible("");
       setAyuda("");
+      // La sección se conserva: lo normal es agregar varios campos seguidos
+      // a la misma sección del papel
     },
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
@@ -209,6 +213,15 @@ function SeccionFormularios() {
   const camposVisibles = verInactivos
     ? todosLosCampos
     : todosLosCampos.filter((campo) => campo.activo);
+
+  // Secciones ya usadas en este formulario, para elegirlas sin reescribirlas
+  const seccionesUsadas = [
+    ...new Set(
+      todosLosCampos
+        .map((campo) => campo.seccion)
+        .filter((s): s is string => Boolean(s)),
+    ),
+  ];
 
   const listoParaCampo =
     seleccionado !== null &&
@@ -360,6 +373,7 @@ function SeccionFormularios() {
               <thead>
                 <tr>
                   <th>Orden</th>
+                  <th>Sección</th>
                   <th>Etiqueta</th>
                   <th>Tipo</th>
                   <th>Obligatorio</th>
@@ -372,6 +386,7 @@ function SeccionFormularios() {
                 {camposVisibles.map((campo, indice) => (
                   <tr key={campo.id}>
                     <td>{campo.orden}</td>
+                    <td>{campo.seccion ?? "—"}</td>
                     <td>{campo.etiqueta}</td>
                     <td>
                       {etiquetaDe(campo.tipo_dato_nombre)}
@@ -444,6 +459,20 @@ function SeccionFormularios() {
 
           <div className={estilos.formulario}>
             <CampoTexto
+              etiqueta="Sección"
+              maxLength={200}
+              list="secciones-del-formulario"
+              value={seccion}
+              onChange={(e) => setSeccion(e.target.value)}
+              ayuda="El título de la parte del papel donde va este campo, como «III. Vivienda» o «Hoja 2 · Aptitud». Se muestra al llenar, cada vez que empieza una sección nueva. En blanco, el campo sigue en la sección del anterior."
+            />
+            <datalist id="secciones-del-formulario">
+              {seccionesUsadas.map((s) => (
+                <option key={s} value={s} />
+              ))}
+            </datalist>
+
+            <CampoTexto
               etiqueta="Etiqueta del campo"
               obligatorio
               maxLength={200}
@@ -505,7 +534,7 @@ function SeccionFormularios() {
               maxLength={100}
               value={grupoRepetible}
               onChange={(e) => setGrupoRepetible(e.target.value)}
-              ayuda="Un nombre interno, no visible al llenar. Deje en blanco salvo que el campo se repita en filas, como los integrantes de un hogar: los campos con el mismo texto aquí se agrupan en una misma tabla que se puede ir agregando."
+              ayuda="Deje en blanco salvo que el campo se repita en filas, como los integrantes de un hogar: los campos con el mismo texto aquí se agrupan en una misma tabla que se puede ir agregando, y ese texto es su título (grupo_familiar se lee «Grupo Familiar»)."
             />
 
             <CampoTexto
