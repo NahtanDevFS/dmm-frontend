@@ -23,8 +23,17 @@ export function alExpirarSesion(escucha: Escucha): () => void {
    ningún dato. */
 export function anunciarSesionExpirada(): void {
   if (escuchas.size === 0) {
-    if (window.location.pathname !== RUTA_ACCESO) {
-      window.location.assign(RUTA_ACCESO);
+    const { pathname, search } = window.location;
+    if (pathname !== RUTA_ACCESO) {
+      // Recuerda adónde se iba, como el acceso dentro de la aplicación
+      // (rutas/acceso.ts, que no se importa aquí para no crear un ciclo)
+      window.location.assign(
+        pathname === "/"
+          ? RUTA_ACCESO
+          : RUTA_ACCESO +
+              "?" +
+              new URLSearchParams({ volver: pathname + search }).toString(),
+      );
     }
     return;
   }

@@ -27,6 +27,8 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
   // Se lee una sola vez al montar: si la página se recargó con un cierre sin
   // confirmar, la sesión NO se rescata con /auth/me, se reintenta el cierre.
   const [cierrePendiente, setCierrePendiente] = useState(hayCierrePendiente);
+  // Ver ValorAuth.salidaManual. Un cierre pendiente también fue a mano.
+  const [salidaManual, setSalidaManual] = useState(hayCierrePendiente);
 
   /* Rescate de sesión al arrancar. La cookie dmm_session es HttpOnly: el
      frontend no puede leerla, así que la única forma de saber si hay sesión es
@@ -60,11 +62,16 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
      no deben sobrevivir al cierre de sesión ni quedar visibles para quien use
      la máquina después.
      
-     Se vuelve a sembrar la clave de sesión en null tras el borrado para que la
-     consulta no quede en estado pendiente y la pantalla de acceso aparezca de
-     inmediato, sin un parpadeo en blanco. */
+     La consulta de la sesión NO se borra: solo pasa a null. Con clear() se
+     iba también ella, y este proveedor quedaba suscrito a la consulta vieja,
+     que ya no recibe avisos. Al vencer la sesión nada lo redibujaba, así que
+     la pantalla se quedaba cargando con el usuario anterior en vez de mostrar
+     el acceso (el cierre manual sí funcionaba: la mutación lo redibuja). */
   const limpiarEstado = useCallback(() => {
-    clienteQuery.clear();
+    clienteQuery.removeQueries({
+      predicate: (consulta) => consulta.queryKey[0] !== CLAVE_SESION[0],
+    });
+    clienteQuery.getMutationCache().clear();
     clienteQuery.setQueryData(CLAVE_SESION, null);
   }, [clienteQuery]);
 
@@ -75,11 +82,13 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
   const mutacionEntrar = useMutation({
     mutationFn: iniciarSesionApi,
     onSuccess: (usuarioAutenticado) => {
+      setSalidaManual(false);
       clienteQuery.setQueryData(CLAVE_SESION, usuarioAutenticado);
     },
   });
 
   const confirmarCierre = useCallback(() => {
+    setSalidaManual(true);
     limpiarCierrePendiente();
     setCierrePendiente(false);
     limpiarEstado();
@@ -98,6 +107,7 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
       // Sin red, servidor caído o error 500: la sesión puede seguir viva. Los
       // datos se ocultan igual, pero no se finge un cierre que no ocurrió.
       marcarCierrePendiente();
+      setSalidaManual(true);
       setCierrePendiente(true);
       limpiarEstado();
     },
@@ -145,6 +155,7 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
       salir,
       saliendo: mutacionSalir.isPending,
       cierrePendiente,
+      salidaManual,
     }),
     [
       consultaSesion.data,
@@ -153,6 +164,7 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
       salir,
       mutacionSalir.isPending,
       cierrePendiente,
+      salidaManual,
     ],
   );
 
