@@ -26,12 +26,12 @@ export const NAVEGACION: readonly ItemNavegacion[] = [
   { etiqueta: "Inicio", ruta: "/", roles: OPERACION },
   { etiqueta: "Beneficiarios", ruta: "/beneficiarios", roles: OPERACION },
   { etiqueta: "Solicitudes", ruta: "/solicitudes", roles: OPERACION },
+  { etiqueta: "Entregas", ruta: "/entregas", roles: OPERACION },
   // El rótulo es "Ingreso de lotes" porque "Donaciones" se leía como algo que
   // la Dirección entrega, cuando es lo contrario: lo que recibe. La ruta y las
   // tablas conservan "donaciones"; renombrar el esquema por un tema de nombre
   // visible no compensa el riesgo.
   { etiqueta: "Ingreso de lotes", ruta: "/donaciones", roles: OPERACION },
-  { etiqueta: "Entregas", ruta: "/entregas", roles: OPERACION },
   { etiqueta: "Inventario", ruta: "/inventario", roles: OPERACION },
   { etiqueta: "Préstamos", ruta: "/prestamos", roles: OPERACION },
   { etiqueta: "Catálogos", ruta: "/catalogos", roles: DIRECCION },
