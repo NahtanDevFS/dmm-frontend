@@ -74,6 +74,11 @@ function SeccionLotes({
   const clienteQuery = useQueryClient();
   const { avisar, confirmar } = useAvisos();
   const [datos, setDatos] = useState(VACIO);
+  // Combinación insumo:presentación cuya equivalencia ya tocó la persona. Sin
+  // ella, el campo muestra la sugerencia del catálogo.
+  const [equivalenciaEditadaPara, setEquivalenciaEditadaPara] = useState<
+    string | null
+  >(null);
   const [errores, setErrores] = useState<Record<string, string | undefined>>(
     {},
   );
@@ -200,16 +205,31 @@ function SeccionLotes({
     insumo !== undefined &&
     presentacionActual.unidad_medida_id === insumo.unidad_medida_base_id;
 
+  /* Equivalencia sugerida: la nominal del catálogo para esta presentación.
+     Es solo un punto de partida; el valor real es de este lote y el envío
+     puede traer bultos de otro tamaño. Un 1 (o nada) no se propone: sería
+     adivinar. Se deriva, como la presentación, en vez de copiarla al estado. */
+  const nominal = Number(presentacionActual?.unidades_por_presentacion);
+  const equivalenciaSugerida =
+    !porSeries && !mismaUnidad && Number.isFinite(nominal) && nominal > 1
+      ? String(nominal)
+      : "";
+  const claveEquivalencia = insumoId + ":" + presentacionElegida;
+  const equivalenciaEditada = equivalenciaEditadaPara === claveEquivalencia;
+  const equivalenciaLote = equivalenciaEditada
+    ? datos.unidades_por_presentacion_lote
+    : equivalenciaSugerida;
+  const vieneDelCatalogo =
+    !equivalenciaEditada && equivalenciaSugerida !== "";
+
   // Con series, cada unidad es una: preguntar la equivalencia permitiría
   // decir que una silla contiene tres sillas. Lo mismo con la misma unidad.
   const porPresentacion =
-    porSeries || mismaUnidad
-      ? 1
-      : Number(datos.unidades_por_presentacion_lote);
+    porSeries || mismaUnidad ? 1 : Number(equivalenciaLote);
   const unidadesBase = calcularUnidadesBase(cantidad, porPresentacion);
   const hayCalculo =
     datos.cantidad_recepcion_original !== "" &&
-    (mismaUnidad || datos.unidades_por_presentacion_lote !== "") &&
+    (mismaUnidad || equivalenciaLote !== "") &&
     Number.isFinite(unidadesBase);
 
   const alta = useMutation({
@@ -268,6 +288,7 @@ function SeccionLotes({
         promovidas > 0 ? { insumo: insumoNombre, lineas: promovidas } : null,
       );
       aplicar(VACIO);
+      setEquivalenciaEditadaPara(null);
       setErrores({});
     },
     onError: (error) => {
@@ -655,11 +676,16 @@ function SeccionLotes({
                   step="0.0001"
                   obligatorio
                   numerico
-                  value={datos.unidades_por_presentacion_lote}
-                  onChange={cambiar("unidades_por_presentacion_lote")}
+                  value={equivalenciaLote}
+                  onChange={(e) => {
+                    setEquivalenciaEditadaPara(claveEquivalencia);
+                    cambiar("unidades_por_presentacion_lote")(e);
+                  }}
                   error={errores.unidades_por_presentacion_lote}
                   ayuda={
-                    equivalenciaLista
+                    vieneDelCatalogo
+                      ? "Tomado del catálogo; cámbielo si este envío trae bultos de otro tamaño."
+                      : equivalenciaLista
                       ? "Cuántas " +
                         unidadContada +
                         " trae cada " +

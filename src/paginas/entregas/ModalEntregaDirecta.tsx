@@ -22,7 +22,8 @@ import {
   obtenerEntrega,
   registrarEntrega,
 } from "../../api/entregas";
-import type { Persona, ElementoCatalogo } from "../../types/api";
+import { useAuth } from "../../auth/useAuth";
+import type { Persona, Programa, ElementoCatalogo } from "../../types/api";
 import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import SeccionEvidencias from "./SeccionEvidencias";
 import PreviaLotes from "./PreviaLotes";
@@ -40,6 +41,7 @@ function ModalEntregaDirecta({
 }) {
   const clienteQuery = useQueryClient();
   const { avisar } = useAvisos();
+  const { usuario } = useAuth();
 
   // Paso 1: datos de la entrega. Paso 2: evidencias de la ya registrada
   const [entregaRegistrada, setEntregaRegistrada] = useState<number | null>(
@@ -50,6 +52,11 @@ function ModalEntregaDirecta({
   const [receptor, setReceptor] = useState<Persona | null>(null);
   const [parentescoId, setParentescoId] = useState("");
   const [observaciones, setObservaciones] = useState("");
+  /* Preseleccionado con el programa de quien registra, igual que en las
+     solicitudes: es casi siempre el mismo y se puede cambiar al cubrir a otra
+     compañera. Una entrega directa no tiene solicitud de donde heredarlo. */
+  const programaPropio = usuario?.programa_id ? String(usuario.programa_id) : "";
+  const [programaId, setProgramaId] = useState(programaPropio);
 
   // Renglones ya agregados, y el que se está armando.
   const [renglones, setRenglones] = useState<
@@ -61,6 +68,7 @@ function ModalEntregaDirecta({
   const [borradorEvidencia, setBorradorEvidencia] = useState(false);
 
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
+  const programas = useCatalogo<Programa>("programas");
 
   // La entrega recién creada, para que la sección de evidencias vea las que
   // se van subiendo. Solo consulta cuando ya existe
@@ -111,7 +119,8 @@ function ModalEntregaDirecta({
     insumoId !== "" ||
     cantidad !== "" ||
     receptor !== null ||
-    observaciones.trim() !== "";
+    observaciones.trim() !== "" ||
+    programaId !== programaPropio;
 
   const cerrar = useCierreSeguro({
     // Ya registrada, lo único que se puede perder es una evidencia a medias
@@ -138,6 +147,7 @@ function ModalEntregaDirecta({
           ? Number(parentescoId) || null
           : null,
         observaciones: observaciones.trim() || null,
+        programa_id: Number(programaId),
       }),
     onSuccess: async (entrega) => {
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_ENTREGAS] });
@@ -151,7 +161,10 @@ function ModalEntregaDirecta({
 
   const receptorValido = !receptor || parentescoId !== "";
   const listoParaEnviar =
-    persona !== null && renglones.length > 0 && receptorValido;
+    persona !== null &&
+    programaId !== "" &&
+    renglones.length > 0 &&
+    receptorValido;
 
   // ── Paso 2: la entrega ya existe, faltan las fotos
   if (entregaRegistrada !== null) {
@@ -249,6 +262,20 @@ function ModalEntregaDirecta({
         obligatorio
         flotante={false}
       />
+
+      <CampoSelect
+        etiqueta="Programa"
+        obligatorio
+        value={programaId}
+        onChange={(e) => setProgramaId(e.target.value)}
+        ayuda="El programa al que se carga esta entrega. Si no aparece, agréguelo antes en Catálogos."
+      >
+        {programas.opciones.map((programa) => (
+          <option key={programa.id} value={programa.id}>
+            {programa.nombre}
+          </option>
+        ))}
+      </CampoSelect>
 
       <div className={estilos.rejillaLote}>
         <CampoSelect

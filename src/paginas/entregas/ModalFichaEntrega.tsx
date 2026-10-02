@@ -201,6 +201,7 @@ function ModalFichaEntrega({
                 <Dato titulo="Fecha de entrega">
                   {formatearFecha(entrega.fecha_entrega)}
                 </Dato>
+                <Dato titulo="Programa">{entrega.programa_nombre ?? "—"}</Dato>
                 <Dato titulo="Recibió">
                   {entrega.persona_receptor_id === null
                     ? "La misma persona beneficiaria"

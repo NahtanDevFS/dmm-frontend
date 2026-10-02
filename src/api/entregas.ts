@@ -15,6 +15,9 @@ export interface Entrega {
   usuario_entrega_id: number;
   observaciones: string | null;
   activo: boolean;
+  // Programa al que se carga; null en las directas anteriores a registrarlo
+  programa_id: number | null;
+  programa_nombre: string | null;
 }
 
 // De qué lote salió una parte del renglón, y cuánto.
@@ -85,6 +88,8 @@ export interface EntregaListado {
   receptor_nombre_completo: string | null;
   parentesco_receptor: string | null;
   entregado_por: string;
+  programa_id: number | null;
+  programa_nombre: string | null;
   observaciones: string | null;
   activo: boolean;
   // Renglones no anulados, cada uno en la unidad base de su insumo.
@@ -122,11 +127,14 @@ export interface DatosEntrega {
   persona_receptor_id?: number | null;
   tipo_parentesco_receptor_id?: number | null;
   observaciones?: string | null;
+  // Obligatorio en una entrega directa; un despacho toma el de su solicitud
+  programa_id?: number | null;
 }
 
 export interface FiltrosEntregas {
   personaId?: number;
   insumoId?: number;
+  programaId?: number;
   desde?: string;
   hasta?: string;
   incluirAnuladas?: boolean;

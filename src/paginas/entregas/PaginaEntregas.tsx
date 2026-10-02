@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Boton from "../../componentes/ui/Boton";
-import { CampoTexto } from "../../componentes/ui/Campo";
+import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
 import Paginacion from "../../componentes/ui/Paginacion";
 import Tabla, {
@@ -10,11 +10,13 @@ import Tabla, {
 } from "../../componentes/ui/Tabla";
 import { EstadoVacio, EsqueletoTabla } from "../../componentes/ui/Estado";
 import { useListadoPaginado } from "../../hooks/useListadoPaginado";
+import { useCatalogo } from "../../hooks/useCatalogo";
 import { formatearFecha, fechaDeHoy } from "../../lib/fechas";
 import { mensajeDeError } from "../../lib/errores";
 import { formatearCantidad } from "../../lib/cantidades";
 import { etiquetaDe } from "../../lib/etiquetas";
 import { CLAVE_ENTREGAS, type EntregaListado } from "../../api/entregas";
+import type { Programa } from "../../types/api";
 import ModalEntregaDirecta from "./ModalEntregaDirecta";
 import ModalFichaEntrega from "./ModalFichaEntrega";
 import estilos from "./Entregas.module.css";
@@ -32,6 +34,7 @@ function PaginaEntregas() {
   const [textoInsumo, setTextoInsumo] = useState("");
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
+  const [programaId, setProgramaId] = useState("");
   const [incluirAnuladas, setIncluirAnuladas] = useState(false);
 
   // Filtros aplicados localmente sobre los datos traídos
@@ -39,10 +42,13 @@ function PaginaEntregas() {
     () => ({
       desde: desde || undefined,
       hasta: hasta || undefined,
+      programaId: programaId || undefined,
       incluirAnuladas: incluirAnuladas ? "true" : undefined,
     }),
-    [desde, hasta, incluirAnuladas],
+    [desde, hasta, programaId, incluirAnuladas],
   );
+
+  const programas = useCatalogo<Programa>("programas");
 
   const listado = useListadoPaginado<EntregaListado>({
     clave: CLAVE_ENTREGAS,
@@ -72,6 +78,7 @@ function PaginaEntregas() {
     textoInsumo !== "" ||
     desde !== "" ||
     hasta !== "" ||
+    programaId !== "" ||
     incluirAnuladas;
 
   const limpiarFiltros = () => {
@@ -79,6 +86,7 @@ function PaginaEntregas() {
     setTextoInsumo("");
     setDesde("");
     setHasta("");
+    setProgramaId("");
     setIncluirAnuladas(false);
   };
 
@@ -120,6 +128,19 @@ function PaginaEntregas() {
             onChange={(e) => setTextoInsumo(e.target.value)}
           />
 
+          <CampoSelect
+            etiqueta="Programa"
+            marcador="Todos los programas"
+            value={programaId}
+            onChange={(e) => setProgramaId(e.target.value)}
+          >
+            {programas.opciones.map((programa) => (
+              <option key={programa.id} value={programa.id}>
+                {programa.nombre}
+              </option>
+            ))}
+          </CampoSelect>
+
           <CampoTexto
             etiqueta="Desde"
             type="date"
@@ -158,7 +179,7 @@ function PaginaEntregas() {
         </div>
 
         {listado.isPending ? (
-          <EsqueletoTabla filas={5} columnas={6} />
+          <EsqueletoTabla filas={5} columnas={7} />
         ) : listado.isError ? (
           <EstadoVacio
             titulo="No se pudo cargar el listado"
@@ -188,6 +209,7 @@ function PaginaEntregas() {
                 <tr>
                   <th>Fecha</th>
                   <th>Persona</th>
+                  <th>Programa</th>
                   <th>Recibió</th>
                   <th>Insumos entregados</th>
                   <th>Estado</th>
@@ -203,6 +225,7 @@ function PaginaEntregas() {
                     <td className={estilos.persona}>
                       {entrega.persona_nombre_completo}
                     </td>
+                    <td>{entrega.programa_nombre ?? "—"}</td>
                     <td>
                       {entrega.receptor_nombre_completo
                         ? entrega.receptor_nombre_completo +
