@@ -53,7 +53,7 @@ const OPCIONES_ESTADO: { valor: string; etiqueta: string }[] = [
    El listado viene de v_solicitudes_activas, que expone una fila por LÍNEA
    (no por trámite): una solicitud con tres insumos aparece tres veces, cada
    una con su propio estado, porque cada insumo avanza por su cuenta según su
-   stock. La cabecera completa —con todas sus líneas juntas— se ve en la
+   stock. La cabecera completa (con todas sus líneas juntas) se ve en la
    ficha, que se abre desde cualquiera de sus filas. */
 function PaginaSolicitudes() {
   const navegar = useNavigate();
@@ -226,10 +226,7 @@ function PaginaSolicitudes() {
             </label>
 
             {hayFiltros && (
-              <Boton
-                variante="terciaria"
-                onClick={limpiarFiltros}
-              >
+              <Boton variante="terciaria" onClick={limpiarFiltros}>
                 Limpiar filtros
               </Boton>
             )}

@@ -116,9 +116,7 @@ function ModalSolicitud({
 
   /* Modalidad que se va a enviar: siempre donación. Una solicitud existe para
      decidir si corresponde donar; el préstamo se registra completo en el
-     módulo de Préstamos. Antes, si la categoría admitía préstamo (la silla de
-     ruedas), se tomaba la de un selector que ya no existe, así que quedaba
-     vacía y no se podía agregar el insumo. */
+     módulo de Préstamos*/
   const modalidadEfectiva = idDonacion ? String(idDonacion) : "";
 
   const filasStock = insumos.data;
