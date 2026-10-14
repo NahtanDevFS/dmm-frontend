@@ -1,6 +1,16 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
 import Boton, { GrupoBotones } from "../Boton";
 import Modal from "../Modal";
+import { modalSuperior, suscribirCapaSuperior } from "../capaSuperior";
 import {
   ContextoAvisos,
   type Aviso,
@@ -35,7 +45,16 @@ export function ProveedorAvisos({ children }: { children: ReactNode }) {
   const [avisos, setAvisos] = useState<Aviso[]>([]);
   const [pendiente, setPendiente] = useState<Pendiente | null>(null);
   const siguienteId = useRef(1);
+  const refPila = useRef<HTMLDivElement>(null);
 
+  /* Los avisos se montan DENTRO del modal que esté encima, si hay alguno.
+     Fuera de él quedarían inertes y por debajo de la capa superior, que es lo
+     que pasaba: el aviso de «Solicitud cancelada» salía detrás de la ficha. */
+  const modal = useSyncExternalStore(
+    suscribirCapaSuperior,
+    modalSuperior,
+    () => null,
+  );
   const descartar = useCallback((id: number) => {
     setAvisos((previos) => previos.filter((aviso) => aviso.id !== id));
   }, []);
@@ -65,6 +84,21 @@ export function ProveedorAvisos({ children }: { children: ReactNode }) {
     [pendiente],
   );
 
+  /* Y además como popover: así entran ellos mismos en la capa superior, por
+     encima del modal y sin quedar recortados por él. Se vuelve a mostrar con
+     cada aviso nuevo o cambio de modal para quedar al frente de lo último que
+     se abrió. Donde el navegador no tenga popover, sigue valiendo el z-index. */
+  useLayoutEffect(() => {
+    const pila = refPila.current;
+    if (!pila || typeof pila.showPopover !== "function") return;
+    try {
+      if (pila.matches(":popover-open")) pila.hidePopover();
+      if (avisos.length > 0) pila.showPopover();
+    } catch {
+      // Un popover desconectado del documento lanza; no hay nada que mostrar
+    }
+  }, [avisos, modal]);
+
   const valor = useMemo<ValorAvisos>(
     () => ({ avisar, confirmar }),
     [avisar, confirmar],
@@ -78,7 +112,14 @@ export function ProveedorAvisos({ children }: { children: ReactNode }) {
       {   leyendo, en vez de interrumpir a media frase. Los errores del
       {   formulario, que sí exigen atención inmediata, usan role de alerta en su
       {   propio campo. */}
-      <div className={estilos.pila} aria-live="polite" aria-atomic="false">
+      {createPortal(
+      <div
+        ref={refPila}
+        className={estilos.pila}
+        popover="manual"
+        aria-live="polite"
+        aria-atomic="false"
+      >
         {avisos.map((aviso) => (
           <div key={aviso.id} className={estilos.aviso + " " + estilos[aviso.tono]}>
             <span className={estilos.tono}>{PALABRA[aviso.tono]}</span>
@@ -93,7 +134,9 @@ export function ProveedorAvisos({ children }: { children: ReactNode }) {
             </button>
           </div>
         ))}
-      </div>
+      </div>,
+        modal ?? document.body,
+      )}
 
       <Modal
         abierto={pendiente !== null}

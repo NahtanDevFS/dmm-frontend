@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import estilos from "./Modal.module.css";
+import { quitarModal, registrarModalAbierto } from "./capaSuperior";
 
 interface PropsModal {
   abierto: boolean;
@@ -40,9 +41,27 @@ function Modal({
     const dialogo = referencia.current;
     if (!dialogo) return;
 
-    if (abierto && !dialogo.open) dialogo.showModal();
+    if (abierto && !dialogo.open) {
+      dialogo.showModal();
+      registrarModalAbierto(dialogo);
+    }
     if (!abierto && dialogo.open) dialogo.close();
+    if (!abierto) quitarModal(dialogo);
   }, [abierto]);
+
+  // Si el modal se desmonta abierto (cambio de página), deja de ser el
+  // destino de los avisos.
+  // `close` cubre además cualquier cierre que no pase por `abierto`.
+  useEffect(() => {
+    const dialogo = referencia.current;
+    if (!dialogo) return;
+    const alCerrar = () => quitarModal(dialogo);
+    dialogo.addEventListener("close", alCerrar);
+    return () => {
+      dialogo.removeEventListener("close", alCerrar);
+      quitarModal(dialogo);
+    };
+  }, []);
 
   useEffect(() => {
     const dialogo = referencia.current;

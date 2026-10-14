@@ -115,6 +115,15 @@
   color: var(--color-text-muted);
 }
 
+/* Debajo de la cifra entregable: lo vencido no cuenta, pero sigue en bodega
+   hasta que alguien registre la baja. */
+.vencidoPorBaja {
+  display: block;
+  font: var(--texto-auxiliar);
+  color: var(--color-danger);
+  white-space: normal;
+}
+
 /* Columna de requisitos del listado: las insignias no deben partirse. */
 .requisitos {
   display: flex;

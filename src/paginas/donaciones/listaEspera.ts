@@ -10,7 +10,9 @@ export async function contarEnEsperaDe(
     return lineas.filter(
       (linea) =>
         linea.insumo_nombre === insumoNombre &&
-        linea.estado === EN_ESPERA_DE_STOCK,
+        // Una línea asignada que se quedó sin existencias también se
+        // destraba con el lote nuevo
+        (linea.estado === EN_ESPERA_DE_STOCK || linea.sin_existencias === true),
     ).length;
   } catch {
     return null;

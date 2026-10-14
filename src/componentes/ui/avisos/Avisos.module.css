@@ -1,15 +1,28 @@
 /* Notificaciones. Se apilan abajo a la derecha, fuera del recorrido de
-   lectura, para no tapar el formulario que acaba de guardarse. */
+   lectura, para no tapar el formulario que acaba de guardarse.
+
+   La pila es un popover (ver ProveedorAvisos): vive en la capa superior del
+   navegador, por encima de cualquier modal abierto. Las primeras reglas
+   anulan el estilo que el navegador le da a un popover (centrado, con borde,
+   fondo y relleno), que aquí no se quiere. */
 
 .pila {
   position: fixed;
+  inset: auto;
   right: var(--space-3);
   bottom: var(--space-3);
+  /* Respaldo para navegadores sin popover */
   z-index: 1000;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  color: inherit;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  max-width: min(420px, calc(100vw - var(--space-3) * 2));
+  gap: var(--space-2);
+  width: min(460px, calc(100vw - var(--space-3) * 2));
   /* La pila no intercepta clics; cada aviso sí, por su botón de cerrar. */
   pointer-events: none;
 }
@@ -18,12 +31,16 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
-  padding: 12px var(--space-2);
-  border: 1px solid var(--color-border-soft);
-  border-left-width: 3px;
+  padding: 14px var(--space-2) 14px var(--space-3);
+  border: 1px solid var(--tono-aviso);
+  border-left-width: 6px;
   border-radius: var(--radius-card);
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-md);
+  /* El fondo teñido con el color del tono separa el aviso del contenido de
+     detrás, que en un modal también es blanco. */
+  background-color: color-mix(in srgb, var(--tono-aviso) 9%, var(--color-surface));
+  box-shadow:
+    0 12px 32px rgba(36, 28, 32, 0.28),
+    0 2px 6px rgba(36, 28, 32, 0.16);
   pointer-events: auto;
   animation: entrar var(--transicion);
 }
@@ -31,7 +48,7 @@
 @keyframes entrar {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(8px);
   }
 }
 
@@ -42,48 +59,33 @@
 }
 
 .exito {
-  border-left-color: var(--color-success);
+  --tono-aviso: var(--color-success);
 }
 
 .error {
-  border-left-color: var(--color-danger);
+  --tono-aviso: var(--color-danger);
 }
 
 .advertencia {
-  border-left-color: var(--color-warning);
+  --tono-aviso: var(--color-warning);
 }
 
 .info {
-  border-left-color: var(--color-info);
+  --tono-aviso: var(--color-info);
 }
 
 /* La palabra de estado acompaña siempre al color de la barra: el color por sí
    solo no es señal (sección 7). */
 .tono {
   flex-shrink: 0;
-  font: var(--texto-auxiliar);
+  font: var(--texto-cuerpo);
   font-weight: 700;
-}
-
-.exito .tono {
-  color: var(--color-success);
-}
-
-.error .tono {
-  color: var(--color-danger);
-}
-
-.advertencia .tono {
-  color: var(--color-warning);
-}
-
-.info .tono {
-  color: var(--color-info);
+  color: var(--tono-aviso);
 }
 
 .mensaje {
   flex: 1;
-  font: var(--texto-auxiliar);
+  font: var(--texto-cuerpo);
   color: var(--color-text-main);
 }
 
@@ -113,7 +115,7 @@
     left: var(--space-2);
     right: var(--space-2);
     bottom: var(--space-2);
-    max-width: none;
+    width: auto;
   }
 }
 
