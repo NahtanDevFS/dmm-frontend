@@ -62,9 +62,13 @@ export interface StockInsumo {
   insumo_nombre: string;
   categoria_nombre?: string;
   unidad_base_nombre?: string;
+  // Lo que se puede entregar: no cuenta los lotes vencidos.
   stock_total: number;
   proxima_caducidad: string | null;
   semaforo: Semaforo | null;
+  /* Unidades de lotes vencidos que siguen activos, pendientes de dar de baja.
+     No llega para un insumo desactivado. */
+  stock_vencido?: number;
   insumo_activo: boolean;
   presentaciones: StockPorPresentacion[];
 }
@@ -84,9 +88,11 @@ export interface StockInsumoListado {
   bloquea_solicitud_sin_stock: boolean;
   // Si cada unidad tiene su propio número de serie y se elige al entregar.
   serie_por_unidad: boolean;
+  // Lo que se puede entregar: no cuenta los lotes vencidos.
   stock_total: number;
   proxima_caducidad: string | null;
   semaforo: Semaforo | null;
+  stock_vencido?: number;
 }
 
 // Lote individual del semáforo con fechas y nivel de caducidad

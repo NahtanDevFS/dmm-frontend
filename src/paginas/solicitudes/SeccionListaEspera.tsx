@@ -14,8 +14,10 @@ import { listarListaEspera } from "../../api/donaciones";
 import estilos from "./Solicitudes.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
-/* Líneas de solicitud esperando existencias: PENDIENTE_ADQUISICION o
-   PENDIENTE_ENTREGA_PARCIAL, ordenadas por lo que la propia vista devuelve.
+/* Líneas de solicitud esperando existencias: PENDIENTE_ADQUISICION,
+   PENDIENTE_ENTREGA_PARCIAL y las PENDIENTE_ENTREGA cuyo insumo se quedó sin
+   existencias después de asignarlas (otra entrega se las llevó, se dieron de
+   baja o vencieron). PENDIENTE_ENTREGA no aparta unidades.
    
    Es lo que le dice a Trabajo Social qué insumo conviene priorizar en la
    próxima gestión de donación, y a quien recibe una donación cuánta gente
@@ -114,6 +116,11 @@ function SeccionListaEspera({
                   <Insignia tono={tonoDeEstadoSolicitud(linea.estado)}>
                     {etiquetaDe(linea.estado)}
                   </Insignia>
+                  {linea.sin_existencias && (
+                    <span className={estilos.sinExistencias}>
+                      Ya no hay existencias del insumo
+                    </span>
+                  )}
                 </td>
                 <td className={estilos.diasEsperando}>
                   {linea.dias_esperando === 0

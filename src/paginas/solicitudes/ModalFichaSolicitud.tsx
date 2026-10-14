@@ -202,6 +202,8 @@ function ModalFichaSolicitud({
                   mensaje:
                     "Se cancelarán todas las líneas activas de este trámite. No se puede deshacer.",
                   textoConfirmar: "Cancelar solicitud",
+                  // «Cancelar» junto a «Cancelar solicitud» no dice cuál de los dos no hace nada
+                  textoCancelar: "No, volver",
                   destructiva: true,
                 });
                 if (ok) cancelacionCompleta.mutate(undefined);

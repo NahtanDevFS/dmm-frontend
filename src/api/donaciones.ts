@@ -77,10 +77,14 @@ export interface LineaEnEspera {
   insumo_nombre: string;
   cantidad_requerida: number;
   cantidad_entregada: number;
-  // PENDIENTE_ADQUISICION o PENDIENTE_ENTREGA_PARCIAL.
+  /* PENDIENTE_ADQUISICION, PENDIENTE_ENTREGA_PARCIAL o PENDIENTE_ENTREGA;
+     esta última solo cuando el insumo se quedó sin existencias después de
+     asignarla (sin_existencias). */
   estado: string;
   fecha_ingreso_espera: string;
   dias_esperando: number;
+  // Opcional mientras la base no tenga la migración 35.
+  sin_existencias?: boolean;
 }
 
 // Estado del que saca a una línea la llegada de existencias.

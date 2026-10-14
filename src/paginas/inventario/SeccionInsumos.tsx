@@ -205,8 +205,15 @@ function SeccionInsumos({
                 // que tenga cero, es que no se consulta. Decir "0" sería
                 // afirmar algo que nadie comprobó.
                 const sinDato = existencias === undefined;
+                const vencido = existencias?.stock_vencido ?? 0;
+                // Con solo lotes vencidos no hay nada que entregar, pero el
+                // semáforo tiene que seguir avisando: es la alerta para darlos
+                // de baja.
                 const nivel = existencias
-                  ? nivelDe(existencias.semaforo, existencias.stock_total === 0)
+                  ? nivelDe(
+                      existencias.semaforo,
+                      existencias.stock_total === 0 && vencido === 0,
+                    )
                   : null;
                 return (
                   <tr key={insumo.id}>
@@ -227,6 +234,12 @@ function SeccionInsumos({
                         <Insignia tono="rechazada">Sin existencias</Insignia>
                       ) : (
                         existencias.stock_total.toLocaleString("es-GT")
+                      )}
+                      {vencido > 0 && (
+                        <span className={estilos.vencidoPorBaja}>
+                          {vencido.toLocaleString("es-GT")} vencidas, por dar
+                          de baja
+                        </span>
                       )}
                     </CeldaCantidad>
                     <td>

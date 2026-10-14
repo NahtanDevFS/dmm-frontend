@@ -311,6 +311,14 @@
   color: var(--color-text-muted);
 }
 
+/* Bajo el estado de una línea asignada que se quedó sin existencias */
+.sinExistencias {
+  display: block;
+  margin-top: 4px;
+  font: var(--texto-auxiliar);
+  color: var(--color-danger);
+}
+
 .selector {
   display: flex;
   flex-wrap: wrap;

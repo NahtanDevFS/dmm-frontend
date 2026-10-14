@@ -225,6 +225,7 @@ function SeccionLineasSolicitud({
                             mensaje:
                               "Se cancelará esta línea de la solicitud. No se puede deshacer desde aquí.",
                             textoConfirmar: "Cancelar línea",
+                            textoCancelar: "No, volver",
                             destructiva: true,
                           });
                           if (ok) cancelacion.mutate(linea.id);

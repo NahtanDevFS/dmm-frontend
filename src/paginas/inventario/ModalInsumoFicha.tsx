@@ -78,9 +78,12 @@ function ModalInsumoFicha({
   const requisitos = insumo
     ? BANDERAS.filter((bandera) => insumo[bandera.clave])
     : [];
+  const vencido = stock.data?.stock_vencido ?? 0;
+  // Con solo lotes vencidos el semáforo sigue a la vista: avisa que hay que
+  // darlos de baja.
   const nivel = nivelDe(
     stock.data?.semaforo ?? null,
-    stock.data?.stock_total === 0,
+    stock.data?.stock_total === 0 && vencido === 0,
   );
   const categoria = categorias.opciones.find(
     (c) => c.id === insumo?.categoria_id,
@@ -189,6 +192,17 @@ function ModalInsumoFicha({
                     {stock.data.stock_total.toLocaleString("es-GT")}
                   </span>
                 </Dato>
+                {vencido > 0 && (
+                  <Dato titulo="Vencido, por dar de baja">
+                    <span className={estilos.cantidad}>
+                      {vencido.toLocaleString("es-GT")}
+                    </span>{" "}
+                    <span className={estilos.banderaAyuda}>
+                      No se entrega. Registre la baja de cada lote vencido
+                      desde «Semáforo de caducidad».
+                    </span>
+                  </Dato>
+                )}
                 <Dato titulo="Próxima caducidad">
                   {formatearFecha(stock.data.proxima_caducidad)}
                 </Dato>
