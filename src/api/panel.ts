@@ -13,6 +13,10 @@ export interface PuntoEntregasPorMes {
 
 export interface PuntoStockPorCategoria {
   categoria_nombre: string;
+  /* Una fila por categoría y unidad: las cifras de unidades distintas no se
+     suman. NULL si la categoría no tiene insumos. Opcional mientras la base no
+     tenga la migración 36. */
+  unidad_nombre?: string | null;
   unidades_totales_disponibles: number;
   lotes_urgentes_o_vencidos: number;
 }
@@ -36,6 +40,17 @@ export async function obtenerEntregasPorMes(
     { params: { meses }, signal },
   );
   return data.datos;
+}
+
+/* Solicitudes (no líneas) que esperan aprobación de dirección */
+export async function obtenerSolicitudesPendientes(
+  signal?: AbortSignal,
+): Promise<number> {
+  const { data } = await axiosClient.get<{ total: number }>(
+    "panel/solicitudes-pendientes",
+    { signal },
+  );
+  return data.total;
 }
 
 export async function obtenerStockPorCategoria(
