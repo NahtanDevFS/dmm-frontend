@@ -261,7 +261,11 @@ function PaginaInicio() {
             ) : (
               <GraficaBarras
                 datos={(stockGrafica.data ?? []).map((c) => ({
-                  etiqueta: c.categoria_nombre,
+                  // La unidad va en la etiqueta: cada barra es una categoría
+                  // en una unidad, y litros y tabletas no se comparan
+                  etiqueta: c.unidad_nombre
+                    ? c.categoria_nombre + " (" + c.unidad_nombre + ")"
+                    : c.categoria_nombre,
                   valor: c.unidades_totales_disponibles,
                   resaltada: c.lotes_urgentes_o_vencidos > 0,
                 }))}

@@ -124,8 +124,9 @@ function SeccionStockPorCategoria() {
         <>
           <div className={estilos.resumen}>
             <span className={estilos.totalRegistros}>
+              {/* Una fila por categoría y unidad, no por categoría */}
               {reporte.data.total_registros.toLocaleString("es-GT")}{" "}
-              categoría(s)
+              fila(s) por categoría y unidad
             </span>
             <div className={estilos.exportar}>
               <Boton

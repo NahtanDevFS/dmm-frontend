@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "../../api/axiosClient";
 import {
+  obtenerSolicitudesPendientes,
   obtenerEntregasPorMes,
   obtenerStockPorCategoria,
   obtenerPoblacionPorPrograma,
@@ -45,15 +46,12 @@ export function useTotalBeneficiarios() {
   });
 }
 
+/* Solicitudes que esperan aprobación. No sale del `total` del listado: ese
+   listado va por línea, y una solicitud con dos insumos contaba dos. */
 export function useSolicitudesPendientes() {
   return useQuery({
     queryKey: ["inicio", "solicitudes-pendientes"],
-    queryFn: ({ signal }) =>
-      contarListado(
-        "solicitudes",
-        { soloPendientesAprobacion: "true" },
-        signal,
-      ),
+    queryFn: ({ signal }) => obtenerSolicitudesPendientes(signal),
     staleTime: VIGENCIA,
   });
 }
@@ -77,7 +75,12 @@ export function usePrestamosVencidos() {
   return useQuery({
     queryKey: ["inicio", "prestamos-vencidos"],
     queryFn: ({ signal }) =>
-      contarListado("prestamos", { estado: "VENCIDO" }, signal),
+      // /contratos/vencidos calcula el atraso por fecha, aunque nadie haya
+      // corrido todavía «marcar vencidos». La ruta /prestamos no existe: con
+      // ella la tarjeta no aparecía nunca.
+      axiosClient
+        .get<unknown[]>("contratos/vencidos", { signal })
+        .then(({ data }) => data.length),
     staleTime: VIGENCIA,
   });
 }
