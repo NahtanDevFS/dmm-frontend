@@ -41,12 +41,18 @@ function Modal({
     const dialogo = referencia.current;
     if (!dialogo) return;
 
-    if (abierto && !dialogo.open) {
-      dialogo.showModal();
+    // Se registra siempre que esté abierto, y no solo cuando este efecto llama
+    // a showModal(): en modo estricto React monta, desmonta y vuelve a montar
+    // los efectos; la limpieza de abajo lo quitaba del registro y, como el
+    // dialog seguía abierto, al volver a montar ya no se registraba. Los
+    // avisos quedaban entonces fuera del modal, debajo de él.
+    if (abierto) {
+      if (!dialogo.open) dialogo.showModal();
       registrarModalAbierto(dialogo);
+    } else {
+      if (dialogo.open) dialogo.close();
+      quitarModal(dialogo);
     }
-    if (!abierto && dialogo.open) dialogo.close();
-    if (!abierto) quitarModal(dialogo);
   }, [abierto]);
 
   // Si el modal se desmonta abierto (cambio de página), deja de ser el

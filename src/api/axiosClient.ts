@@ -34,7 +34,10 @@ axiosClient.interceptors.response.use(
       // La sesión expira a los 30 min de inactividad o a las 12 h del login,
       // lo que ocurra primero, y el servidor puede revocarla antes. El
       // frontend no puede anticiparlo: la cookie es HttpOnly y no se lee.
-      anunciarSesionExpirada();
+      // El servidor dice por qué: inactividad, las 12 h o una revocación.
+      const motivo = (error.response?.data as { message?: unknown } | undefined)
+        ?.message;
+      anunciarSesionExpirada(typeof motivo === "string" ? motivo : undefined);
     }
 
     return Promise.reject(error);

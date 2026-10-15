@@ -17,11 +17,49 @@ export function alExpirarSesion(escucha: Escucha): () => void {
   };
 }
 
-/* Anuncia que el servidor rechazó la sesión. Si nadie escucha todavía —por
-   ejemplo si ocurre antes de montar la aplicación— se recurre a una navegación
-   dura, para no dejar al usuario frente a una pantalla que ya no puede cargar
-   ningún dato. */
-export function anunciarSesionExpirada(): void {
+/* Por qué terminó la sesión, para decirlo en la pantalla de acceso.
+
+   Antes la aplicación volvía al acceso sin ninguna explicación, aunque el
+   servidor manda el motivo («expiró por inactividad», «ha sido cerrada»):
+   quien se iba a atender a alguien y volvía encontraba el login y no sabía
+   por qué había perdido lo que estaba escribiendo.
+
+   Vive en sessionStorage y no en memoria para sobrevivir a la navegación dura
+   de abajo; se borra al mostrarlo. Todo acceso va en try/catch: en modo
+   privado o con el almacenamiento bloqueado puede lanzar, y entonces
+   simplemente no hay aviso. */
+const CLAVE_MOTIVO = "dmm:motivo-fin-sesion";
+
+export const MOTIVO_GENERICO =
+  "Su sesión terminó. Inicie sesión nuevamente para continuar.";
+
+export function leerMotivoFinSesion(): string | null {
+  try {
+    return window.sessionStorage.getItem(CLAVE_MOTIVO);
+  } catch {
+    return null;
+  }
+}
+
+export function olvidarMotivoFinSesion(): void {
+  try {
+    window.sessionStorage.removeItem(CLAVE_MOTIVO);
+  } catch {
+    /* nada que olvidar */
+  }
+}
+
+/* Anuncia que el servidor rechazó la sesión, con el motivo que dio. Si nadie
+   escucha todavía —por ejemplo si ocurre antes de montar la aplicación— se
+   recurre a una navegación dura, para no dejar al usuario frente a una
+   pantalla que ya no puede cargar ningún dato. */
+export function anunciarSesionExpirada(motivo?: string): void {
+  try {
+    window.sessionStorage.setItem(CLAVE_MOTIVO, motivo || MOTIVO_GENERICO);
+  } catch {
+    /* sin almacenamiento: vuelve al acceso sin aviso, como antes */
+  }
+
   if (escuchas.size === 0) {
     const { pathname, search } = window.location;
     if (pathname !== RUTA_ACCESO) {

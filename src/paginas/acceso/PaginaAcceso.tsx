@@ -2,6 +2,11 @@ import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Logotipo from "../../componentes/marca/Logotipo";
+import Nota from "../../componentes/ui/Nota";
+import {
+  leerMotivoFinSesion,
+  olvidarMotivoFinSesion,
+} from "../../api/sesion";
 import { useAuth } from "../../auth/useAuth";
 import { esLimiteExcedido, mensajeDeError } from "../../lib/errores";
 import { intentosRestantes } from "../../lib/limitePeticiones";
@@ -67,6 +72,15 @@ function PaginaAcceso() {
     }
   });
 
+  /* Si se llegó aquí porque la sesión venció, se dice por qué. Se lee al
+     montar y se borra enseguida: una recarga o el siguiente ingreso ya no lo
+     muestran. Se borra en un efecto y no dentro del inicializador porque en
+     modo estricto React lo llama dos veces y la segunda ya no lo encontraría. */
+  const [motivoFinSesion] = useState(leerMotivoFinSesion);
+  useEffect(() => {
+    olvidarMotivoFinSesion();
+  }, []);
+
   return (
     <div className={estilos.pagina}>
       <aside className={estilos.panel}>
@@ -86,6 +100,12 @@ function PaginaAcceso() {
         <div className={estilos.tarjeta}>
           <h2 className={estilos.titulo}>Iniciar sesión</h2>
           <p className={estilos.ayuda}>Ingrese con su usuario institucional.</p>
+
+          {motivoFinSesion && (
+            <div role="status">
+              <Nota tono="advertencia">{motivoFinSesion}</Nota>
+            </div>
+          )}
 
           <form onSubmit={enviar} noValidate>
             <div className={estilos.campos}>
