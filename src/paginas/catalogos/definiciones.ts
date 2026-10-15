@@ -14,6 +14,9 @@ export interface DefinicionCatalogo {
   // Artículo del singular. Sin esto salía «Nombre de la programa».
   articulo: "el" | "la";
   nota?: string;
+  /* Advertencia propia de este catálogo al editar un registro, además de la
+     general sobre el cambio retroactivo. */
+  avisoEdicion?: string;
   // Campos que solo tiene este catálogo.
   extra?: CampoExtra[];
 }
@@ -74,6 +77,8 @@ export const CATALOGOS: DefinicionCatalogo[] = [
     titulo: "Unidades de medida",
     singular: "unidad",
     articulo: "la",
+    avisoEdicion:
+      "Cambie el nombre solo para corregirlo («Tableta» por «Pastilla»). Nunca cambie una unidad por otra («Libra» por «Kilogramo»): todas las cantidades ya registradas en ella pasarían a leerse en la unidad nueva.",
   },
   {
     ruta: "instituciones-donantes",
