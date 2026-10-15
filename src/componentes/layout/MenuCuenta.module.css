@@ -28,9 +28,10 @@
   background-color: #b21654;
 }
 
+/* Sobre la barra rosa ningún rosa llega a 3:1; el color del texto da 7.4:1. */
 .disparador:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
+  box-shadow: 0 0 0 3px var(--color-text-main);
 }
 
 .panel {
@@ -131,7 +132,7 @@
 
 .accion:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
+  box-shadow: var(--anillo-foco);
 }
 
 .accion:disabled {

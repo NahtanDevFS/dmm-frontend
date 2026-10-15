@@ -10,7 +10,10 @@
 :root {
   --transicion: 200ms ease-out;
   --desplazamiento-max: 4px;
-  --anillo-foco: 0 0 0 3px var(--color-primary-soft);
+  /* Rosa 700 y no Rosa 200: el indicador de foco necesita 3:1 contra lo que
+     lo rodea (WCAG 1.4.11). Rosa 200 daba 1.4:1 sobre blanco; este da 3.8:1
+     sobre blanco y 3.1:1 sobre el rosa más claro de filas y menú. */
+  --anillo-foco: 0 0 0 3px var(--color-primary-darker);
 }
 
 *,
@@ -47,7 +50,7 @@ body {
 }
 
 /* Foco visible en todos los controles, incluidos enlaces del menú y botones
-   de tabla. Sección 7: anillo Rosa 200 de 3 px. Se usa :focus-visible para
+   de tabla. Sección 7: anillo de 3 px (ver --anillo-foco). Se usa :focus-visible para
    no castigar al usuario de ratón, pero nunca se elimina el indicador. */
 :focus-visible {
   outline: none;

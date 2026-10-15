@@ -14,6 +14,12 @@
   color: var(--color-surface);
 }
 
+/* Sobre el rosa de la barra el anillo general (Rosa 700) se queda en 1.7:1.
+   El color del texto da 7.4:1 contra la barra y más contra lo blanco. */
+.barra :focus-visible {
+  box-shadow: 0 0 0 3px var(--color-text-main);
+}
+
 .marca {
   display: flex;
   align-items: center;
