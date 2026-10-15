@@ -81,7 +81,7 @@ function PaginaCatalogos() {
           aria-pressed={activo === FORMULARIOS}
           onClick={() => setActivo(FORMULARIOS)}
         >
-          Formularios por categoría
+          Formularios por categoría de insumo
         </button>
       </div>
 

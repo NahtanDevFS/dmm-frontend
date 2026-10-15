@@ -82,6 +82,12 @@
   cursor: pointer;
 }
 
+/* Campos del modal de edición, uno debajo de otro */
+.formularioEdicion {
+  display: grid;
+  gap: var(--space-2);
+}
+
 .formulario {
   composes: fila-campos from global;
   display: grid;

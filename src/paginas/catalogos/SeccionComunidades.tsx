@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Boton from "../../componentes/ui/Boton";
+import Boton, { GrupoBotones } from "../../componentes/ui/Boton";
 import { CampoTexto, CampoSelect } from "../../componentes/ui/Campo";
 import Insignia from "../../componentes/ui/Insignia";
+import Modal from "../../componentes/ui/Modal";
+import Nota from "../../componentes/ui/Nota";
 import Tabla, { CeldaAcciones } from "../../componentes/ui/Tabla";
 import { EstadoVacio, EsqueletoTabla } from "../../componentes/ui/Estado";
 import { useAvisos } from "../../componentes/ui/avisos/useAvisos";
@@ -10,6 +12,7 @@ import { claveCatalogo, useCatalogo } from "../../hooks/useCatalogo";
 import { esConflicto, mensajeDeError } from "../../lib/errores";
 import {
   crearElemento,
+  editarElemento,
   desactivarElemento,
   reactivarElemento,
 } from "../../api/catalogos";
@@ -30,6 +33,9 @@ function SeccionComunidades() {
   const [nombre, setNombre] = useState("");
   const [filtroMunicipio, setFiltroMunicipio] = useState("");
   const [conflicto, setConflicto] = useState<string | null>(null);
+  // Comunidad cuyo nombre se está corrigiendo, y el nombre nuevo.
+  const [enEdicion, setEnEdicion] = useState<Comunidad | null>(null);
+  const [nombreEditado, setNombreEditado] = useState("");
 
   const departamentos = useCatalogo<Departamento>("departamentos");
 
@@ -67,6 +73,22 @@ function SeccionComunidades() {
       avisar("Comunidad agregada.", "exito");
       setNombre("");
       setConflicto(null);
+    },
+    onError: (error) => avisar(mensajeDeError(error), "error"),
+  });
+
+  /* Solo el nombre. Mover una comunidad a otro municipio cambiaría la
+     geografía de todos los beneficiarios y reportes anteriores, que es otra
+     decisión y no una corrección. */
+  const edicion = useMutation({
+    mutationFn: () =>
+      editarElemento("comunidades", enEdicion!.id, {
+        nombre: nombreEditado.trim(),
+      }),
+    onSuccess: async () => {
+      await refrescar();
+      avisar("Nombre actualizado.", "exito");
+      setEnEdicion(null);
     },
     onError: (error) => avisar(mensajeDeError(error), "error"),
   });
@@ -147,6 +169,16 @@ function SeccionComunidades() {
                   )}
                 </td>
                 <CeldaAcciones>
+                  <Boton
+                    pequeno
+                    variante="secundaria"
+                    onClick={() => {
+                      setNombreEditado(comunidad.nombre);
+                      setEnEdicion(comunidad);
+                    }}
+                  >
+                    Editar
+                  </Boton>
                   {comunidad.activo ? (
                     <Boton
                       pequeno
@@ -187,6 +219,44 @@ function SeccionComunidades() {
           </tbody>
         </Tabla>
       )}
+
+      <Modal
+        abierto={enEdicion !== null}
+        onCerrar={() => setEnEdicion(null)}
+        titulo="Editar comunidad"
+        descripcion={enEdicion ? "«" + enEdicion.nombre + "»" : undefined}
+        bloqueado={edicion.isPending}
+        pie={
+          <GrupoBotones>
+            <Boton variante="terciaria" onClick={() => setEnEdicion(null)}>
+              Cancelar
+            </Boton>
+            <Boton
+              disabled={!nombreEditado.trim()}
+              cargando={edicion.isPending}
+              textoCargando="Guardando…"
+              onClick={() => edicion.mutate()}
+            >
+              Guardar cambios
+            </Boton>
+          </GrupoBotones>
+        }
+      >
+        <div className={estilos.formularioEdicion}>
+          <Nota tono="advertencia">
+            El nombre nuevo se verá también en todo lo ya registrado
+            (beneficiarios, reportes y expedientes). Úselo para corregir; si es
+            otra comunidad, agréguela como nueva y desactive esta. El municipio
+            no se cambia desde aquí.
+          </Nota>
+          <CampoTexto
+            etiqueta="Nombre de la comunidad"
+            obligatorio
+            value={nombreEditado}
+            onChange={(e) => setNombreEditado(e.target.value)}
+          />
+        </div>
+      </Modal>
 
       {conflicto && (
         <div className={estilos.conflicto} role="alert">
