@@ -96,6 +96,12 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
 
   const mutacionSalir = useMutation({
     mutationFn: cerrarSesionApi,
+    /* Por omisión TanStack Query PAUSA la mutación si el navegador está sin
+       conexión: no falla ni llega a onError, y la pantalla se quedaba en
+       «Cerrando sesión…» con los datos a la vista. Con "always" se intenta
+       igual, falla por red y cae en el cierre pendiente de abajo, que oculta
+       los datos y avisa. */
+    networkMode: "always",
     onSuccess: confirmarCierre,
     onError: (error) => {
       // 401: el servidor ya no reconoce la sesión (venció o la revocaron), así

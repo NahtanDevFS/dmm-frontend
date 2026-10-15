@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AxiosError, AxiosHeaders } from "axios";
+import { onlineManager } from "@tanstack/react-query";
 import {
   crearQueryClientDePrueba,
   envolverConQueryClient,
@@ -122,6 +123,30 @@ describe("cierre de sesión", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText("pantalla de acceso")).not.toBeInTheDocument();
     expect(hayCierrePendiente()).toBe(true);
+  });
+
+  /* DEF-01 (QA). La prueba anterior simula el error de red con el navegador
+     «en línea». Con el navegador SIN conexión, TanStack Query pausaba la
+     mutación: no llegaba a onError y la pantalla se quedaba en «Cerrando
+     sesión…» con los datos a la vista. */
+  it("con el navegador sin conexión tampoco se queda colgado", async () => {
+    sesionMock.mockResolvedValue(USUARIO);
+    cerrarMock.mockRejectedValue(sinRed());
+    renderizar();
+    await screen.findByText("Cerrar sesión");
+
+    onlineManager.setOnline(false);
+    try {
+      await userEvent.click(screen.getByText("Cerrar sesión"));
+
+      expect(
+        await screen.findByText("No se pudo confirmar el cierre de sesión"),
+      ).toBeInTheDocument();
+      expect(cerrarMock).toHaveBeenCalled();
+      expect(hayCierrePendiente()).toBe(true);
+    } finally {
+      onlineManager.setOnline(true);
+    }
   });
 
   it("con un error 500 tampoco lo da por cerrado", async () => {

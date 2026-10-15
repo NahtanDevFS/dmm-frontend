@@ -28,6 +28,8 @@ import {
 } from "./useIndicadores";
 import estilos from "./PaginaInicio.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
+import { fechaDeHoy } from "../../lib/fechas";
+import { RESOLUCION_SOLICITUD, tieneRol } from "../../types/api";
 
 /* Qué hace cada módulo, para describirlo en su atajo.
    
@@ -39,7 +41,8 @@ import { etiquetaDe } from "../../lib/etiquetas";
    Inicio se excluye por razones obvias: es donde ya está el usuario. */
 const TEXTO_MODULO: Record<string, string> = {
   "/beneficiarios": "Registrar personas, encargados y documentos.",
-  "/solicitudes": "Crear una solicitud, llenar formularios y aprobar.",
+  // Sin «y aprobar»: solo lo puede hacer Dirección (ver TEXTO_SOLICITUDES_DIRECCION)
+  "/solicitudes": "Crear una solicitud y llenar sus formularios.",
   "/donaciones": "Registrar un envío recibido y los insumos que trajo.",
   "/entregas": "Entregar medicina o comida, o despachar una solicitud.",
   "/inventario": "Existencias, lotes y fechas de caducidad.",
@@ -49,6 +52,10 @@ const TEXTO_MODULO: Record<string, string> = {
   "/usuarios": "Altas, roles y restablecimiento de contraseñas.",
   "/auditoria": "Quién cambió qué y cuándo.",
 };
+
+// Quien puede aprobar (RESOLUCION_SOLICITUD) ve también esa parte del módulo.
+const TEXTO_SOLICITUDES_DIRECCION =
+  "Crear una solicitud, llenar formularios y aprobar.";
 
 // Valor del indicador, o su esqueleto mientras llega.
 function Valor({
@@ -90,10 +97,12 @@ function PaginaInicio() {
      se piensa el trabajo de la Dirección, y arrancar en blanco obligaría a
      elegir fechas antes de ver nada. */
   const hoy = new Date();
+  // Fechas en hora local: toISOString da UTC, y desde las 18:00 en
+  // Guatemala proponía como «Hasta» el día de mañana.
   const [desde, setDesde] = useState(
-    new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().slice(0, 10),
+    fechaDeHoy(new Date(hoy.getFullYear(), hoy.getMonth(), 1)),
   );
-  const [hasta, setHasta] = useState(hoy.toISOString().slice(0, 10));
+  const [hasta, setHasta] = useState(fechaDeHoy(hoy));
   const rangoValido = desde !== "" && hasta !== "" && desde <= hasta;
 
   const entregas = useEntregasDelPeriodo(
@@ -115,7 +124,11 @@ function PaginaInicio() {
         .filter((item) => item.ruta !== "/")
         .map((item) => ({
           titulo: item.etiqueta,
-          texto: TEXTO_MODULO[item.ruta] ?? "",
+          texto:
+            item.ruta === "/solicitudes" &&
+            tieneRol(usuario?.rol, RESOLUCION_SOLICITUD)
+              ? TEXTO_SOLICITUDES_DIRECCION
+              : (TEXTO_MODULO[item.ruta] ?? ""),
           ruta: item.ruta,
         })),
     [usuario?.rol],

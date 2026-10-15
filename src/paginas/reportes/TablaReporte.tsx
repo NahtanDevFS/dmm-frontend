@@ -14,9 +14,18 @@ function esNumerico(valor: unknown): valor is number {
   return typeof valor === "number";
 }
 
+/* El corte mensual de población beneficiada. La columna es un DATE (primer
+   día del mes) que llega en JSON como `2026-04-01T06:00:00.000Z`; no se lee
+   con Date para no correr el día por el huso, basta con año y mes del texto. */
+function formatearMes(valor: string): string {
+  const partes = /^(\d{4})-(\d{2})/.exec(valor);
+  return partes ? partes[2] + "/" + partes[1] : valor;
+}
+
 function formatearValor(campo: string, valor: unknown): string {
   if (valor === null || valor === undefined || valor === "") return "—";
   if (typeof valor === "boolean") return valor ? "Sí" : "No";
+  if (typeof valor === "string" && campo === "mes") return formatearMes(valor);
   if (typeof valor === "string" && pareceFecha(campo)) {
     // Los meses del reporte de población vienen como "2026-03", no una
     // fecha completa: formatearFecha con eso da "Fecha inválida", así que
