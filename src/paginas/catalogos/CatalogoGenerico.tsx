@@ -258,6 +258,7 @@ function CatalogoGenerico({ definicion }: { definicion: DefinicionCatalogo }) {
               Cancelar
             </Boton>
             <Boton
+              variante="primaria"
               disabled={!valorEdicion("nombre").trim()}
               cargando={guardarEdicion.isPending}
               textoCargando="Guardando…"

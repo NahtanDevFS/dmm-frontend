@@ -232,6 +232,7 @@ function SeccionComunidades() {
               Cancelar
             </Boton>
             <Boton
+              variante="primaria"
               disabled={!nombreEditado.trim()}
               cargando={edicion.isPending}
               textoCargando="Guardando…"
