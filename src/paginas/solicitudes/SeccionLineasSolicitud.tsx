@@ -306,6 +306,10 @@ function SeccionLineasSolicitud({
           pendiente={
             despachando.cantidad_requerida - despachando.cantidad_entregada
           }
+          requiereReceta={
+            insumos.data?.find((i) => i.id === despachando.insumo_id)
+              ?.requiere_receta ?? false
+          }
           abierto
           onCerrar={() => setDespachando(null)}
         />

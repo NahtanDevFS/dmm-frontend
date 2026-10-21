@@ -68,6 +68,8 @@ export interface EvidenciaEntrega {
 export interface EntregaDetalle extends Entrega {
   detalles: DetalleEntrega[];
   evidencias: EvidenciaEntrega[];
+  // Lleva medicamentos y no tiene la evidencia «Receta médica».
+  falta_receta?: boolean;
 }
 
 // Un insumo dentro de una fila del listado.
@@ -100,6 +102,8 @@ export interface EntregaListado {
   solicitud_id: number | null;
   // Cuántos renglones se anularon sin anular la entrega entera.
   renglones_anulados: number;
+  // Vigente, con medicamentos y sin la evidencia «Receta médica».
+  falta_receta?: boolean;
 }
 
 // Un lote en el orden en que sp_registrar_entrega lo va a consumir.

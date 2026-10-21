@@ -20,6 +20,9 @@ export interface Insumo {
   // Determina si cada unidad es serializada y seleccionable individualmente
   serie_por_unidad: boolean;
   activo: boolean;
+  /* Calculado por el backend según la categoría (config/receta.ts): si su
+     entrega exige receta médica. Opcional con un backend anterior. */
+  requiere_receta?: boolean;
 }
 
 // Cuerpo de POST y PATCH /insumos. En el PATCH todo es opcional.
@@ -93,6 +96,8 @@ export interface StockInsumoListado {
   proxima_caducidad: string | null;
   semaforo: Semaforo | null;
   stock_vencido?: number;
+  // Si su entrega exige receta médica (ver Insumo.requiere_receta).
+  requiere_receta?: boolean;
 }
 
 // Lote individual del semáforo con fechas y nivel de caducidad

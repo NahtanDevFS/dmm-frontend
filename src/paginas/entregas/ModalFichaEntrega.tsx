@@ -22,6 +22,7 @@ import {
 } from "../../api/entregas";
 import { CLAVE_PERSONAS, obtenerPersona } from "../../api/personas";
 import SeccionEvidencias from "./SeccionEvidencias";
+import Nota from "../../componentes/ui/Nota";
 import estilos from "./Entregas.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
 
@@ -371,6 +372,14 @@ function ModalFichaEntrega({
                 </div>
               )}
             </section>
+
+            {entrega.falta_receta && (
+              <Nota tono="advertencia">
+                Esta entrega lleva medicamentos y no tiene la receta médica
+                adjunta. Agréguela abajo, en evidencias, con el tipo «Receta
+                médica».
+              </Nota>
+            )}
 
             <SeccionEvidencias
               entregaId={entrega.id}

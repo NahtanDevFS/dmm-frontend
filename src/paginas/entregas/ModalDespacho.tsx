@@ -16,6 +16,13 @@ import { CLAVE_SOLICITUDES } from "../../api/solicitudes";
 import type { Persona, ElementoCatalogo } from "../../types/api";
 import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import PreviaLotes from "./PreviaLotes";
+import estilos from "./Entregas.module.css";
+import SubidaArchivo from "../../componentes/ui/SubidaArchivo";
+import {
+  AVISO_RECETA_NO_SUBIDA,
+  AYUDA_RECETA,
+  useSubidaReceta,
+} from "./receta";
 import { etiquetaDe } from "../../lib/etiquetas";
 
 /* Despacho de una línea específica de solicitud
@@ -27,6 +34,7 @@ function ModalDespacho({
   insumoId,
   insumoNombre,
   pendiente,
+  requiereReceta = false,
   abierto,
   onCerrar,
 }: {
@@ -37,6 +45,8 @@ function ModalDespacho({
   insumoNombre: string;
   // Lo que queda por entregar de esta línea (cantidad_requerida - cantidad_entregada)
   pendiente: number;
+  // Si el insumo exige receta médica para entregarse (medicamentos).
+  requiereReceta?: boolean;
   abierto: boolean;
   onCerrar: () => void;
 }) {
@@ -47,6 +57,8 @@ function ModalDespacho({
   const [receptor, setReceptor] = useState<Persona | null>(null);
   const [parentescoId, setParentescoId] = useState("");
   const [observaciones, setObservaciones] = useState("");
+  const [archivoReceta, setArchivoReceta] = useState<File | null>(null);
+  const { subirReceta, listo: recetaDisponible } = useSubidaReceta();
 
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
 
@@ -54,7 +66,8 @@ function ModalDespacho({
     cantidad !== String(pendiente) ||
     receptor !== null ||
     parentescoId !== "" ||
-    observaciones.trim() !== "";
+    observaciones.trim() !== "" ||
+    archivoReceta !== null;
 
   const cerrar = useCierreSeguro({ hayCambios, onCerrar });
 
@@ -75,13 +88,18 @@ function ModalDespacho({
           : null,
         observaciones: observaciones.trim() || null,
       }),
-    onSuccess: async () => {
+    onSuccess: async (entrega) => {
+      const recetaPendiente =
+        requiereReceta &&
+        archivoReceta !== null &&
+        !(await subirReceta(entrega.id, archivoReceta));
       await clienteQuery.invalidateQueries({
         queryKey: [CLAVE_SOLICITUDES, solicitudId],
       });
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_SOLICITUDES] });
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_ENTREGAS] });
-      avisar("Entrega registrada.", "exito");
+      if (recetaPendiente) avisar(AVISO_RECETA_NO_SUBIDA, "advertencia");
+      else avisar("Entrega registrada.", "exito");
       onCerrar();
     },
     // Incluye el rechazo por stock insuficiente (sp_registrar_entrega): el
@@ -95,7 +113,11 @@ function ModalDespacho({
     cantidadNum > 0 &&
     cantidadNum <= pendiente;
   const receptorValido = !receptor || parentescoId !== "";
-  const listoParaEnviar = cantidadValida && receptorValido;
+  const listoParaEnviar =
+    cantidadValida &&
+    receptorValido &&
+    // Sin receta no se despacha un medicamento
+    (!requiereReceta || (archivoReceta !== null && recetaDisponible));
 
   return (
     <Modal
@@ -142,6 +164,18 @@ function ModalDespacho({
         }
         ayuda="Puede ser parcial: lo que no se entregue ahora queda pendiente en la línea."
       />
+
+      {requiereReceta && (
+        <div className={estilos.campoReceta}>
+          <SubidaArchivo
+            etiqueta="Receta médica"
+            obligatorio
+            ayuda={AYUDA_RECETA}
+            archivo={archivoReceta}
+            onCambiar={setArchivoReceta}
+          />
+        </div>
+      )}
 
       <BuscadorPersona
         etiqueta="Recibe un tercero (opcional)"
