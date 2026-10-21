@@ -97,6 +97,17 @@
 }
 
 /* Un insumo por línea en la celda del listado, con su cantidad y unidad */
+/* Separa el campo de la receta de la lista de insumos y del receptor */
+.campoReceta {
+  margin: var(--space-2) 0;
+}
+
+/* Debajo del estado, en su propia línea */
+.faltaReceta {
+  display: block;
+  margin-top: 4px;
+}
+
 .renglones {
   margin: 0;
   padding: 0;

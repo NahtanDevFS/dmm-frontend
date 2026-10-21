@@ -51,10 +51,10 @@ function SeccionEvidencias({
     onBorrador?.(a !== null || t !== "" || o.trim() !== "");
   };
 
+  // Todo lo de entregas y no solo esta: la insignia «Falta receta» del
+  // listado depende de qué evidencias tenga.
   const refrescar = () =>
-    clienteQuery.invalidateQueries({
-      queryKey: [CLAVE_ENTREGAS, entregaId],
-    });
+    clienteQuery.invalidateQueries({ queryKey: [CLAVE_ENTREGAS] });
 
   const subida = useMutation({
     mutationFn: () =>

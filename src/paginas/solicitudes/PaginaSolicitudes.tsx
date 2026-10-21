@@ -24,6 +24,7 @@ import ModalSolicitud from "./ModalSolicitud";
 import ModalFichaSolicitud from "./ModalFichaSolicitud";
 import SeccionListaEspera from "./SeccionListaEspera";
 import estilos from "./Solicitudes.module.css";
+import { agruparPorTramite } from "./agruparPorTramite";
 import { etiquetaDe } from "../../lib/etiquetas";
 
 const VISTAS = [
@@ -106,6 +107,7 @@ function PaginaSolicitudes() {
         linea.persona_nombre_completo.toLowerCase().includes(textoNormalizado),
       )
     : listado.datos;
+  const grupos = useMemo(() => agruparPorTramite(filas), [filas]);
 
   // Devuelve la barra de direcciones al módulo si se entró por la ruta profunda.
   const limpiarRuta = () => {
@@ -134,8 +136,9 @@ function PaginaSolicitudes() {
           <h1>Solicitudes de apoyo</h1>
           <p className={estilos.nota}>
             Cada fila es un insumo pedido dentro de un trámite. Un mismo trámite
-            con varios insumos aparece en varias filas, porque cada uno avanza
-            según su propio stock.
+            con varios insumos aparece en varias filas seguidas, porque cada uno
+            avanza según su propio stock: se agrupan bajo su número de
+            solicitud.
           </p>
         </div>
         <Boton variante="primaria" onClick={() => setCreando(true)}>
@@ -267,9 +270,13 @@ function PaginaSolicitudes() {
                 </p>
               )}
 
-              <Tabla titulo="Líneas de solicitud en curso">
+              <Tabla
+                titulo="Líneas de solicitud en curso"
+                className={estilos.tablaAgrupada}
+              >
                 <thead>
                   <tr>
+                    <th>N.º</th>
                     <th>Fecha</th>
                     <th>Persona</th>
                     <th>Programa</th>
@@ -280,50 +287,83 @@ function PaginaSolicitudes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filas.map((linea) => (
-                    <tr key={linea.detalle_solicitud_id}>
-                      <CeldaCantidad>
-                        {formatearFecha(linea.fecha_solicitud)}
-                      </CeldaCantidad>
-                      <td className={estilos.persona}>
-                        {linea.persona_nombre_completo}
-                      </td>
-                      <td>{linea.programa_nombre}</td>
-                      <td>{linea.insumo_nombre}</td>
-                      <CeldaCantidad>
-                        {linea.cantidad_entregada.toLocaleString("es-GT")}
-                        {" / "}
-                        {linea.cantidad_requerida.toLocaleString("es-GT")}
-                      </CeldaCantidad>
-                      {/* El flex va en un div: puesto en el td lo sacaba del
-                          modelo de tabla y la insignia quedaba arriba. */}
-                      <td>
-                        <div className={estilos.celdaEstado}>
-                          <Insignia
-                            tono={tonoDeEstadoSolicitud(linea.estado_linea)}
-                          >
-                            {OPCIONES_ESTADO.find(
-                              (o) => o.valor === linea.estado_linea,
-                            )?.etiqueta ?? etiquetaDe(linea.estado_linea)}
-                          </Insignia>
-                          {linea.requiere_aprobacion && !linea.aprobada && (
-                            <Insignia tono="informativa">
-                              Requiere aprobación
+                  {filas.map((linea, indice) => {
+                    /* Una fila por insumo, agrupadas por trámite. El número,
+                       la fecha, la persona, el programa y la acción son del
+                       trámite: van una sola vez, en celdas que abarcan todas
+                       sus filas (rowSpan) y centradas en esa altura. El fondo
+                       alterna por solicitud y no por fila. El servidor ya las
+                       entrega seguidas (ordena por solicitud). Con rowSpan los
+                       lectores de pantalla asocian esas celdas a cada fila. */
+                    const tramite = grupos[indice];
+                    const deTramite = tramite.continua
+                      ? null
+                      : { rowSpan: tramite.filas };
+                    return (
+                      <tr
+                        key={linea.detalle_solicitud_id}
+                        className={[
+                          estilos.filaTramite,
+                          tramite.par ? estilos.tramitePar : "",
+                          tramite.continua
+                            ? estilos.continuacion
+                            : estilos.inicioTramite,
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                      >
+                        {deTramite && (
+                          <>
+                            <td {...deTramite} className={estilos.numeroTramite}>
+                              {linea.solicitud_id}
+                            </td>
+                            <CeldaCantidad {...deTramite}>
+                              {formatearFecha(linea.fecha_solicitud)}
+                            </CeldaCantidad>
+                            <td {...deTramite} className={estilos.persona}>
+                              {linea.persona_nombre_completo}
+                            </td>
+                            <td {...deTramite}>{linea.programa_nombre}</td>
+                          </>
+                        )}
+                        <td>{linea.insumo_nombre}</td>
+                        <CeldaCantidad>
+                          {linea.cantidad_entregada.toLocaleString("es-GT")}
+                          {" / "}
+                          {linea.cantidad_requerida.toLocaleString("es-GT")}
+                        </CeldaCantidad>
+                        {/* El flex va en un div: puesto en el td lo sacaba del
+                            modelo de tabla y la insignia quedaba arriba. */}
+                        <td>
+                          <div className={estilos.celdaEstado}>
+                            <Insignia
+                              tono={tonoDeEstadoSolicitud(linea.estado_linea)}
+                            >
+                              {OPCIONES_ESTADO.find(
+                                (o) => o.valor === linea.estado_linea,
+                              )?.etiqueta ?? etiquetaDe(linea.estado_linea)}
                             </Insignia>
-                          )}
-                        </div>
-                      </td>
-                      <CeldaAcciones>
-                        <Boton
-                          pequeno
-                          variante="secundaria"
-                          onClick={() => setFichaId(linea.solicitud_id)}
-                        >
-                          Ver solicitud
-                        </Boton>
-                      </CeldaAcciones>
-                    </tr>
-                  ))}
+                            {linea.requiere_aprobacion && !linea.aprobada && (
+                              <Insignia tono="informativa">
+                                Requiere aprobación
+                              </Insignia>
+                            )}
+                          </div>
+                        </td>
+                        {deTramite && (
+                          <CeldaAcciones {...deTramite}>
+                            <Boton
+                              pequeno
+                              variante="secundaria"
+                              onClick={() => setFichaId(linea.solicitud_id)}
+                            >
+                              Ver solicitud
+                            </Boton>
+                          </CeldaAcciones>
+                        )}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </Tabla>
 

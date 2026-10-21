@@ -260,6 +260,11 @@ function PaginaEntregas() {
                       ) : (
                         <Insignia tono="aprobada">Entregada</Insignia>
                       )}
+                      {entrega.falta_receta && (
+                        <span className={estilos.faltaReceta}>
+                          <Insignia tono="pendiente">Falta receta</Insignia>
+                        </span>
+                      )}
                     </td>
                     <CeldaAcciones>
                       <Boton

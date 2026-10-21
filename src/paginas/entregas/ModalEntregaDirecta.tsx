@@ -26,6 +26,12 @@ import { useAuth } from "../../auth/useAuth";
 import type { Persona, Programa, ElementoCatalogo } from "../../types/api";
 import BuscadorPersona from "../solicitudes/BuscadorPersona";
 import SeccionEvidencias from "./SeccionEvidencias";
+import SubidaArchivo from "../../componentes/ui/SubidaArchivo";
+import {
+  AVISO_RECETA_NO_SUBIDA,
+  AYUDA_RECETA,
+  useSubidaReceta,
+} from "./receta";
 import PreviaLotes from "./PreviaLotes";
 import estilos from "./Entregas.module.css";
 import { etiquetaDe } from "../../lib/etiquetas";
@@ -66,6 +72,10 @@ function ModalEntregaDirecta({
   const [cantidad, setCantidad] = useState("");
 
   const [borradorEvidencia, setBorradorEvidencia] = useState(false);
+  // Receta médica: se pide antes de registrar si algún insumo la exige.
+  const [archivoReceta, setArchivoReceta] = useState<File | null>(null);
+  const [recetaGuardada, setRecetaGuardada] = useState(false);
+  const { subirReceta, listo: recetaDisponible } = useSubidaReceta();
 
   const parentescos = useCatalogo<ElementoCatalogo>("tipos-parentesco");
   const programas = useCatalogo<Programa>("programas");
@@ -113,7 +123,10 @@ function ModalEntregaDirecta({
     setCantidad("");
   }
 
+  const necesitaReceta = renglones.some((r) => r.insumo.requiere_receta);
+
   const hayCambios =
+    archivoReceta !== null ||
     persona !== null ||
     renglones.length > 0 ||
     insumoId !== "" ||
@@ -150,6 +163,11 @@ function ModalEntregaDirecta({
         programa_id: Number(programaId),
       }),
     onSuccess: async (entrega) => {
+      if (necesitaReceta && archivoReceta) {
+        const guardada = await subirReceta(entrega.id, archivoReceta);
+        setRecetaGuardada(guardada);
+        if (!guardada) avisar(AVISO_RECETA_NO_SUBIDA, "advertencia");
+      }
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_ENTREGAS] });
       await clienteQuery.invalidateQueries({ queryKey: [CLAVE_INSUMOS] });
       setEntregaRegistrada(entrega.id);
@@ -164,7 +182,9 @@ function ModalEntregaDirecta({
     persona !== null &&
     programaId !== "" &&
     renglones.length > 0 &&
-    receptorValido;
+    receptorValido &&
+    // Sin receta no se registra una entrega con medicamentos
+    (!necesitaReceta || (archivoReceta !== null && recetaDisponible));
 
   // ── Paso 2: la entrega ya existe, faltan las fotos
   if (entregaRegistrada !== null) {
@@ -172,7 +192,13 @@ function ModalEntregaDirecta({
       <Modal
         abierto={abierto}
         onCerrar={cerrar}
-        titulo="Adjunte la receta y el formulario firmado"
+        titulo={
+          recetaGuardada
+            ? "Adjunte el formulario firmado"
+            : necesitaReceta
+              ? "Adjunte la receta y el formulario firmado"
+              : "Adjunte el formulario firmado"
+        }
         descripcion="La entrega ya quedó registrada. Esto es la constancia."
         tamano="amplio"
         pie={
@@ -378,6 +404,18 @@ function ModalEntregaDirecta({
               </Boton>
             </div>
           ))}
+        </div>
+      )}
+
+      {necesitaReceta && (
+        <div className={estilos.campoReceta}>
+          <SubidaArchivo
+            etiqueta="Receta médica"
+            obligatorio
+            ayuda={AYUDA_RECETA}
+            archivo={archivoReceta}
+            onCambiar={setArchivoReceta}
+          />
         </div>
       )}
 

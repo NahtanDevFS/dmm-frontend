@@ -356,3 +356,35 @@
   color: var(--color-primary-dark);
   font-weight: 700;
 }
+
+/* Listado agrupado por trámite (ver agruparPorTramite).
+   La tabla alterna el fondo por fila; aquí alterna por trámite, para que los
+   insumos de una misma solicitud compartan color. El selector repite la clase
+   para ganarle en especificidad a la regla de filas alternas de Tabla. */
+.tablaAgrupada tbody tr.filaTramite.filaTramite td {
+  background-color: var(--color-surface);
+}
+
+.tablaAgrupada tbody tr.filaTramite.tramitePar td {
+  background-color: var(--color-background);
+}
+
+/* Sin resaltado al pasar el mouse: las celdas del trámite (rowSpan) son de
+   su primera fila, y el resaltado cubriría el bloque desde una fila y solo a
+   medias desde la otra. Las reglas de arriba ya le ganan al hover de Tabla. */
+
+/* Entre trámites, una línea más marcada; dentro de un trámite, ninguna. */
+.tablaAgrupada tbody tr.inicioTramite:not(:first-child) td {
+  border-top: 1px solid var(--color-border);
+}
+
+.tablaAgrupada tbody tr.filaTramite td {
+  border-bottom: none;
+}
+
+
+.numeroTramite {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
